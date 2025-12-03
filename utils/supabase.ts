@@ -13,7 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // --- REPLACE THE VALUES INSIDE THE QUOTES BELOW ---
 
-const supabaseUrl = 'https://ogtpzrgnduojrzwiuloo.supabase.co'; // <--- PASTE YOUR CLIENT'S PROJECT URL HERE
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ndHB6cmduZHVvanJ6d2l1bG9vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTU3NjcsImV4cCI6MjA4MDMzMTc2N30.iKWRpWHKzcT441EQpFiEnyzYSEy0lBkga0RKNa8ZLaM'; // <--- PASTE YOUR CLIENT'S ANON KEY HERE
+const supabaseUrl = 'https://gekekeczrsjjxyjmxojl.supabase.co'; // <--- PASTE YOUR CLIENT'S PROJECT URL HERE
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdla2VrZWN6cnNqanh5am14b2psIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTQxMjQsImV4cCI6MjA4MDMzMDEyNH0.uyNfswZkeeuK5H30kd5PYsyLsgC7NhryEtQqSEhHbw8'; // <--- PASTE YOUR CLIENT'S ANON KEY HERE
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
