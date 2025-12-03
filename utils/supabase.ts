@@ -13,7 +13,7 @@ import { createClient } from '@supabase/supabase-js';
 
 // --- REPLACE THE VALUES INSIDE THE QUOTES BELOW ---
 
-const supabaseUrl = 'https://gekekeczrsjjxyjmxojl.supabase.co'; // <--- PASTE YOUR CLIENT'S PROJECT URL HERE
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdla2VrZWN6cnNqanh5am14b2psIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3NTQxMjQsImV4cCI6MjA4MDMzMDEyNH0.uyNfswZkeeuK5H30kd5PYsyLsgC7NhryEtQqSEhHbw8'; // <--- PASTE YOUR CLIENT'S ANON KEY HERE
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL; // <--- PASTE YOUR CLIENT'S PROJECT URL HERE
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY; // <--- PASTE YOUR CLIENT'S ANON KEY HERE
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
