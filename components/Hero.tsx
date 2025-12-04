@@ -14,7 +14,7 @@ const ShaderMaterial = 'shaderMaterial' as any;
 
 // Placeholder texture URL
 // const TEXTURE_URL = 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070&auto=format&fit=crop';
-const TEXTURE_URL = '/HeroSection.png';
+const TEXTURE_URL = '/HeroSectionV5.png';
 
 // OPTIMIZATION: Preload texture immediately to avoid pop-in
 useTexture.preload(TEXTURE_URL);
