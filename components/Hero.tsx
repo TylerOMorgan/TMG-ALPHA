@@ -12,39 +12,62 @@ const PlaneGeometry = 'planeGeometry' as any;
 const ShaderMaterial = 'shaderMaterial' as any;
 
 // --- CONFIGURATION ---
-const DESKTOP_TEXTURE_URL = '/HeroSectionV5.png'; // 16:9 Aspect Ratio
-const MOBILE_TEXTURE_URL = '/HeroSectionPhone.png'; // 9:16 Aspect Ratio (Vertical)
+const DESKTOP_TEXTURE_URL = '/HeroSectionV5.png';    // > 1024px
+const TABLET_TEXTURE_URL = '/HeroSectionTablet.jpg'; // 768px - 1024px
+const MOBILE_TEXTURE_URL = '/HeroSectionMobile.png'; // < 768px
 
-// OPTIMIZATION: Preload BOTH textures immediately so they are in GPU memory
+// OPTIMIZATION: Preload ALL textures to ensure instant switching
 useTexture.preload(DESKTOP_TEXTURE_URL);
+useTexture.preload(TABLET_TEXTURE_URL);
 useTexture.preload(MOBILE_TEXTURE_URL);
 
-// --- OPTIMIZED HOOK ---
-// Uses matchMedia instead of 'resize' listener for better battery life/performance
-const useIsMobile = () => {
-  const [isMobile, setIsMobile] = useState(false);
+// --- OPTIMIZED HOOK FOR 3 DEVICE TYPES ---
+// Returns: 'mobile' | 'tablet' | 'desktop'
+const useDeviceType = () => {
+  const [deviceType, setDeviceType] = useState<'mobile' | 'tablet' | 'desktop'>('desktop');
 
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 768px)');
-    
-    // Set initial value
-    setIsMobile(media.matches);
+    // Define media queries
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
+    const tabletQuery = window.matchMedia('(min-width: 768px) and (max-width: 1024px)');
 
-    // Only update state when we actually cross the breakpoint
-    const listener = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    media.addEventListener('change', listener);
-    return () => media.removeEventListener('change', listener);
+    const handleDeviceChange = () => {
+      if (mobileQuery.matches) {
+        setDeviceType('mobile');
+      } else if (tabletQuery.matches) {
+        setDeviceType('tablet');
+      } else {
+        setDeviceType('desktop');
+      }
+    };
+
+    // Initial check
+    handleDeviceChange();
+
+    // Listeners
+    mobileQuery.addEventListener('change', handleDeviceChange);
+    tabletQuery.addEventListener('change', handleDeviceChange);
+
+    return () => {
+      mobileQuery.removeEventListener('change', handleDeviceChange);
+      tabletQuery.removeEventListener('change', handleDeviceChange);
+    };
   }, []);
 
-  return isMobile;
+  return deviceType;
 };
 
 const SceneContent = () => {
   const { viewport, mouse } = useThree();
-  const isMobile = useIsMobile();
+  const deviceType = useDeviceType();
 
-  // Select texture based on device
-  const textureUrl = isMobile ? MOBILE_TEXTURE_URL : DESKTOP_TEXTURE_URL;
+  // 1. Determine Texture based on Device Type
+  const textureUrl = useMemo(() => {
+    if (deviceType === 'mobile') return MOBILE_TEXTURE_URL;
+    if (deviceType === 'tablet') return TABLET_TEXTURE_URL;
+    return DESKTOP_TEXTURE_URL;
+  }, [deviceType]);
+
   const texture = useTexture(textureUrl);
   
   const materialRef = useRef<THREE.ShaderMaterial>(null);
@@ -55,7 +78,6 @@ const SceneContent = () => {
       uTime: { value: 0 },
       uTexture: { value: null },
       uMouse: { value: new THREE.Vector2(0, 0) },
-      // Pass intensity as a uniform to control effect strength per device
       uIntensity: { value: 1.0 } 
     },
     vertexShader: `
@@ -69,7 +91,7 @@ const SceneContent = () => {
         vec3 pos = position;
         
         float dist = distance(uv, uMouse);
-        // Dampen the wave effect based on uIntensity (lower on mobile)
+        // Wave intensity controlled by uIntensity
         pos.z += sin(dist * 10.0 - uTime) * 0.1 * uIntensity * (1.0 - dist);
         
         gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
@@ -85,7 +107,7 @@ const SceneContent = () => {
         vec2 uv = vUv;
         
         float dist = distance(uv, uMouse);
-        // Dampen the RGB shift on mobile
+        // RGB Shift intensity controlled by uIntensity
         float shift = 0.02 * uIntensity * (1.0 - dist);
 
         float r = texture2D(uTexture, uv + vec2(shift, 0.0)).r;
@@ -99,23 +121,26 @@ const SceneContent = () => {
 
   useFrame((state) => {
     if (materialRef.current) {
-      // 1. Mouse Interaction
+      // 2. Mouse/Touch Interaction
       mouseTarget.current.set((mouse.x + 1) / 2, (mouse.y + 1) / 2);
       
-      // OPTIMIZATION: Slower lerp on mobile for smoother feel, faster on desktop
-      const lerpSpeed = isMobile ? 0.05 : 0.1;
+      // Slower lerp for touch devices (mobile/tablet) for smoother feel
+      const lerpSpeed = deviceType === 'desktop' ? 0.1 : 0.05;
       materialRef.current.uniforms.uMouse.value.lerp(mouseTarget.current, lerpSpeed);
       
-      // 2. Adjust Intensity based on device
-      // 0.3 on mobile (subtle), 1.0 on desktop (strong)
-      const targetIntensity = isMobile ? 0.3 : 1.0;
+      // 3. Dynamic Effect Intensity
+      // Desktop: 1.0 (Strong), Tablet: 0.6 (Medium), Mobile: 0.3 (Subtle)
+      let targetIntensity = 1.0;
+      if (deviceType === 'tablet') targetIntensity = 0.6;
+      if (deviceType === 'mobile') targetIntensity = 0.3;
+
       materialRef.current.uniforms.uIntensity.value = THREE.MathUtils.lerp(
         materialRef.current.uniforms.uIntensity.value,
         targetIntensity,
-        0.1
+        0.05
       );
 
-      // 3. Time
+      // 4. Time
       materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
     }
   });
@@ -154,16 +179,14 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    // "supports-[height:100dvh]" handles mobile browser address bars perfectly
     <div id="home" className="relative w-full h-[100vh] supports-[height:100dvh]:h-[100dvh] min-h-[500px] md:min-h-[600px] overflow-hidden bg-trillex-black">
       
       <div className="absolute inset-0 z-0 opacity-60">
         <Canvas 
-            dpr={[1, 2]} // Limits quality to 2x (retina) even on 3x screens to save battery
+            dpr={[1, 2]} 
             camera={{ position: [0, 0, 2] }}
-            performance={{ min: 0.5 }} // Dynamically degrades quality if FPS drops
+            performance={{ min: 0.5 }}
         >
-          {/* Suspense handles the momentary switch between Desktop/Mobile images */}
           <Suspense fallback={null}>
              <SceneContent />
           </Suspense>
@@ -172,7 +195,6 @@ const Hero: React.FC = () => {
 
       <div ref={textRef} className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none mix-blend-exclusion will-change-transform px-4 text-center">
         <div className="max-w-[90vw] 2xl:max-w-[1600px] flex flex-col items-center">
-            {/* Typography scales seamlessly from phone to large desktop */}
             <h1 className="text-[18.975vw] md:text-[15.18vw] xl:text-[13.915vw] 2xl:text-[228px] landscape:max-h-[550px]:text-[20vh] leading-none font-display font-bold text-white tracking-tighter animate-in fade-in duration-1000">
             TRILLEX
             </h1>
