@@ -1,11 +1,11 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, User, ChevronDown, Check, ArrowRight, Globe, MessageSquare, Music, Link, Users, Scale, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '../utils/supabase'; // Imported from utility file
+import { Mail, User, ChevronDown, Check, ArrowRight, Globe, MessageSquare, Music, Users, Scale, Loader2, AlertCircle } from 'lucide-react';
+import { supabase } from '../utils/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
+
 
 const ContactForm: React.FC = () => {
   const containerRef = useRef<HTMLElement>(null);
@@ -273,7 +273,6 @@ const ContactForm: React.FC = () => {
             </div>
 
             {/* Right Column: The Form */}
-            {/* Adjusted padding: p-6 on mobile, p-10 on desktop */}
             <div className="w-full bg-[#0A0A0A] border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
                 {/* Glow Effect */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-trillex-orange/5 rounded-full blur-[100px] pointer-events-none" />
@@ -509,21 +508,29 @@ const ContactForm: React.FC = () => {
                         </div>
                     )}
 
+
                     {/* 5. Demo Link */}
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Demo Link<span className="text-trillex-orange">*</span></label>
-                        <div className="relative group/input">
-                            <Link className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
-                            <input 
-                                required
-                                type="url" 
-                                placeholder="https://..." 
-                                value={demoForm.demoLink}
-                                onChange={(e) => setDemoForm({...demoForm, demoLink: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
-                            />
-                        </div>
-                    </div>
+                      <div className="flex flex-col gap-2">
+                          <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Demo Link (SoundCloud Private Link ONLY)<span className="text-trillex-orange">*</span></label>
+                          <div className="relative group/input">
+
+                              <img
+                                  src="./soundcloud.png"  // Make sure file is in public folder
+                                  alt="SoundCloud"
+                                  className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-6 object-contain opacity-50 group-focus-within/input:opacity-100 transition-opacity"
+                              />
+
+                              <input
+                                  required
+                                  type="url"
+                                  placeholder="https://..."
+                                  value={demoForm.demoLink}
+                                  onChange={(e) => setDemoForm({ ...demoForm, demoLink: e.target.value })}
+                                  // Ensure padding-left (pl-16) is big enough so text doesn't hit image
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-16 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
+                              />
+                          </div>
+                      </div>
 
                     {/* 6. Contact Email */}
                     <div className="flex flex-col gap-2">
