@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Mail, User, ChevronDown, Check, ArrowRight, Globe, MessageSquare, Music, Users, Scale, Loader2, AlertCircle } from 'lucide-react';
-import { supabase } from '../utils/supabase';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Webhook URLs
+const DEMO_WEBHOOK_URL = import.meta.env.VITE_DEMO_WEBHOOK_URL;
+const GENERAL_WEBHOOK_URL = import.meta.env.VITE_GENERAL_WEBHOOK_URL;
 
 
 const ContactForm: React.FC = () => {
@@ -88,7 +91,6 @@ const ContactForm: React.FC = () => {
     }
 
     if (contentRef.current) {
-        // Determine start position based on direction
         const startX = directionRef.current === 'ltr' ? -50 : 50;
 
         gsap.fromTo(contentRef.current,
@@ -137,14 +139,12 @@ const ContactForm: React.FC = () => {
   };
 
   const showToast = (title: string, subtitle: string, type: 'success' | 'error' = 'success') => {
-    // Clear existing timer if any
     if (toastTimerRef.current) {
         clearTimeout(toastTimerRef.current);
     }
     
     setToast({ show: true, title, subtitle, type });
     
-    // Set new timer safely
     toastTimerRef.current = setTimeout(() => {
         setToast(prev => ({ ...prev, show: false }));
     }, 3000);
@@ -155,6 +155,46 @@ const ContactForm: React.FC = () => {
     showToast('Email Copied', 'Ready to paste', 'success');
   };
 
+  // --- WEBHOOK LOGIC: General Inquiry ---
+  const sendGeneralToWebhook = async (formData: typeof generalForm) => {
+    const payload = {
+        ...formData,
+        submittedAt: new Date().toISOString(),
+        formType: 'General Inquiry',
+        source: 'Trillex Website'
+    };
+
+    const response = await fetch(GENERAL_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Webhook Error: ${response.statusText}`);
+    }
+  };
+
+  // --- WEBHOOK LOGIC: Demo Submission ---
+  const sendDemoToWebhook = async (formData: typeof demoForm) => {
+    const payload = {
+        ...formData,
+        submittedAt: new Date().toISOString(),
+        formType: 'Demo Submission',
+        source: 'Trillex Website'
+    };
+
+    const response = await fetch(DEMO_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+        throw new Error(`Webhook Error: ${response.statusText}`);
+    }
+  };
+
   const handleGeneralSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -162,24 +202,14 @@ const ContactForm: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-        const { error } = await supabase
-            .from('general_inquiries')
-            .insert([
-                {
-                    full_name: generalForm.name,
-                    email: generalForm.email,
-                    subject: generalForm.subject,
-                    message: generalForm.message,
-                },
-            ]);
-
-        if (error) throw error;
+        // Send directly to Webhook
+        await sendGeneralToWebhook(generalForm);
 
         showToast('Message Sent', 'We will get back to you shortly', 'success');
         setGeneralForm({ name: '', email: '', subject: '', message: '' });
 
     } catch (err: any) {
-        console.error('Supabase Error:', err);
+        console.error('Webhook Error:', err);
         showToast('Submission Failed', 'Please check your connection and try again.', 'error');
     } finally {
         setIsSubmitting(false);
@@ -193,23 +223,8 @@ const ContactForm: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-        const { error } = await supabase
-            .from('demo_submissions')
-            .insert([
-                {
-                    artist_name: demoForm.artistName,
-                    song_title: demoForm.songTitle,
-                    is_collab: demoForm.isCollab,
-                    collaborators: demoForm.collaborators,
-                    demo_link: demoForm.demoLink,
-                    contact_email: demoForm.contactEmail,
-                    has_profile: demoForm.hasProfile,
-                    profile_link: demoForm.profileLink,
-                    message: demoForm.message,
-                },
-            ]);
-
-        if (error) throw error;
+        // Send directly to Webhook
+        await sendDemoToWebhook(demoForm);
         
         showToast('Demo Submitted', 'Our A&R team is listening', 'success');
         setDemoForm({
@@ -224,7 +239,7 @@ const ContactForm: React.FC = () => {
             message: ''
         });
     } catch (err: any) {
-        console.error('Supabase Error:', err);
+        console.error('Webhook Error:', err);
         showToast('Submission Failed', 'Please check your connection and try again.', 'error');
     } finally {
         setIsSubmitting(false);
