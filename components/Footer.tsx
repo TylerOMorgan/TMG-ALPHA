@@ -67,7 +67,8 @@ const Footer: React.FC = () => {
             
             {/* 3. Discord */}
             <a 
-                href="https://discord.gg/trillex" 
+                href="https://discord.gg/trillex"
+                target='_blank'
                 className="flex items-center gap-1.5 lg:gap-2 text-white hover:text-trillex-orange transition-colors group whitespace-nowrap flex-shrink-0" 
                 data-hoverable="true"
             >
