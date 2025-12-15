@@ -173,7 +173,7 @@ const Services: React.FC = () => {
       <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none px-6">
         <div ref={textRef} className="text-center mix-blend-difference">
           <h2 className="text-trillex-orange text-xs md:text-sm lg:text-base font-mono tracking-[0.3em] md:tracking-[0.5em] mb-4 font-bold uppercase">
-             / What We Do
+            What We Do
           </h2>
           {/* Responsive Text Sizing - Adjusted mobile to 10vw for better fit */}
           <h3 className="text-[10vw] md:text-[5vw] xl:text-[80px] leading-[1.1] font-display font-bold text-white tracking-tighter drop-shadow-2xl">
