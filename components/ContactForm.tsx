@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, User, ChevronDown, Check, ArrowRight, Globe, MessageSquare, Music, Users, Scale, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, User, ChevronDown, Check, ArrowRight, Globe, MessageSquare, Music, Users, Scale, Loader2, AlertCircle, LucideIcon } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -9,7 +9,138 @@ gsap.registerPlugin(ScrollTrigger);
 const DEMO_WEBHOOK_URL = import.meta.env.VITE_DEMO_WEBHOOK_URL;
 const GENERAL_WEBHOOK_URL = import.meta.env.VITE_GENERAL_WEBHOOK_URL;
 
+// --- SPOTLIGHT DROPDOWN ITEM COMPONENT ---
+interface DropdownItemProps {
+  children: React.ReactNode;
+  onClick: () => void;
+  active: boolean;
+}
 
+const DropdownItem: React.FC<DropdownItemProps> = ({ children, onClick, active }) => {
+  const itemRef = useRef<HTMLLIElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [opacity, setOpacity] = useState(0);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!itemRef.current) return;
+    const rect = itemRef.current.getBoundingClientRect();
+    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    setOpacity(1);
+  };
+
+  const handleMouseLeave = () => {
+    setOpacity(0);
+  };
+
+  return (
+    <li
+      ref={itemRef}
+      onClick={onClick}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`relative px-4 py-3 cursor-pointer text-sm transition-colors flex items-center justify-between overflow-hidden
+        ${active ? 'bg-trillex-orange/10 text-trillex-orange' : 'text-white/70 hover:text-white hover:bg-white/5'}
+      `}
+    >
+      {/* The White Circle / Spotlight Effect */}
+      <div 
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+        style={{
+          opacity,
+          background: `radial-gradient(circle 400px at ${position.x}px ${position.y}px, rgba(255, 255, 255, 0.1), transparent 80%)`
+        }}
+      />
+      
+      {/* Content */}
+      <span className="relative z-10 font-medium tracking-wide">{children}</span>
+      {active && <Check size={16} className="relative z-10 text-trillex-orange" />}
+    </li>
+  );
+};
+
+// --- CUSTOM SELECT COMPONENT ---
+interface CustomSelectProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+  icon: LucideIcon;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}
+
+const CustomSelect: React.FC<CustomSelectProps> = ({ 
+  label, 
+  value, 
+  onChange, 
+  options, 
+  icon: Icon,
+  onMouseEnter,
+  onMouseLeave
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelect = (option: string) => {
+    onChange(option);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="flex flex-col gap-2 relative z-20" ref={containerRef}>
+      <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">
+        {label}<span className="text-trillex-orange">*</span>
+      </label>
+      
+      <div className="relative">
+        <Icon className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 transition-colors w-5 h-5 pointer-events-none z-10" />
+        
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          onMouseEnter={onMouseEnter}
+          onMouseLeave={onMouseLeave}
+          className={`w-full bg-white/5 border ${isOpen ? 'border-trillex-orange/50 ring-1 ring-trillex-orange/50' : 'border-white/10'} rounded-xl pl-12 pr-4 py-4 text-base text-left text-white outline-none transition-all duration-300 flex items-center justify-between group hover:bg-white/10`}
+        >
+          <span className={`${value === 'Select' ? 'text-white/50' : 'text-white'}`}>
+            {value}
+          </span>
+          <ChevronDown 
+            className={`text-white/30 transition-transform duration-300 w-5 h-5 ${isOpen ? 'rotate-180 text-trillex-orange' : ''}`} 
+          />
+        </button>
+
+        {isOpen && (
+          <div className="absolute top-full left-0 w-full mt-2 bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 duration-200">
+            <ul className="flex flex-col max-h-60 overflow-y-auto py-1">
+              {options.map((option) => (
+                <DropdownItem
+                    key={option}
+                    active={value === option}
+                    onClick={() => handleSelect(option)}
+                >
+                    {option}
+                </DropdownItem>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// --- MAIN CONTACT FORM COMPONENT ---
 const ContactForm: React.FC = () => {
   const containerRef = useRef<HTMLElement>(null);
   const formWrapperRef = useRef<HTMLDivElement>(null);
@@ -22,7 +153,6 @@ const ContactForm: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'general' | 'demo'>('general');
   
-  // Unified Toast State
   const [toast, setToast] = useState<{ show: boolean; title: string; subtitle: string; type: 'success' | 'error' }>({
     show: false,
     title: '',
@@ -30,10 +160,8 @@ const ContactForm: React.FC = () => {
     type: 'success'
   });
 
-  // Loading State
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // General Form State
   const [generalForm, setGeneralForm] = useState({
     name: '',
     email: '',
@@ -41,7 +169,6 @@ const ContactForm: React.FC = () => {
     message: ''
   });
   
-  // Demo Form State
   const [demoForm, setDemoForm] = useState({
     artistName: '',
     songTitle: '',
@@ -54,9 +181,11 @@ const ContactForm: React.FC = () => {
     message: ''
   });
 
+  const disableCursor = () => document.body.classList.add('no-custom-cursor');
+  const enableCursor = () => document.body.classList.remove('no-custom-cursor');
+
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Entrance Sequence
       if (formWrapperRef.current) {
         gsap.fromTo(formWrapperRef.current,
             { y: 40, opacity: 0 }, 
@@ -80,10 +209,10 @@ const ContactForm: React.FC = () => {
         if (toastTimerRef.current) {
             clearTimeout(toastTimerRef.current);
         }
+        enableCursor();
     };
   }, []);
 
-  // Handle Tab Switch Animation 'IN'
   useEffect(() => {
     if (isFirstRender.current) {
         isFirstRender.current = false;
@@ -113,9 +242,7 @@ const ContactForm: React.FC = () => {
     if (activeTab === tab || isAnimating.current) return;
     isAnimating.current = true;
 
-    // Determine direction and exit animation
     let exitX = 0;
-
     if (activeTab === 'general' && tab === 'demo') {
         directionRef.current = 'rtl';
         exitX = -50;
@@ -147,7 +274,7 @@ const ContactForm: React.FC = () => {
     
     toastTimerRef.current = setTimeout(() => {
         setToast(prev => ({ ...prev, show: false }));
-    }, 3000);
+    }, 4000); // Increased duration slightly for readability
   };
 
   const handleCopy = (text: string) => {
@@ -155,7 +282,6 @@ const ContactForm: React.FC = () => {
     showToast('Email Copied', 'Ready to paste', 'success');
   };
 
-  // --- WEBHOOK LOGIC: General Inquiry ---
   const sendGeneralToWebhook = async (formData: typeof generalForm) => {
     const payload = {
         ...formData,
@@ -175,7 +301,6 @@ const ContactForm: React.FC = () => {
     }
   };
 
-  // --- WEBHOOK LOGIC: Demo Submission ---
   const sendDemoToWebhook = async (formData: typeof demoForm) => {
     const payload = {
         ...formData,
@@ -202,9 +327,7 @@ const ContactForm: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-        // Send directly to Webhook
         await sendGeneralToWebhook(generalForm);
-
         showToast('Message Sent', 'We will get back to you shortly', 'success');
         setGeneralForm({ name: '', email: '', subject: '', message: '' });
 
@@ -218,14 +341,30 @@ const ContactForm: React.FC = () => {
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const link = demoForm.demoLink.trim();
+    const isValidLink = link.startsWith('https://soundcloud.com') || link.startsWith('https://on.soundcloud.com');
+
+    if (!isValidLink) {
+        showToast('Invalid Link', 'Must start with https://soundcloud.com', 'error');
+        return; 
+    }
+
+    if (demoForm.isCollab === 'Select') {
+        showToast('Missing Field', 'Is this a collaboration?', 'error');
+        return;
+    }
+    if (demoForm.hasProfile === 'Select') {
+        showToast('Missing Field', 'Do you have an artist profile?', 'error');
+        return;
+    }
+
     if (isSubmitting) return;
 
     setIsSubmitting(true);
 
     try {
-        // Send directly to Webhook
         await sendDemoToWebhook(demoForm);
-        
         showToast('Demo Submitted', 'Our A&R team is listening', 'success');
         setDemoForm({
             artistName: '',
@@ -246,12 +385,10 @@ const ContactForm: React.FC = () => {
     }
   };
 
-  // Form rendering helpers
+  // --- RENDERING FORMS ---
   const renderGeneralForm = () => (
     <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-            
-            {/* Left Column: Text Content */}
             <div className="flex flex-col pt-4">
                 <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mb-8 backdrop-blur-sm">
                     <span className="text-xs font-mono text-white/80 tracking-widest uppercase">Contact Us</span>
@@ -273,7 +410,6 @@ const ContactForm: React.FC = () => {
                     info@trillexmusicgroup.com
                 </button>
 
-                {/* Decorative element for large screens */}
                 <div className="hidden lg:block mt-20 p-6 bg-white/5 rounded-2xl border border-white/10 max-w-sm backdrop-blur-md">
                      <div className="flex items-center gap-4">
                          <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange">
@@ -287,35 +423,29 @@ const ContactForm: React.FC = () => {
                 </div>
             </div>
 
-            {/* Right Column: The Form */}
             <div className="w-full bg-[#0A0A0A] border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
-                {/* Glow Effect */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-trillex-orange/5 rounded-full blur-[100px] pointer-events-none" />
                 
                 <form onSubmit={handleGeneralSubmit} className="flex flex-col gap-5 md:gap-6 relative z-10">
-                    
-                    {/* Full Name */}
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Full Name</label>
                         <div className="relative group/input">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
                             <input 
                                 required
                                 type="text" 
                                 placeholder="Enter your full name..." 
                                 value={generalForm.name}
                                 onChange={(e) => setGeneralForm({...generalForm, name: e.target.value})}
-                                // Added 'text-base' for iOS to prevent zoom
                                 className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
                             />
                         </div>
                     </div>
 
-                    {/* Email Address */}
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Email Address</label>
                         <div className="relative group/input">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
                             <input 
                                 required
                                 type="email" 
@@ -327,11 +457,10 @@ const ContactForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Subject Field */}
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Subject</label>
                         <div className="relative group/input">
-                            <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
+                            <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
                             <input 
                                 required
                                 type="text" 
@@ -343,7 +472,6 @@ const ContactForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Message */}
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Message</label>
                         <div className="relative">
@@ -361,7 +489,6 @@ const ContactForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Submit Button */}
                     <button 
                         type="submit" 
                         disabled={isSubmitting}
@@ -387,8 +514,6 @@ const ContactForm: React.FC = () => {
   const renderDemoForm = () => (
     <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-            
-            {/* Left Column: Text Content */}
             <div className="flex flex-col pt-4">
                 <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mb-8 backdrop-blur-sm">
                     <span className="text-xs font-mono text-white/80 tracking-widest uppercase">Demo Drop</span>
@@ -403,9 +528,7 @@ const ContactForm: React.FC = () => {
                     Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours
                 </p>
 
-                {/* Decorative element - Updated with 2 boxes */}
                 <div className="hidden lg:flex flex-col gap-4 mt-10 max-w-sm">
-                     {/* Box 1: Contact */}
                      <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
@@ -425,7 +548,6 @@ const ContactForm: React.FC = () => {
                         </div>
                      </div>
 
-                     {/* Box 2: Legal */}
                      <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
@@ -447,18 +569,14 @@ const ContactForm: React.FC = () => {
                 </div>
             </div>
 
-            {/* Right Column: The Form */}
             <div className="w-full bg-[#0A0A0A] border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
-                {/* Glow Effect */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-trillex-orange/5 rounded-full blur-[100px] pointer-events-none" />
                 
                 <form onSubmit={handleDemoSubmit} className="flex flex-col gap-5 md:gap-6 relative z-10">
-                    
-                    {/* 1. Artist Name */}
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Artist Name<span className="text-trillex-orange">*</span></label>
                         <div className="relative group/input">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
                             <input 
                                 required
                                 type="text" 
@@ -470,11 +588,10 @@ const ContactForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* 2. Song Title */}
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Song Title<span className="text-trillex-orange">*</span></label>
                         <div className="relative group/input">
-                            <Music className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
+                            <Music className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
                             <input 
                                 required
                                 type="text" 
@@ -486,31 +603,21 @@ const ContactForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* 3. Is the Song a Collaboration? */}
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Is the Song a Collaboration?<span className="text-trillex-orange">*</span></label>
-                        <div className="relative group/input">
-                             <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
-                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none w-5 h-5" />
-                            <select 
-                                required
-                                value={demoForm.isCollab}
-                                onChange={(e) => setDemoForm({...demoForm, isCollab: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-10 py-4 text-base text-white focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300 appearance-none cursor-pointer"
-                            >
-                                <option value="Select" disabled className="bg-[#111] text-white/50">Select</option>
-                                <option value="Yes" className="bg-[#111]">Yes</option>
-                                <option value="No" className="bg-[#111]">No</option>
-                            </select>
-                        </div>
-                    </div>
+                    <CustomSelect 
+                        label="Is the Song a Collaboration?"
+                        value={demoForm.isCollab}
+                        onChange={(value) => setDemoForm({...demoForm, isCollab: value})}
+                        options={['Yes', 'No']}
+                        icon={Users}
+                        onMouseEnter={disableCursor}
+                        onMouseLeave={enableCursor}
+                    />
 
-                    {/* 4. Please List All Collaborators (Conditional) */}
                     {demoForm.isCollab === 'Yes' && (
                         <div className="flex flex-col gap-2 animate-in fade-in slide-in-from-top-2">
                             <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Please List All Collaborators<span className="text-trillex-orange">*</span></label>
                             <div className="relative group/input">
-                                <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
+                                <Users className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
                                 <input 
                                     required
                                     type="text" 
@@ -523,35 +630,34 @@ const ContactForm: React.FC = () => {
                         </div>
                     )}
 
-
-                    {/* 5. Demo Link */}
                       <div className="flex flex-col gap-2">
                           <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Demo Link (SoundCloud Private Link ONLY)<span className="text-trillex-orange">*</span></label>
                           <div className="relative group/input">
-
                               <img
-                                  src="./soundcloud.png"  // Make sure file is in public folder
+                                  src="./soundcloud.png"
                                   alt="SoundCloud"
-                                  className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-6 object-contain opacity-50 group-focus-within/input:opacity-100 transition-opacity"
+                                  className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-6 object-contain opacity-50 group-focus-within/input:opacity-100 transition-opacity pointer-events-none"
                               />
 
                               <input
                                   required
                                   type="url"
-                                  placeholder="https://..."
+                                  pattern="^https:\/\/(on\.)?soundcloud\.com.*"
+                                  title="URL must start with https://soundcloud.com or https://on.soundcloud.com"
+                                  placeholder="https://soundcloud.com/..."
                                   value={demoForm.demoLink}
                                   onChange={(e) => setDemoForm({ ...demoForm, demoLink: e.target.value })}
-                                  // Ensure padding-left (pl-16) is big enough so text doesn't hit image
-                                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-16 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
+                                  onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Please send a SoundCloud link.')}
+                                  onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-16 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300 [&:not(:placeholder-shown):invalid]:border-red-500/50 [&:not(:placeholder-shown):invalid]:focus:border-red-500"
                               />
                           </div>
                       </div>
 
-                    {/* 6. Contact Email */}
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Contact Email<span className="text-trillex-orange">*</span></label>
                         <div className="relative group/input">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
                             <input 
                                 required
                                 type="email" 
@@ -563,31 +669,21 @@ const ContactForm: React.FC = () => {
                         </div>
                     </div>
 
-                     {/* 7. Do You Have An Artist Profile? */}
-                     <div className="flex flex-col gap-2">
-                        <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Do You Have An Artist Profile?<span className="text-trillex-orange">*</span></label>
-                        <div className="relative group/input">
-                             <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
-                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none w-5 h-5" />
-                            <select 
-                                required
-                                value={demoForm.hasProfile}
-                                onChange={(e) => setDemoForm({...demoForm, hasProfile: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-10 py-4 text-base text-white focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300 appearance-none cursor-pointer"
-                            >
-                                <option value="Select" disabled className="bg-[#111] text-white/50">Select</option>
-                                <option value="Yes" className="bg-[#111]">Yes</option>
-                                <option value="No" className="bg-[#111]">No</option>
-                            </select>
-                        </div>
-                    </div>
+                     <CustomSelect 
+                        label="Do You Have An Artist Profile?"
+                        value={demoForm.hasProfile}
+                        onChange={(value) => setDemoForm({...demoForm, hasProfile: value})}
+                        options={['Yes', 'No']}
+                        icon={User}
+                        onMouseEnter={disableCursor}
+                        onMouseLeave={enableCursor}
+                    />
 
-                    {/* 8. Link to Artist Profile (Conditional) */}
                     {demoForm.hasProfile === 'Yes' && (
                         <div className="flex flex-col gap-2 animate-in fade-in slide-in-from-top-2">
                             <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Link to Artist Profile<span className="text-trillex-orange">*</span></label>
                             <div className="relative group/input">
-                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5" />
+                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
                                 <input 
                                     required
                                     type="url" 
@@ -600,7 +696,6 @@ const ContactForm: React.FC = () => {
                         </div>
                     )}
 
-                    {/* 9. Message */}
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Message</label>
                         <div className="relative">
@@ -613,7 +708,6 @@ const ContactForm: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* 10. Submit Button */}
                     <button 
                         type="submit" 
                         disabled={isSubmitting}
@@ -638,7 +732,7 @@ const ContactForm: React.FC = () => {
 
   return (
     <section id="contact-form" ref={containerRef} className="relative bg-trillex-black py-5 md:py-10 overflow-hidden flex flex-col items-center">
-        {/* Tab Buttons - Centered above forms */}
+        {/* Tab Buttons */}
         <div className="container mx-auto px-8 md:px-12 flex flex-col items-center text-center mb-16 relative z-10">
             <div className="flex gap-4 md:gap-8 bg-white/5 p-2 rounded-full backdrop-blur-sm border border-white/5">
                 <button 
@@ -657,22 +751,21 @@ const ContactForm: React.FC = () => {
         </div>
 
       {/* Forms Container */}
-      {/* Reduced padding on mobile (px-4) to allow forms more breathing room */}
       <div ref={formWrapperRef} className="container mx-auto px-4 md:px-12 relative z-10 opacity-0 pb-20">
          <div ref={contentRef}>
             {activeTab === 'general' ? renderGeneralForm() : renderDemoForm()}
          </div>
       </div>
 
-       {/* Toast Notification */}
+       {/* WIDENED Toast Notification */}
        <div className={`fixed top-32 left-1/2 -translate-x-1/2 z-[10000] pointer-events-none transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${toast.show ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'}`}>
-          <div className={`bg-black border ${toast.type === 'error' ? 'border-red-500/50' : 'border-white/20'} text-white px-6 py-4 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.8)] flex items-center gap-4`}>
-             <div className={`w-6 h-6 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-trillex-orange'} flex items-center justify-center text-black shadow-[0_0_10px_rgba(255,127,80,0.5)]`}>
-                 {toast.type === 'error' ? <AlertCircle size={14} strokeWidth={3} /> : <Check size={14} strokeWidth={3} />}
+          <div className={`bg-black border ${toast.type === 'error' ? 'border-red-500/50' : 'border-white/20'} text-white px-8 py-5 min-w-[350px] rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.8)] flex items-center gap-5`}>
+             <div className={`w-10 h-10 shrink-0 rounded-full ${toast.type === 'error' ? 'bg-red-500' : 'bg-trillex-orange'} flex items-center justify-center text-black shadow-[0_0_15px_rgba(255,127,80,0.6)]`}>
+                 {toast.type === 'error' ? <AlertCircle size={20} strokeWidth={2.5} /> : <Check size={20} strokeWidth={3} />}
              </div>
              <div className="flex flex-col">
-                <span className="font-display font-bold text-sm tracking-wide uppercase leading-none">{toast.title}</span>
-                <span className="font-mono text-[10px] text-white/40 uppercase tracking-widest leading-none mt-1">{toast.subtitle}</span>
+                <span className="font-display font-bold text-lg tracking-wide uppercase leading-tight">{toast.title}</span>
+                <span className="font-mono text-[11px] text-white/50 uppercase tracking-widest leading-tight mt-1">{toast.subtitle}</span>
              </div>
           </div>
        </div>
