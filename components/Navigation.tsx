@@ -22,8 +22,8 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 pointer-events-none">
-      {/* Gradient Shadow Background - Adjusted to 75% opacity as requested */}
-      <div className="absolute top-0 left-0 w-full h-32 md:h-48 bg-gradient-to-b from-black via-black/75 to-transparent z-0 pointer-events-none" />
+      {/* Gradient Shadow Background */}
+      <div className="absolute top-0 left-0 w-full h-32 md:h-48 bg-gradient-to-b from-black via-black/85 to-transparent z-0 pointer-events-none" />
 
       {/* Navigation Content */}
       <div className="relative w-full px-4 md:px-12 py-4 md:py-8 flex justify-between items-center mix-blend-difference z-10">
