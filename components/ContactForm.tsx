@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, User, ChevronDown, Check, ArrowRight, Globe, MessageSquare, Music, Users, Scale, Loader2, AlertCircle, LucideIcon } from 'lucide-react';
+import { Mail, User, ChevronDown, Check, ArrowRight, Globe, Instagram, MessageSquare, Music, Users, Loader2, AlertCircle, LucideIcon, Disc, ExternalLink } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -52,18 +52,22 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ children, onClick, active }
       />
       
       {/* Content */}
-      <span className="relative z-10 font-medium tracking-wide">{children}</span>
-      {active && <Check size={16} className="relative z-10 text-trillex-orange" />}
+      <div className="relative z-10 font-medium tracking-wide flex items-center gap-4">
+        {children}
+      </div>
+      {active && <Check size={16} className="relative z-10 text-trillex-orange shrink-0" />}
     </li>
   );
 };
 
 // --- CUSTOM SELECT COMPONENT ---
+type SelectOption = string | { label: string; value: string; image: string };
+
 interface CustomSelectProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  options: string[];
+  options: SelectOption[];
   icon: LucideIcon;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
@@ -91,9 +95,30 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelect = (option: string) => {
-    onChange(option);
+  const handleSelect = (optionValue: string) => {
+    onChange(optionValue);
     setIsOpen(false);
+  };
+
+  // Helper to get display data from the current value
+  const getSelectedDisplay = () => {
+    const selectedOption = options.find(opt => 
+      typeof opt === 'string' ? opt === value : opt.value === value
+    );
+
+    if (!selectedOption || value === 'Select') return null;
+
+    if (typeof selectedOption === 'string') {
+      return <span>{selectedOption}</span>;
+    }
+    
+    // --- MODIFIED: Increased image size for selected state ---
+    return (
+      <div className="flex items-center gap-4">
+        <img src={selectedOption.image} alt="" className="w-12 h-12 object-contain" />
+        <span className="text-lg font-medium">{selectedOption.label}</span>
+      </div>
+    );
   };
 
   return (
@@ -113,7 +138,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
           className={`w-full bg-white/5 border ${isOpen ? 'border-trillex-orange/50 ring-1 ring-trillex-orange/50' : 'border-white/10'} rounded-xl pl-12 pr-4 py-4 text-base text-left text-white outline-none transition-all duration-300 flex items-center justify-between group hover:bg-white/10`}
         >
           <span className={`${value === 'Select' ? 'text-white/50' : 'text-white'}`}>
-            {value}
+            {value === 'Select' ? 'Select' : getSelectedDisplay()}
           </span>
           <ChevronDown 
             className={`text-white/30 transition-transform duration-300 w-5 h-5 ${isOpen ? 'rotate-180 text-trillex-orange' : ''}`} 
@@ -122,16 +147,26 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
         {isOpen && (
           <div className="absolute top-full left-0 w-full mt-2 bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 duration-200">
-            <ul className="flex flex-col max-h-60 overflow-y-auto py-1">
-              {options.map((option) => (
-                <DropdownItem
-                    key={option}
-                    active={value === option}
-                    onClick={() => handleSelect(option)}
-                >
-                    {option}
-                </DropdownItem>
-              ))}
+            <ul className="flex flex-col max-h-80 overflow-y-auto py-1">
+              {options.map((option) => {
+                const optValue = typeof option === 'string' ? option : option.value;
+                const optLabel = typeof option === 'string' ? option : option.label;
+                const optImage = typeof option === 'string' ? null : option.image;
+
+                return (
+                  <DropdownItem
+                      key={optValue}
+                      active={value === optValue}
+                      onClick={() => handleSelect(optValue)}
+                  >
+                      {/* --- MODIFIED: Increased image size for dropdown list --- */}
+                      {optImage && (
+                        <img src={optImage} alt="" className="w-16 h-16 object-contain rounded-md" />
+                      )}
+                      <span className={optImage ? "text-lg font-medium" : ""}>{optLabel}</span>
+                  </DropdownItem>
+                );
+              })}
             </ul>
           </div>
         )}
@@ -170,6 +205,7 @@ const ContactForm: React.FC = () => {
   });
   
   const [demoForm, setDemoForm] = useState({
+    subLabel: 'Select',
     artistName: '',
     songTitle: '',
     isCollab: 'Select',
@@ -274,7 +310,7 @@ const ContactForm: React.FC = () => {
     
     toastTimerRef.current = setTimeout(() => {
         setToast(prev => ({ ...prev, show: false }));
-    }, 4000); // Increased duration slightly for readability
+    }, 4000); 
   };
 
   const handleCopy = (text: string) => {
@@ -350,6 +386,11 @@ const ContactForm: React.FC = () => {
         return; 
     }
 
+    if (demoForm.subLabel === 'Select') {
+        showToast('Missing Field', 'Please select a label', 'error');
+        return;
+    }
+
     if (demoForm.isCollab === 'Select') {
         showToast('Missing Field', 'Is this a collaboration?', 'error');
         return;
@@ -367,6 +408,7 @@ const ContactForm: React.FC = () => {
         await sendDemoToWebhook(demoForm);
         showToast('Demo Submitted', 'Our A&R team is listening', 'success');
         setDemoForm({
+            subLabel: 'Select',
             artistName: '',
             songTitle: '',
             isCollab: 'Select',
@@ -410,7 +452,7 @@ const ContactForm: React.FC = () => {
                     info@trillexmusicgroup.com
                 </button>
 
-                <div className="hidden lg:block mt-20 p-6 bg-white/5 rounded-2xl border border-white/10 max-w-sm backdrop-blur-md">
+                <div className="flex mt-12 lg:mt-20 p-6 bg-white/5 rounded-2xl border border-white/10 w-full max-w-sm backdrop-blur-md">
                      <div className="flex items-center gap-4">
                          <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange">
                              <Globe size={24} />
@@ -528,14 +570,14 @@ const ContactForm: React.FC = () => {
                     Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours
                 </p>
 
-                <div className="hidden lg:flex flex-col gap-4 mt-10 max-w-sm">
+                <div className="flex flex-col gap-4 mt-8 lg:mt-10 w-full max-w-sm">
                      <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
                                 <Mail size={24} />
                             </div>
                             <div>
-                                <h4 className="text-white font-bold">Contact here</h4>
+                                <h4 className="text-white font-bold text-lg">Contact here</h4>
                                 <button 
                                     type="button"
                                     onClick={() => handleCopy("info@trillexmusicgroup.com")}
@@ -548,22 +590,38 @@ const ContactForm: React.FC = () => {
                         </div>
                      </div>
 
+                     {/* INSTAGRAM CONNECT SECTION */}
                      <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
-                                <Scale size={24} />
+                        <div className="flex items-center gap-4 mb-5">
+                            <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(255,127,80,0.2)]">
+                                <Instagram size={24} />
                             </div>
-                            <div>
-                                <h4 className="text-white font-bold">Legal Query</h4>
-                                <button 
-                                    type="button"
-                                    onClick={() => handleCopy("legal@trillexmusicgroup.com")}
-                                    className="text-white/40 text-sm hover:text-trillex-orange transition-colors text-left"
-                                    data-hoverable="true"
+                            <h4 className="text-white font-bold text-lg">Connect on Instagram</h4>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            {[
+                                { handle: '@trillexmusicgroup', url: 'https://www.instagram.com/trillexmusicgroup' },
+                                { handle: '@trillexbounce', url: 'https://www.instagram.com/trillexbounce' },
+                                { handle: '@trillexavant', url: 'https://www.instagram.com/trillexavant' }
+                            ].map((item, index) => (
+                                <a
+                                    key={index}
+                                    href={item.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="group/item flex items-center justify-between w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 hover:border-trillex-orange/50 hover:bg-trillex-orange/10 transition-all duration-300"
                                 >
-                                    legal@trillexmusicgroup.com
-                                </button>
-                            </div>
+                                    <span className="text-sm text-white/60 font-mono group-hover/item:text-white transition-colors">
+                                        {item.handle}
+                                    </span>
+                                    
+                                    <ExternalLink
+                                        size={14} 
+                                        className="text-white/20 group-hover/item:text-trillex-orange group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all duration-300" 
+                                    />
+                                </a>
+                            ))}
                         </div>
                      </div>
                 </div>
@@ -573,6 +631,21 @@ const ContactForm: React.FC = () => {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-trillex-orange/5 rounded-full blur-[100px] pointer-events-none" />
                 
                 <form onSubmit={handleDemoSubmit} className="flex flex-col gap-5 md:gap-6 relative z-10">
+                    
+                    {/* TRILLEX SUB-LABEL SELECTION */}
+                    <CustomSelect 
+                        label="Trillex Sub-Label"
+                        value={demoForm.subLabel}
+                        onChange={(value) => setDemoForm({...demoForm, subLabel: value})}
+                        options={[
+                            { label: 'Trillex Avant', value: 'Trillex Avant', image: './Avant.png' },
+                            { label: 'Trillex Bounce', value: 'Trillex Bounce', image: './Bounce.png' }
+                        ]}
+                        icon={Disc}
+                        onMouseEnter={disableCursor}
+                        onMouseLeave={enableCursor}
+                    />
+
                     <div className="flex flex-col gap-2">
                         <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Artist Name<span className="text-trillex-orange">*</span></label>
                         <div className="relative group/input">
