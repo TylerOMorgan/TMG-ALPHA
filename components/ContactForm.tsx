@@ -258,6 +258,18 @@ const ContactForm: React.FC = () => {
   const disableCursor = () => document.body.classList.add('no-custom-cursor');
   const enableCursor = () => document.body.classList.remove('no-custom-cursor');
 
+  // Support pre-selecting sub-label from external links/cards
+  useEffect(() => {
+    const handleSetSubLabel = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.subLabel) {
+        setDemoForm(prev => ({ ...prev, subLabel: customEvent.detail.subLabel }));
+      }
+    };
+    window.addEventListener('trillex-set-sublabel', handleSetSubLabel);
+    return () => window.removeEventListener('trillex-set-sublabel', handleSetSubLabel);
+  }, []);
+
   useEffect(() => {
     const ctx = gsap.context(() => {
       if (formWrapperRef.current) {
