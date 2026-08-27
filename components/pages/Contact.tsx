@@ -5,10 +5,6 @@ import ContactForm from '../ContactForm';
 import EmailTicker from '../EmailTicker';
 
 const Contact: React.FC = () => {
-  // Set page title
-    useEffect(() => {
-      document.title = 'CONTACT — TRILLEX';
-    }, []);
 
   return (
     <div className="bg-trillex-black min-h-screen pt-28">

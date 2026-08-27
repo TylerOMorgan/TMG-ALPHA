@@ -11,13 +11,20 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, page: string) => {
     e.preventDefault();
+    if (page === 'home') {
+      window.history.pushState(null, '', window.location.pathname);
+    } else if (page === 'contact') {
+      window.history.pushState(null, '', '#general-inquiry');
+    } else {
+      window.history.pushState(null, '', `#${page}`);
+    }
     onNavigate(page);
   };
 
   const navLinks = [
-    { name: 'HOME', id: 'home' },
-    { name: 'ABOUT', id: 'about' },
-    { name: 'CONTACT', id: 'contact' },
+    { name: 'HOME', id: 'home', href: '#' },
+    { name: 'ABOUT', id: 'about', href: '#about' },
+    { name: 'CONTACT', id: 'contact', href: '#general-inquiry' },
   ];
 
   return (

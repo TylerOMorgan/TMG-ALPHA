@@ -11,9 +11,21 @@ import Contact from './components/pages/Contact';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const getPageFromHash = (): string => {
+  if (typeof window === 'undefined') return 'home';
+  const hash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
+  if (['demo-submission', 'demo-submissions', 'demo', 'demos', 'general-inquiry', 'general-enquiry', 'inquiry', 'enquiry', 'general', 'contact', 'contact-form', 'email-ticker'].includes(hash)) {
+    return 'contact';
+  }
+  if (hash === 'about') {
+    return 'about';
+  }
+  return 'home';
+};
+
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
-  const [activePage, setActivePage] = useState('home');
+  const [activePage, setActivePage] = useState<string>(getPageFromHash);
   const [scrollToSection, setScrollToSection] = useState<string | null>(null);
   
   // Track if it's the first load
@@ -23,11 +35,37 @@ const App: React.FC = () => {
   const counterRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
 
+  // Hash & Popstate Navigation Listener
+  useEffect(() => {
+    const handleHashChange = () => {
+      const page = getPageFromHash();
+      setActivePage(page);
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
+  }, []);
+
   // Global Navigation Listener
   useEffect(() => {
     const handleNav = (e: Event) => {
         const customEvent = e as CustomEvent;
-        if (customEvent.detail.page) setActivePage(customEvent.detail.page);
+        if (customEvent.detail.page) {
+          setActivePage(customEvent.detail.page);
+          if (customEvent.detail.page === 'home') {
+            window.history.pushState(null, '', window.location.pathname);
+          } else if (customEvent.detail.page === 'about') {
+            window.history.pushState(null, '', '#about');
+          } else if (customEvent.detail.page === 'contact') {
+            if (!window.location.hash.includes('demo')) {
+              window.history.pushState(null, '', '#general-inquiry');
+            }
+          }
+        }
         if (customEvent.detail.section) setScrollToSection(customEvent.detail.section);
     };
     window.addEventListener('trillex-navigate', handleNav);

@@ -175,6 +175,16 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   );
 };
 
+// Helper to get initial tab from URL hash
+const getInitialTab = (): 'general' | 'demo' => {
+  if (typeof window === 'undefined') return 'general';
+  const hash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
+  if (['demo-submission', 'demo-submissions', 'demo', 'demos'].includes(hash)) {
+    return 'demo';
+  }
+  return 'general';
+};
+
 // --- MAIN CONTACT FORM COMPONENT ---
 const ContactForm: React.FC = () => {
   const containerRef = useRef<HTMLElement>(null);
@@ -186,7 +196,7 @@ const ContactForm: React.FC = () => {
   const isAnimating = useRef(false);
   const directionRef = useRef<'ltr' | 'rtl'>('ltr');
 
-  const [activeTab, setActiveTab] = useState<'general' | 'demo'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'demo'>(getInitialTab);
   
   const [toast, setToast] = useState<{ show: boolean; title: string; subtitle: string; type: 'success' | 'error' }>({
     show: false,
@@ -196,6 +206,34 @@ const ContactForm: React.FC = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Sync tab on hashchange & browser back/forward
+  useEffect(() => {
+    const handleHashSync = () => {
+      const hash = window.location.hash.toLowerCase().replace(/^#\/?/, '');
+      if (['demo-submission', 'demo-submissions', 'demo', 'demos'].includes(hash)) {
+        if (activeTab !== 'demo') {
+          handleTabChange('demo', false);
+        }
+      } else if (['general-inquiry', 'general-enquiry', 'inquiry', 'enquiry', 'general'].includes(hash)) {
+        if (activeTab !== 'general') {
+          handleTabChange('general', false);
+        }
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashSync);
+    window.addEventListener('popstate', handleHashSync);
+    return () => {
+      window.removeEventListener('hashchange', handleHashSync);
+      window.removeEventListener('popstate', handleHashSync);
+    };
+  }, [activeTab]);
+
+  // Update page title when tab changes
+  useEffect(() => {
+    document.title = activeTab === 'demo' ? 'DEMO SUBMISSION — TRILLEX' : 'GENERAL INQUIRY — TRILLEX';
+  }, [activeTab]);
 
   const [generalForm, setGeneralForm] = useState({
     name: '',
@@ -274,8 +312,16 @@ const ContactForm: React.FC = () => {
     }
   }, [activeTab]);
 
-  const handleTabChange = (tab: 'general' | 'demo') => {
+  const handleTabChange = (tab: 'general' | 'demo', updateUrl = true) => {
     if (activeTab === tab || isAnimating.current) return;
+
+    if (updateUrl) {
+      const targetHash = tab === 'demo' ? '#demo-submission' : '#general-inquiry';
+      if (window.location.hash !== targetHash) {
+        window.history.pushState(null, '', targetHash);
+      }
+    }
+
     isAnimating.current = true;
 
     let exitX = 0;
