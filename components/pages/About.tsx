@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import Manifesto from '../Manifesto';
-import LabelFlowDiagram from '../LabelFlowDiagram';
 import Services from '../Services';
 import FounderWord from '../FounderWord';
 import Footer from '../Footer';
@@ -16,9 +15,7 @@ const About: React.FC = () => {
     <div className="bg-trillex-black min-h-screen pt-28">
       <Manifesto />
 
-      {/* Diagram explaining how the label works: main label -> sub-labels -> listeners */}
-      <LabelFlowDiagram />
-
+      {/* Diagram explaining how the label works is saved in components/LabelFlowDiagram.tsx */}
       <Services />
 
       {/* Spacer between Services and FounderWord */}

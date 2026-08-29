@@ -667,8 +667,8 @@ const ContactForm: React.FC = () => {
                     <span className="text-trillex-orange">Sound.</span>
                 </h2>
                 
-                <p className="text-lg md:text-xl text-white/60 font-light mb-6 max-w-lg lg:max-w-none">
-                    Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours
+                <p className="hidden lg:block text-lg md:text-xl text-white/60 font-light mb-6 max-w-lg lg:max-w-none">
+                    Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours.
                 </p>
 
                 {/* DESKTOP ONLY: Contact and Instagram bubbles in left sidebar */}
@@ -902,9 +902,14 @@ const ContactForm: React.FC = () => {
                 </form>
             </div>
 
-            {/* MOBILE ONLY: Contact Here & Instagram bubbles under the form */}
-            <div className="flex lg:hidden flex-col gap-4 w-full mt-4">
-                 <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
+            {/* MOBILE ONLY: Notice + Contact Here & Instagram bubbles under the form */}
+            <div className="flex lg:hidden flex-col items-center text-center gap-6 w-full mt-6">
+                 <p className="text-base sm:text-lg text-white/60 font-light max-w-md px-2">
+                     Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours.
+                 </p>
+
+                 <div className="flex flex-col gap-4 w-full text-left">
+                     <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
                             <Mail size={24} />
@@ -955,9 +960,10 @@ const ContactForm: React.FC = () => {
                                 />
                             </a>
                         ))}
-                    </div>
+                     </div>
                  </div>
             </div>
+        </div>
         </div>
     </div>
   );
