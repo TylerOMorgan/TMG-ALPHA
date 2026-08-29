@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { 
   ArrowDown, Radio, Headphones, Sparkles, Disc3, Globe2, Music, 
-  Layers, Cpu, Share2, Play, ExternalLink, Zap, ShieldCheck, ArrowRight, Send
+  Layers, Cpu, Share2, Play, ExternalLink, Zap, ShieldCheck, ArrowRight, Send, Activity, Disc
 } from 'lucide-react';
 
 const SpotifyIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
@@ -11,7 +11,8 @@ const SpotifyIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
 );
 
 const LabelFlowDiagram: React.FC = () => {
-  
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+
   const handleDirectDemoSubmission = (subLabelName: 'Trillex Avant' | 'Trillex Bounce' | 'Select') => {
     try {
       sessionStorage.setItem('trillex_selected_sublabel', subLabelName);
@@ -35,30 +36,58 @@ const LabelFlowDiagram: React.FC = () => {
   return (
     <section className="relative w-full py-16 md:py-24 bg-trillex-black overflow-hidden select-none">
       
-      {/* Precision Audio Wave Animation (strictly contained) */}
+      {/* Precision Animations & Audio Waves */}
       <style>{`
-        @keyframes containedWave1 {
-          0%, 100% { height: 3px; }
-          50% { height: 10px; }
+        @keyframes floatCard1 {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
         }
-        @keyframes containedWave2 {
-          0%, 100% { height: 8px; }
-          50% { height: 3px; }
+        @keyframes floatCard2 {
+          0%, 100% { transform: translateY(-3px); }
+          50% { transform: translateY(3px); }
         }
-        @keyframes containedWave3 {
-          0%, 100% { height: 4px; }
-          50% { height: 11px; }
-        }
-        @keyframes containedWave4 {
-          0%, 100% { height: 9px; }
-          50% { height: 4px; }
+        @keyframes floatCard3 {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-4px); }
         }
 
-        .bar-anim-1 { animation: containedWave1 0.9s ease-in-out infinite; }
-        .bar-anim-2 { animation: containedWave2 1.1s ease-in-out infinite 0.15s; }
-        .bar-anim-3 { animation: containedWave3 0.7s ease-in-out infinite 0.3s; }
-        .bar-anim-4 { animation: containedWave4 1.0s ease-in-out infinite 0.2s; }
+        .anim-float-1 { animation: floatCard1 4.5s ease-in-out infinite; }
+        .anim-float-2 { animation: floatCard2 5.2s ease-in-out infinite 0.6s; }
+        .anim-float-3 { animation: floatCard3 4.8s ease-in-out infinite 1.2s; }
+
+        @keyframes dataFlowForward {
+          0% { stroke-dashoffset: 48; }
+          100% { stroke-dashoffset: 0; }
+        }
+
+        .data-pipe-anim {
+          stroke-dasharray: 6, 10;
+          animation: dataFlowForward 1.8s linear infinite;
+        }
+
+        @keyframes barPulse1 { 0%, 100% { height: 2px; } 50% { height: 11px; } }
+        @keyframes barPulse2 { 0%, 100% { height: 9px; } 50% { height: 3px; } }
+        @keyframes barPulse3 { 0%, 100% { height: 4px; } 50% { height: 12px; } }
+        @keyframes barPulse4 { 0%, 100% { height: 10px; } 50% { height: 5px; } }
+        @keyframes barPulse5 { 0%, 100% { height: 3px; } 50% { height: 9px; } }
+
+        .eq-1 { animation: barPulse1 0.75s ease-in-out infinite; }
+        .eq-2 { animation: barPulse2 1.05s ease-in-out infinite 0.15s; }
+        .eq-3 { animation: barPulse3 0.65s ease-in-out infinite 0.3s; }
+        .eq-4 { animation: barPulse4 0.95s ease-in-out infinite 0.2s; }
+        .eq-5 { animation: barPulse5 0.85s ease-in-out infinite 0.4s; }
+
+        @keyframes shimmerLine {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .shimmer-effect {
+          animation: shimmerLine 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
       `}</style>
+
+      {/* Subtle Background Radial Depth */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-white/[0.015] rounded-full blur-[120px] pointer-events-none" />
 
       <div className="container mx-auto px-6 max-w-6xl relative z-10">
         
@@ -82,34 +111,45 @@ const LabelFlowDiagram: React.FC = () => {
         </div>
 
         {/* ======================================================== */}
-        {/* DIAGRAM CONTAINER                                         */}
+        {/* DIAGRAM CONTAINER WITH DYNAMIC FLOW PIPELINES            */}
         {/* ======================================================== */}
         <div className="flex flex-col items-center relative">
 
           {/* ======================================================== */}
           {/* LEVEL 1: MAIN LABEL CORE NODE                             */}
           {/* ======================================================== */}
-          <div className="w-full max-w-2xl bg-[#0A0A0A] border border-white/10 hover:border-white/20 rounded-2xl p-6 sm:p-8 transition-colors duration-300">
+          <div 
+            onMouseEnter={() => setHoveredCard('parent')}
+            onMouseLeave={() => setHoveredCard(null)}
+            className="w-full max-w-2xl bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-6 sm:p-8 transition-all duration-300 relative overflow-hidden shadow-2xl group"
+          >
+            {/* Ambient Top Highlight */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
             
             {/* Top Meta Bar */}
             <div className="flex items-center justify-between pb-5 border-b border-white/5 gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
                   <img src="/trillex-logo.png" alt="Trillex Music Group" className="w-full h-full object-contain" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono text-trillex-orange tracking-widest uppercase font-semibold block">
-                    PARENT COMPANY • BANGKOK HQ
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono text-trillex-orange tracking-widest uppercase font-semibold block">
+                      PARENT COMPANY • BANGKOK HQ
+                    </span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  </div>
                   <h3 className="text-lg sm:text-xl font-bold font-sans text-white tracking-wide">
                     TRILLEX MUSIC GROUP
                   </h3>
                 </div>
               </div>
 
-              <span className="text-[10px] font-mono text-white/40 bg-white/5 border border-white/10 px-3 py-1 rounded-full whitespace-nowrap">
-                BKK • 2024
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-white/40 bg-white/5 border border-white/10 px-3 py-1 rounded-full whitespace-nowrap">
+                  BKK • 2024
+                </span>
+              </div>
             </div>
 
             {/* Description */}
@@ -119,19 +159,19 @@ const LabelFlowDiagram: React.FC = () => {
 
             {/* Capability Pills */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[11px] text-white/70">
-              <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 flex items-center gap-2">
+              <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/15 transition-colors flex items-center gap-2">
                 <Zap className="w-3.5 h-3.5 text-trillex-orange flex-shrink-0" />
                 <span>Global Sync</span>
               </div>
-              <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 flex items-center gap-2">
+              <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/15 transition-colors flex items-center gap-2">
                 <Layers className="w-3.5 h-3.5 text-white/60 flex-shrink-0" />
                 <span>A&R Pipeline</span>
               </div>
-              <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 flex items-center gap-2">
+              <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/15 transition-colors flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-white/60 flex-shrink-0" />
                 <span>Master Rights</span>
               </div>
-              <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 flex items-center gap-2">
+              <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/15 transition-colors flex items-center gap-2">
                 <Cpu className="w-3.5 h-3.5 text-trillex-orange flex-shrink-0" />
                 <span>Direct Ingest</span>
               </div>
@@ -140,28 +180,48 @@ const LabelFlowDiagram: React.FC = () => {
           </div>
 
           {/* ======================================================== */}
-          {/* CONNECTOR 1: Clean Minimal SVG Branches (Desktop)        */}
+          {/* CONNECTOR 1: Dynamic Branching Data Conduits (Desktop)   */}
           {/* ======================================================== */}
-          <div className="w-full max-w-4xl h-16 md:h-20 relative hidden md:block">
-            <svg className="w-full h-full" viewBox="0 0 800 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 400 0 C 400 40, 140 40, 140 80" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
-              <path d="M 400 0 L 400 80" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none" />
-              <path d="M 400 0 C 400 40, 660 40, 660 80" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
+          <div className="w-full max-w-4xl h-20 md:h-24 relative hidden md:block my-1">
+            <svg className="w-full h-full" viewBox="0 0 800 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              
+              {/* Static Path Guides */}
+              <path id="branch-left-1" d="M 400 0 C 400 50, 140 50, 140 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
+              <path id="branch-mid-1" d="M 400 0 L 400 100" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" fill="none" />
+              <path id="branch-right-1" d="M 400 0 C 400 50, 660 50, 660 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
 
-              <circle cx="400" cy="4" r="3" fill="#FF7F50" />
-              <circle cx="140" cy="76" r="3" fill="#EAEAEA" />
-              <circle cx="400" cy="76" r="3" fill="#EAEAEA" />
-              <circle cx="660" cy="76" r="3" fill="#EAEAEA" />
+              {/* Dynamic Animated Data Stream Lines */}
+              <path d="M 400 0 C 400 50, 140 50, 140 100" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
+              <path d="M 400 0 L 400 100" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
+              <path d="M 400 0 C 400 50, 660 50, 660 100" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
+
+              {/* Hardware-Accelerated Traveling Energy Photons */}
+              <circle r="3" fill="#FFFFFF">
+                <animateMotion dur="2.4s" repeatCount="indefinite" path="M 400 0 C 400 50, 140 50, 140 100" />
+              </circle>
+              <circle r="3.5" fill="#FF7F50">
+                <animateMotion dur="1.8s" repeatCount="indefinite" path="M 400 0 L 400 100" />
+              </circle>
+              <circle r="3" fill="#FFFFFF">
+                <animateMotion dur="2.4s" repeatCount="indefinite" path="M 400 0 C 400 50, 660 50, 660 100" />
+              </circle>
+
+              {/* Anchors */}
+              <circle cx="400" cy="4" r="3.5" fill="#FF7F50" />
+              <circle cx="140" cy="96" r="3" fill="#EAEAEA" />
+              <circle cx="400" cy="96" r="3" fill="#EAEAEA" />
+              <circle cx="660" cy="96" r="3" fill="#EAEAEA" />
             </svg>
             
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-trillex-black border border-white/10 px-3 py-0.5 rounded-full text-[9px] font-mono text-white/40 uppercase tracking-widest">
-              CURATED IMPRINT DISTRIBUTION
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-trillex-black border border-white/10 px-3 py-1 rounded-full text-[9px] font-mono text-white/50 uppercase tracking-widest backdrop-blur-md shadow-lg flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-trillex-orange animate-pulse" />
+              <span>CURATED IMPRINT DISTRIBUTION</span>
             </div>
           </div>
 
           {/* Mobile Connector */}
           <div className="flex md:hidden flex-col items-center my-3">
-            <div className="w-px h-8 bg-white/20" />
+            <div className="w-px h-8 bg-gradient-to-b from-trillex-orange to-white/40" />
             <span className="text-[9px] font-mono uppercase tracking-widest text-white/40 my-1">
               CURATED IMPRINTS
             </span>
@@ -173,21 +233,26 @@ const LabelFlowDiagram: React.FC = () => {
           <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 relative">
 
             {/* --- 1. TRILLEX AVANT --- */}
-            <div className="bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-colors duration-300 group">
+            <div 
+              onMouseEnter={() => setHoveredCard('avant')}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="anim-float-1 bg-[#0A0A0A] border border-white/10 hover:border-white/30 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 group shadow-xl hover:-translate-y-1"
+            >
               <div>
                 
                 {/* Header: Logo, SubLabel Tag & Audio Indicator */}
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0">
+                  <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                     <img src="/Avant.png" alt="Trillex Avant" className="w-full h-full object-contain" />
                   </div>
 
-                  {/* Clean contained audio indicator */}
-                  <div className="flex items-end gap-1 h-4 w-11 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-1" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-2" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-3" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-4" />
+                  {/* Clean strictly contained audio indicator */}
+                  <div className="flex items-end gap-1 h-4 w-12 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
+                    <span className="w-1 bg-white/80 rounded-full eq-1" />
+                    <span className="w-1 bg-white/80 rounded-full eq-2" />
+                    <span className="w-1 bg-white/80 rounded-full eq-3" />
+                    <span className="w-1 bg-white/80 rounded-full eq-4" />
+                    <span className="w-1 bg-white/80 rounded-full eq-5" />
                   </div>
                 </div>
 
@@ -209,7 +274,7 @@ const LabelFlowDiagram: React.FC = () => {
                   className="inline-flex items-center gap-1 text-xs font-mono text-white/40 hover:text-white transition-colors mt-0.5 mb-3"
                 >
                   <span>@trillexavant</span>
-                  <ExternalLink className="w-3 h-3 opacity-40" />
+                  <ExternalLink className="w-3 h-3 opacity-40 group-hover:opacity-100" />
                 </a>
 
                 <p className="text-white/60 text-xs font-mono leading-relaxed mb-5">
@@ -228,7 +293,7 @@ const LabelFlowDiagram: React.FC = () => {
                   type="button"
                   onClick={() => handleDirectDemoSubmission('Trillex Avant')}
                   data-hoverable="true"
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/5 hover:bg-trillex-orange text-white hover:text-black border border-white/10 hover:border-trillex-orange text-xs font-mono font-bold tracking-wider uppercase transition-all duration-300 group/btn"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/5 hover:bg-trillex-orange text-white hover:text-black border border-white/10 hover:border-trillex-orange text-xs font-mono font-bold tracking-wider uppercase transition-all duration-300 group/btn shadow-sm hover:shadow-[0_0_20px_rgba(255,127,80,0.3)]"
                 >
                   <Send className="w-3.5 h-3.5 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform" />
                   <span>SUBMIT DEMO</span>
@@ -237,21 +302,26 @@ const LabelFlowDiagram: React.FC = () => {
             </div>
 
             {/* --- 2. TRILLEX BOUNCE --- */}
-            <div className="bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-colors duration-300 group">
+            <div 
+              onMouseEnter={() => setHoveredCard('bounce')}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="anim-float-2 bg-[#0A0A0A] border border-white/10 hover:border-white/30 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 group shadow-xl hover:-translate-y-1"
+            >
               <div>
                 
                 {/* Header: Logo, SubLabel Tag & Audio Indicator */}
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0">
+                  <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                     <img src="/Bounce.png" alt="Trillex Bounce" className="w-full h-full object-contain" />
                   </div>
 
-                  {/* Clean contained audio indicator */}
-                  <div className="flex items-end gap-1 h-4 w-11 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-3" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-1" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-4" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-2" />
+                  {/* Clean strictly contained audio indicator */}
+                  <div className="flex items-end gap-1 h-4 w-12 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
+                    <span className="w-1 bg-white/80 rounded-full eq-4" />
+                    <span className="w-1 bg-white/80 rounded-full eq-1" />
+                    <span className="w-1 bg-white/80 rounded-full eq-5" />
+                    <span className="w-1 bg-white/80 rounded-full eq-2" />
+                    <span className="w-1 bg-white/80 rounded-full eq-3" />
                   </div>
                 </div>
 
@@ -273,7 +343,7 @@ const LabelFlowDiagram: React.FC = () => {
                   className="inline-flex items-center gap-1 text-xs font-mono text-white/40 hover:text-white transition-colors mt-0.5 mb-3"
                 >
                   <span>@trillexbounce</span>
-                  <ExternalLink className="w-3 h-3 opacity-40" />
+                  <ExternalLink className="w-3 h-3 opacity-40 group-hover:opacity-100" />
                 </a>
 
                 <p className="text-white/60 text-xs font-mono leading-relaxed mb-5">
@@ -292,7 +362,7 @@ const LabelFlowDiagram: React.FC = () => {
                   type="button"
                   onClick={() => handleDirectDemoSubmission('Trillex Bounce')}
                   data-hoverable="true"
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/5 hover:bg-trillex-orange text-white hover:text-black border border-white/10 hover:border-trillex-orange text-xs font-mono font-bold tracking-wider uppercase transition-all duration-300 group/btn"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/5 hover:bg-trillex-orange text-white hover:text-black border border-white/10 hover:border-trillex-orange text-xs font-mono font-bold tracking-wider uppercase transition-all duration-300 group/btn shadow-sm hover:shadow-[0_0_20px_rgba(255,127,80,0.3)]"
                 >
                   <Send className="w-3.5 h-3.5 group-hover/btn:-translate-y-0.5 group-hover/btn:translate-x-0.5 transition-transform" />
                   <span>SUBMIT DEMO</span>
@@ -301,21 +371,26 @@ const LabelFlowDiagram: React.FC = () => {
             </div>
 
             {/* --- 3. TRILLEX RECORDS --- */}
-            <div className="bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-colors duration-300 group">
+            <div 
+              onMouseEnter={() => setHoveredCard('records')}
+              onMouseLeave={() => setHoveredCard(null)}
+              className="anim-float-3 bg-[#0A0A0A] border border-white/10 hover:border-white/30 rounded-2xl p-5 sm:p-6 flex flex-col justify-between transition-all duration-300 group shadow-xl hover:-translate-y-1"
+            >
               <div>
                 
                 {/* Header: Logo, SubLabel Tag & Audio Indicator */}
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0">
+                  <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                     <img src="/trillex-logo.png" alt="Trillex Records" className="w-full h-full object-contain" />
                   </div>
 
-                  {/* Clean contained audio indicator */}
-                  <div className="flex items-end gap-1 h-4 w-11 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-2" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-4" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-1" />
-                    <span className="w-1 bg-white/70 rounded-full bar-anim-3" />
+                  {/* Clean strictly contained audio indicator */}
+                  <div className="flex items-end gap-1 h-4 w-12 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
+                    <span className="w-1 bg-white/80 rounded-full eq-2" />
+                    <span className="w-1 bg-white/80 rounded-full eq-4" />
+                    <span className="w-1 bg-white/80 rounded-full eq-1" />
+                    <span className="w-1 bg-white/80 rounded-full eq-5" />
+                    <span className="w-1 bg-white/80 rounded-full eq-3" />
                   </div>
                 </div>
 
@@ -337,7 +412,7 @@ const LabelFlowDiagram: React.FC = () => {
                   className="inline-flex items-center gap-1 text-xs font-mono text-white/40 hover:text-white transition-colors mt-0.5 mb-3"
                 >
                   <span>@trillexmusicgroup</span>
-                  <ExternalLink className="w-3 h-3 opacity-40" />
+                  <ExternalLink className="w-3 h-3 opacity-40 group-hover:opacity-100" />
                 </a>
 
                 <p className="text-white/60 text-xs font-mono leading-relaxed mb-5">
@@ -367,28 +442,47 @@ const LabelFlowDiagram: React.FC = () => {
           </div>
 
           {/* ======================================================== */}
-          {/* CONNECTOR 2: Converging Lines to DSP Hub (Desktop)       */}
+          {/* CONNECTOR 2: Converging Conduits to DSP Hub (Desktop)    */}
           {/* ======================================================== */}
-          <div className="w-full max-w-4xl h-16 md:h-20 relative hidden md:block">
-            <svg className="w-full h-full" viewBox="0 0 800 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 140 0 C 140 40, 400 40, 400 80" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
-              <path d="M 400 0 L 400 80" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" fill="none" />
-              <path d="M 660 0 C 660 40, 400 40, 400 80" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
+          <div className="w-full max-w-4xl h-20 md:h-24 relative hidden md:block my-1">
+            <svg className="w-full h-full" viewBox="0 0 800 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              
+              {/* Guides */}
+              <path d="M 140 0 C 140 50, 400 50, 400 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
+              <path d="M 400 0 L 400 100" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" fill="none" />
+              <path d="M 660 0 C 660 50, 400 50, 400 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
+
+              {/* Data Flow Animations */}
+              <path d="M 140 0 C 140 50, 400 50, 400 100" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
+              <path d="M 400 0 L 400 100" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
+              <path d="M 660 0 C 660 50, 400 50, 400 100" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
+
+              {/* Traveling Photons */}
+              <circle r="3" fill="#FFFFFF">
+                <animateMotion dur="2.2s" repeatCount="indefinite" path="M 140 0 C 140 50, 400 50, 400 100" />
+              </circle>
+              <circle r="3.5" fill="#FF7F50">
+                <animateMotion dur="1.7s" repeatCount="indefinite" path="M 400 0 L 400 100" />
+              </circle>
+              <circle r="3" fill="#FFFFFF">
+                <animateMotion dur="2.2s" repeatCount="indefinite" path="M 660 0 C 660 50, 400 50, 400 100" />
+              </circle>
 
               <circle cx="140" cy="4" r="3" fill="#EAEAEA" />
               <circle cx="400" cy="4" r="3" fill="#EAEAEA" />
               <circle cx="660" cy="4" r="3" fill="#EAEAEA" />
-              <circle cx="400" cy="76" r="3" fill="#FF7F50" />
+              <circle cx="400" cy="96" r="3.5" fill="#FF7F50" />
             </svg>
 
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-trillex-black border border-white/10 px-3 py-0.5 rounded-full text-[9px] font-mono text-white/40 uppercase tracking-widest">
-              DIRECT DSP & STREAMING PIPELINE
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-trillex-black border border-white/10 px-3 py-1 rounded-full text-[9px] font-mono text-white/50 uppercase tracking-widest backdrop-blur-md shadow-lg flex items-center gap-1.5">
+              <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+              <span>DIRECT DSP & STREAMING PIPELINE</span>
             </div>
           </div>
 
           {/* Mobile Connector */}
           <div className="flex md:hidden flex-col items-center my-3">
-            <div className="w-px h-8 bg-white/20" />
+            <div className="w-px h-8 bg-gradient-to-b from-white/40 to-emerald-400" />
             <span className="text-[9px] font-mono uppercase tracking-widest text-white/40 my-1">
               DIRECT DSP PIPELINE
             </span>
@@ -397,10 +491,16 @@ const LabelFlowDiagram: React.FC = () => {
           {/* ======================================================== */}
           {/* LEVEL 3: GLOBAL DISTRIBUTION & 10M+ LISTENERS             */}
           {/* ======================================================== */}
-          <div className="w-full max-w-3xl bg-[#0A0A0A] border border-white/10 hover:border-white/20 rounded-2xl p-6 sm:p-8 text-center flex flex-col items-center transition-colors duration-300">
-            
+          <div 
+            onMouseEnter={() => setHoveredCard('global')}
+            onMouseLeave={() => setHoveredCard(null)}
+            className="w-full max-w-3xl bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-6 sm:p-8 text-center flex flex-col items-center transition-all duration-300 shadow-2xl relative overflow-hidden group"
+          >
+            {/* Ambient Highlight */}
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" />
+
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-[10px] font-mono font-semibold tracking-widest uppercase mb-3">
-              <Globe2 className="w-3.5 h-3.5 text-trillex-orange" />
+              <Globe2 className="w-3.5 h-3.5 text-emerald-400 animate-spin" style={{ animationDuration: '16s' }} />
               <span>GLOBAL REACH & BROADCAST</span>
             </div>
 
@@ -420,28 +520,28 @@ const LabelFlowDiagram: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-hoverable="true"
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 hover:border-white/30 text-white/80 hover:text-white transition-all duration-300"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-[#1DB954]/20 border border-white/10 hover:border-[#1DB954]/50 text-white/80 hover:text-[#1DB954] transition-all duration-300 group/dsp shadow-sm hover:scale-105"
               >
-                <SpotifyIcon className="w-4 h-4 text-[#1DB954]" />
+                <SpotifyIcon className="w-4 h-4 text-[#1DB954] group-hover/dsp:scale-110 transition-transform" />
                 <span>Spotify</span>
               </a>
 
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-105">
                 <Music className="w-4 h-4 text-pink-400" />
                 <span>Apple Music</span>
               </div>
 
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-105">
                 <Play className="w-4 h-4 text-red-500" />
                 <span>YouTube</span>
               </div>
 
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-105">
                 <Headphones className="w-4 h-4 text-cyan-400" />
                 <span>Beatport</span>
               </div>
 
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white/70">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-105">
                 <Radio className="w-4 h-4 text-trillex-orange" />
                 <span>Live Festivals</span>
               </div>
