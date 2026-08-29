@@ -260,6 +260,15 @@ const ContactForm: React.FC = () => {
 
   // Support pre-selecting sub-label from external links/cards
   useEffect(() => {
+    const checkStoredSubLabel = () => {
+      const stored = sessionStorage.getItem('trillex_selected_sublabel');
+      if (stored) {
+        setDemoForm(prev => ({ ...prev, subLabel: stored }));
+        sessionStorage.removeItem('trillex_selected_sublabel');
+      }
+    };
+    checkStoredSubLabel();
+
     const handleSetSubLabel = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail?.subLabel) {
@@ -489,7 +498,7 @@ const ContactForm: React.FC = () => {
   const renderGeneralForm = () => (
     <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-            <div className="flex flex-col pt-4">
+            <div className="flex flex-col pt-4 items-center text-center lg:items-start lg:text-left">
                 <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mb-8 backdrop-blur-sm">
                     <span className="text-xs font-mono text-white/80 tracking-widest uppercase">Contact Us</span>
                 </div>
@@ -498,114 +507,148 @@ const ContactForm: React.FC = () => {
                     GET IN <span className="text-trillex-orange">TOUCH.</span>
                 </h2>
                 
-                <p className="text-lg md:text-xl text-white/60 font-light mb-2">
-                    Or just reach out manually to 
-                </p>
-                <button 
-                    type="button"
-                    onClick={() => handleCopy("info@trillexmusicgroup.com")} 
-                    className="text-lg md:text-xl text-trillex-orange hover:text-white transition-colors border-b border-trillex-orange/30 hover:border-white pb-1 w-fit text-left cursor-pointer"
-                    data-hoverable="true"
-                >
-                    info@trillexmusicgroup.com
-                </button>
+                {/* DESKTOP ONLY: Manual Reachout & Global HQ */}
+                <div className="hidden lg:flex flex-col">
+                    <p className="text-lg md:text-xl text-white/60 font-light mb-2">
+                        Or just reach out manually to 
+                    </p>
+                    <button 
+                        type="button"
+                        onClick={() => handleCopy("info@trillexmusicgroup.com")} 
+                        className="text-lg md:text-xl text-trillex-orange hover:text-white transition-colors border-b border-trillex-orange/30 hover:border-white pb-1 w-fit text-left cursor-pointer"
+                        data-hoverable="true"
+                    >
+                        info@trillexmusicgroup.com
+                    </button>
 
-                <div className="flex mt-12 lg:mt-20 p-6 bg-white/5 rounded-2xl border border-white/10 w-full max-w-sm backdrop-blur-md">
-                     <div className="flex items-center gap-4">
-                         <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange">
-                             <Globe size={24} />
+                    <div className="flex mt-12 lg:mt-20 p-6 bg-white/5 rounded-2xl border border-white/10 w-full max-w-sm backdrop-blur-md">
+                         <div className="flex items-center gap-4">
+                             <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange">
+                                 <Globe size={24} />
+                             </div>
+                             <div>
+                                 <h4 className="text-white font-bold">Global HQ</h4>
+                                 <p className="text-white/40 text-sm">Bangkok, Thailand</p>
+                             </div>
                          </div>
-                         <div>
-                             <h4 className="text-white font-bold">Global HQ</h4>
-                             <p className="text-white/40 text-sm">Bangkok, Thailand</p>
-                         </div>
-                     </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="w-full bg-[#0A0A0A] border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-trillex-orange/5 rounded-full blur-[100px] pointer-events-none" />
-                
-                <form onSubmit={handleGeneralSubmit} className="flex flex-col gap-5 md:gap-6 relative z-10">
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Full Name</label>
-                        <div className="relative group/input">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
-                            <input 
-                                required
-                                type="text" 
-                                placeholder="Enter your full name..." 
-                                value={generalForm.name}
-                                onChange={(e) => setGeneralForm({...generalForm, name: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
-                            />
+            <div className="w-full flex flex-col gap-8">
+                <div className="w-full bg-[#0A0A0A] border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-trillex-orange/5 rounded-full blur-[100px] pointer-events-none" />
+                    
+                    <form onSubmit={handleGeneralSubmit} className="flex flex-col gap-5 md:gap-6 relative z-10">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Full Name</label>
+                            <div className="relative group/input">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
+                                <input 
+                                    required
+                                    type="text" 
+                                    placeholder="Enter your full name..." 
+                                    value={generalForm.name}
+                                    onChange={(e) => setGeneralForm({...generalForm, name: e.target.value})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
+                                />
+                            </div>
                         </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Email Address</label>
+                            <div className="relative group/input">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
+                                <input 
+                                    required
+                                    type="email" 
+                                    placeholder="Enter your email address..." 
+                                    value={generalForm.email}
+                                    onChange={(e) => setGeneralForm({...generalForm, email: e.target.value})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Subject</label>
+                            <div className="relative group/input">
+                                <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
+                                <input 
+                                    required
+                                    type="text" 
+                                    placeholder="Enter subject..." 
+                                    value={generalForm.subject}
+                                    onChange={(e) => setGeneralForm({...generalForm, subject: e.target.value})}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Message</label>
+                            <div className="relative">
+                                <textarea 
+                                    required
+                                    maxLength={500}
+                                    placeholder="Enter your main text here..." 
+                                    value={generalForm.message}
+                                    onChange={(e) => setGeneralForm({...generalForm, message: e.target.value})}
+                                    className="w-full h-48 md:h-96 bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300 resize-none"
+                                />
+                                <span className="absolute bottom-3 right-4 text-[10px] text-white/20 font-mono">
+                                    {generalForm.message.length}/500
+                                </span>
+                            </div>
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            className="mt-4 w-full bg-trillex-orange text-black font-bold text-lg rounded-xl py-4 flex items-center justify-center gap-2 hover:bg-white transition-all duration-300 shadow-[0_4px_20px_rgba(255,127,80,0.25)] hover:shadow-[0_4px_30px_rgba(255,255,255,0.3)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="animate-spin" size={20} /> Sending...
+                                </>
+                            ) : (
+                                <>
+                                    Submit Form <ArrowRight size={20} />
+                                </>
+                            )}
+                        </button>
+
+                    </form>
+                </div>
+
+                {/* MOBILE ONLY: Reachout & Global HQ info below form */}
+                <div className="flex lg:hidden flex-col items-center text-center gap-6 mt-2 w-full">
+                    <div className="flex flex-col items-center">
+                        <p className="text-base text-white/60 font-light mb-2">
+                            Or just reach out manually to 
+                        </p>
+                        <button 
+                            type="button"
+                            onClick={() => handleCopy("info@trillexmusicgroup.com")} 
+                            className="text-lg text-trillex-orange hover:text-white transition-colors border-b border-trillex-orange/30 hover:border-white pb-1 w-fit text-center cursor-pointer"
+                            data-hoverable="true"
+                        >
+                            info@trillexmusicgroup.com
+                        </button>
                     </div>
 
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Email Address</label>
-                        <div className="relative group/input">
-                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
-                            <input 
-                                required
-                                type="email" 
-                                placeholder="Enter your email address..." 
-                                value={generalForm.email}
-                                onChange={(e) => setGeneralForm({...generalForm, email: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
-                            />
-                        </div>
+                    <div className="flex p-6 bg-white/5 rounded-2xl border border-white/10 w-full max-w-sm backdrop-blur-md">
+                         <div className="flex items-center gap-4 text-left">
+                             <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange flex-shrink-0">
+                                 <Globe size={24} />
+                             </div>
+                             <div>
+                                 <h4 className="text-white font-bold">Global HQ</h4>
+                                 <p className="text-white/40 text-sm">Bangkok, Thailand</p>
+                             </div>
+                         </div>
                     </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Subject</label>
-                        <div className="relative group/input">
-                            <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within/input:text-trillex-orange transition-colors w-5 h-5 pointer-events-none" />
-                            <input 
-                                required
-                                type="text" 
-                                placeholder="Enter subject..." 
-                                value={generalForm.subject}
-                                onChange={(e) => setGeneralForm({...generalForm, subject: e.target.value})}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Message</label>
-                        <div className="relative">
-                            <textarea 
-                                required
-                                maxLength={500}
-                                placeholder="Enter your main text here..." 
-                                value={generalForm.message}
-                                onChange={(e) => setGeneralForm({...generalForm, message: e.target.value})}
-                                className="w-full h-48 md:h-96 bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300 resize-none"
-                            />
-                            <span className="absolute bottom-3 right-4 text-[10px] text-white/20 font-mono">
-                                {generalForm.message.length}/500
-                            </span>
-                        </div>
-                    </div>
-
-                    <button 
-                        type="submit" 
-                        disabled={isSubmitting}
-                        className="mt-4 w-full bg-trillex-orange text-black font-bold text-lg rounded-xl py-4 flex items-center justify-center gap-2 hover:bg-white transition-all duration-300 shadow-[0_4px_20px_rgba(255,127,80,0.25)] hover:shadow-[0_4px_30px_rgba(255,255,255,0.3)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {isSubmitting ? (
-                            <>
-                                <Loader2 className="animate-spin" size={20} /> Sending...
-                            </>
-                        ) : (
-                            <>
-                                Submit Form <ArrowRight size={20} />
-                            </>
-                        )}
-                    </button>
-
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -614,21 +657,22 @@ const ContactForm: React.FC = () => {
   const renderDemoForm = () => (
     <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-            <div className="flex flex-col pt-4">
+            <div className="flex flex-col pt-4 items-center text-center lg:items-start lg:text-left">
                 <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mb-8 backdrop-blur-sm">
                     <span className="text-xs font-mono text-white/80 tracking-widest uppercase">Demo Drop</span>
                 </div>
                 
                 <h2 className="text-4xl md:text-7xl font-display font-bold text-white tracking-tight leading-[1.1] mb-6">
-                    Share Your <br/>
+                    Share Your <br className="hidden lg:block" />
                     <span className="text-trillex-orange">Sound.</span>
                 </h2>
                 
-                <p className="text-lg md:text-xl text-white/60 font-light mb-6">
-                    Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours
+                <p className="hidden lg:block text-lg md:text-xl text-white/60 font-light mb-6 max-w-lg lg:max-w-none">
+                    Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours.
                 </p>
 
-                <div className="flex flex-col gap-4 mt-8 lg:mt-10 w-full max-w-sm">
+                {/* DESKTOP ONLY: Contact and Instagram bubbles in left sidebar */}
+                <div className="hidden lg:flex flex-col gap-4 mt-8 lg:mt-10 w-full max-w-sm">
                      <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
@@ -857,6 +901,69 @@ const ContactForm: React.FC = () => {
 
                 </form>
             </div>
+
+            {/* MOBILE ONLY: Notice + Contact Here & Instagram bubbles under the form */}
+            <div className="flex lg:hidden flex-col items-center text-center gap-6 w-full mt-6">
+                 <p className="text-base sm:text-lg text-white/60 font-light max-w-md px-2">
+                     Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours.
+                 </p>
+
+                 <div className="flex flex-col gap-4 w-full text-left">
+                     <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
+                            <Mail size={24} />
+                        </div>
+                        <div>
+                            <h4 className="text-white font-bold text-lg">Contact here</h4>
+                            <button 
+                                type="button"
+                                onClick={() => handleCopy("info@trillexmusicgroup.com")}
+                                className="text-white/40 text-sm hover:text-trillex-orange transition-colors text-left"
+                                data-hoverable="true"
+                            >
+                                info@trillexmusicgroup.com
+                            </button>
+                        </div>
+                    </div>
+                 </div>
+
+                 {/* INSTAGRAM CONNECT SECTION */}
+                 <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
+                    <div className="flex items-center gap-4 mb-5">
+                        <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(255,127,80,0.2)]">
+                            <Instagram size={24} />
+                        </div>
+                        <h4 className="text-white font-bold text-lg">Connect on Instagram</h4>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        {[
+                            { handle: '@trillexmusicgroup', url: 'https://www.instagram.com/trillexmusicgroup' },
+                            { handle: '@trillexbounce', url: 'https://www.instagram.com/trillexbounce' },
+                            { handle: '@trillexavant', url: 'https://www.instagram.com/trillexavant' }
+                        ].map((item, index) => (
+                            <a
+                                key={index}
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group/item flex items-center justify-between w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 hover:border-trillex-orange/50 hover:bg-trillex-orange/10 transition-all duration-300"
+                            >
+                                <span className="text-sm text-white/60 font-mono group-hover/item:text-white transition-colors">
+                                    {item.handle}
+                                </span>
+                                
+                                <ExternalLink
+                                    size={14} 
+                                    className="text-white/20 group-hover/item:text-trillex-orange group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all duration-300" 
+                                />
+                            </a>
+                        ))}
+                     </div>
+                 </div>
+            </div>
+        </div>
         </div>
     </div>
   );

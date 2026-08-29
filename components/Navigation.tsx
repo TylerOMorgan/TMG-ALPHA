@@ -47,8 +47,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
         </a>
         
         {/* Nav Links - Right */}
-        {/* Adjusted gap for small mobile screens (gap-2 -> sm:gap-6) and added whitespace-nowrap for safety */}
-        <div className="pointer-events-auto flex items-center gap-2 sm:gap-6 md:gap-12 whitespace-nowrap">
+        <div className="pointer-events-auto flex items-center gap-3 sm:gap-5 md:gap-7 lg:gap-8 whitespace-nowrap">
           {navLinks.map((item) => {
             const isActive = activePage === item.id;
             return (
@@ -57,10 +56,10 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
                 href={`#${item.id}`}
                 onClick={(e) => handleClick(e, item.id)}
                 className={`
-                  relative group text-[10px] md:text-[13px] font-mono tracking-[0.15em] md:tracking-[0.2em] uppercase transition-all duration-300 ease-out py-2
+                  relative group text-[11px] sm:text-xs md:text-[13px] font-mono tracking-[0.14em] md:tracking-[0.16em] uppercase transition-all duration-300 ease-out py-2 px-0.5 sm:px-1
                   ${isActive 
-                    ? 'text-white font-bold scale-105 md:scale-110 [text-shadow:0_0_12px_rgba(255,255,255,0.6)]' 
-                    : 'text-white font-semibold hover:text-white hover:font-bold hover:scale-105 md:hover:scale-110 hover:[text-shadow:0_0_12px_rgba(255,255,255,0.6)]'
+                    ? 'text-white font-bold scale-105 md:scale-105 [text-shadow:0_0_12px_rgba(255,255,255,0.6)]' 
+                    : 'text-white/80 hover:text-white hover:font-bold hover:scale-105 md:hover:scale-105 hover:[text-shadow:0_0_12px_rgba(255,255,255,0.6)]'
                   }
                 `}
                 data-hoverable="true"
