@@ -1,7 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { 
   ArrowDown, Radio, Headphones, Sparkles, Disc3, Globe2, Music, 
-  Layers, Cpu, Share2, Play, ExternalLink, Zap, ShieldCheck, ArrowRight, Send, Activity, Disc
+  Layers, Cpu, Share2, Play, ExternalLink, Zap, ShieldCheck, ArrowRight, Send, Activity, Flame, Disc
 } from 'lucide-react';
 
 const SpotifyIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
@@ -40,7 +40,7 @@ const LabelFlowDiagram: React.FC = () => {
       <style>{`
         @keyframes floatCard1 {
           0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-5px); }
+          50% { transform: translateY(-4px); }
         }
         @keyframes floatCard2 {
           0%, 100% { transform: translateY(-3px); }
@@ -76,14 +76,6 @@ const LabelFlowDiagram: React.FC = () => {
         .eq-3 { animation: barPulse3 0.65s ease-in-out infinite 0.3s; }
         .eq-4 { animation: barPulse4 0.95s ease-in-out infinite 0.2s; }
         .eq-5 { animation: barPulse5 0.85s ease-in-out infinite 0.4s; }
-
-        @keyframes shimmerLine {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        .shimmer-effect {
-          animation: shimmerLine 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
       `}</style>
 
       {/* Subtle Background Radial Depth */}
@@ -184,18 +176,14 @@ const LabelFlowDiagram: React.FC = () => {
           {/* ======================================================== */}
           <div className="w-full max-w-4xl h-20 md:h-24 relative hidden md:block my-1">
             <svg className="w-full h-full" viewBox="0 0 800 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              
-              {/* Static Path Guides */}
-              <path id="branch-left-1" d="M 400 0 C 400 50, 140 50, 140 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
-              <path id="branch-mid-1" d="M 400 0 L 400 100" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" fill="none" />
-              <path id="branch-right-1" d="M 400 0 C 400 50, 660 50, 660 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
+              <path d="M 400 0 C 400 50, 140 50, 140 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
+              <path d="M 400 0 L 400 100" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" fill="none" />
+              <path d="M 400 0 C 400 50, 660 50, 660 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
 
-              {/* Dynamic Animated Data Stream Lines */}
               <path d="M 400 0 C 400 50, 140 50, 140 100" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
               <path d="M 400 0 L 400 100" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
               <path d="M 400 0 C 400 50, 660 50, 660 100" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
 
-              {/* Hardware-Accelerated Traveling Energy Photons */}
               <circle r="3" fill="#FFFFFF">
                 <animateMotion dur="2.4s" repeatCount="indefinite" path="M 400 0 C 400 50, 140 50, 140 100" />
               </circle>
@@ -206,7 +194,6 @@ const LabelFlowDiagram: React.FC = () => {
                 <animateMotion dur="2.4s" repeatCount="indefinite" path="M 400 0 C 400 50, 660 50, 660 100" />
               </circle>
 
-              {/* Anchors */}
               <circle cx="400" cy="4" r="3.5" fill="#FF7F50" />
               <circle cx="140" cy="96" r="3" fill="#EAEAEA" />
               <circle cx="400" cy="96" r="3" fill="#EAEAEA" />
@@ -240,13 +227,11 @@ const LabelFlowDiagram: React.FC = () => {
             >
               <div>
                 
-                {/* Header: Logo, SubLabel Tag & Audio Indicator */}
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                     <img src="/Avant.png" alt="Trillex Avant" className="w-full h-full object-contain" />
                   </div>
 
-                  {/* Clean strictly contained audio indicator */}
                   <div className="flex items-end gap-1 h-4 w-12 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
                     <span className="w-1 bg-white/80 rounded-full eq-1" />
                     <span className="w-1 bg-white/80 rounded-full eq-2" />
@@ -288,7 +273,6 @@ const LabelFlowDiagram: React.FC = () => {
                   <span className="text-white/80">Techno & Cyber</span>
                 </div>
 
-                {/* Direct Demo Submission Button */}
                 <button
                   type="button"
                   onClick={() => handleDirectDemoSubmission('Trillex Avant')}
@@ -309,13 +293,11 @@ const LabelFlowDiagram: React.FC = () => {
             >
               <div>
                 
-                {/* Header: Logo, SubLabel Tag & Audio Indicator */}
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                     <img src="/Bounce.png" alt="Trillex Bounce" className="w-full h-full object-contain" />
                   </div>
 
-                  {/* Clean strictly contained audio indicator */}
                   <div className="flex items-end gap-1 h-4 w-12 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
                     <span className="w-1 bg-white/80 rounded-full eq-4" />
                     <span className="w-1 bg-white/80 rounded-full eq-1" />
@@ -357,7 +339,6 @@ const LabelFlowDiagram: React.FC = () => {
                   <span className="text-white/80">Phonk & Bass House</span>
                 </div>
 
-                {/* Direct Demo Submission Button */}
                 <button
                   type="button"
                   onClick={() => handleDirectDemoSubmission('Trillex Bounce')}
@@ -378,13 +359,11 @@ const LabelFlowDiagram: React.FC = () => {
             >
               <div>
                 
-                {/* Header: Logo, SubLabel Tag & Audio Indicator */}
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="w-11 h-11 rounded-xl bg-black border border-white/10 p-2 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300">
                     <img src="/trillex-logo.png" alt="Trillex Records" className="w-full h-full object-contain" />
                   </div>
 
-                  {/* Clean strictly contained audio indicator */}
                   <div className="flex items-end gap-1 h-4 w-12 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded-md overflow-hidden flex-shrink-0">
                     <span className="w-1 bg-white/80 rounded-full eq-2" />
                     <span className="w-1 bg-white/80 rounded-full eq-4" />
@@ -426,7 +405,6 @@ const LabelFlowDiagram: React.FC = () => {
                   <span className="text-white/80">Global Vocal Dance</span>
                 </div>
 
-                {/* Direct Demo Submission Button */}
                 <button
                   type="button"
                   onClick={() => handleDirectDemoSubmission('Select')}
@@ -446,18 +424,14 @@ const LabelFlowDiagram: React.FC = () => {
           {/* ======================================================== */}
           <div className="w-full max-w-4xl h-20 md:h-24 relative hidden md:block my-1">
             <svg className="w-full h-full" viewBox="0 0 800 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              
-              {/* Guides */}
               <path d="M 140 0 C 140 50, 400 50, 400 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
               <path d="M 400 0 L 400 100" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" fill="none" />
               <path d="M 660 0 C 660 50, 400 50, 400 100" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" />
 
-              {/* Data Flow Animations */}
               <path d="M 140 0 C 140 50, 400 50, 400 100" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
               <path d="M 400 0 L 400 100" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
               <path d="M 660 0 C 660 50, 400 50, 400 100" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" fill="none" className="data-pipe-anim" />
 
-              {/* Traveling Photons */}
               <circle r="3" fill="#FFFFFF">
                 <animateMotion dur="2.2s" repeatCount="indefinite" path="M 140 0 C 140 50, 400 50, 400 100" />
               </circle>
@@ -489,27 +463,27 @@ const LabelFlowDiagram: React.FC = () => {
           </div>
 
           {/* ======================================================== */}
-          {/* LEVEL 3: GLOBAL DISTRIBUTION & 10M+ LISTENERS             */}
+          {/* LEVEL 3: GLOBAL DISTRIBUTION & DSP INGESTION CONSOLE     */}
           {/* ======================================================== */}
           <div 
             onMouseEnter={() => setHoveredCard('global')}
             onMouseLeave={() => setHoveredCard(null)}
-            className="w-full max-w-3xl bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-6 sm:p-8 text-center flex flex-col items-center transition-all duration-300 shadow-2xl relative overflow-hidden group"
+            className="w-full max-w-3xl bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-6 sm:p-8 text-center flex flex-col items-center transition-all duration-300 shadow-2xl relative overflow-hidden group mb-2"
           >
             {/* Ambient Highlight */}
-            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-emerald-400/30 to-transparent" />
+            <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 text-[10px] font-mono font-semibold tracking-widest uppercase mb-3">
-              <Globe2 className="w-3.5 h-3.5 text-emerald-400 animate-spin" style={{ animationDuration: '16s' }} />
-              <span>GLOBAL REACH & BROADCAST</span>
+              <Globe2 className="w-3.5 h-3.5 text-trillex-orange animate-spin" style={{ animationDuration: '16s' }} />
+              <span>GLOBAL DISTRIBUTION & DSP INGESTION</span>
             </div>
 
-            <h3 className="text-xl sm:text-3xl font-bold font-sans text-white tracking-tight mb-2">
-              OUT TO 10M+ GLOBAL LISTENERS
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold font-sans text-white tracking-tight mb-2">
+              DIRECT PIPELINES TO WORLDWIDE PLATFORMS
             </h3>
 
             <p className="text-white/50 text-xs sm:text-sm font-mono max-w-lg mb-6 leading-relaxed">
-              Direct-to-consumer delivery pushing master-quality audio directly to premier streaming platforms and live stages worldwide.
+              Direct editorial pitching, Beatport chart positioning, sync licensing catalog syndication, and international radio rotation.
             </p>
 
             {/* DSP Console Badges */}
@@ -520,32 +494,157 @@ const LabelFlowDiagram: React.FC = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 data-hoverable="true"
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-[#1DB954]/20 border border-white/10 hover:border-[#1DB954]/50 text-white/80 hover:text-[#1DB954] transition-all duration-300 group/dsp shadow-sm hover:scale-105"
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 hover:border-white/30 text-white/80 hover:text-white transition-all duration-300 group/dsp shadow-sm"
               >
                 <SpotifyIcon className="w-4 h-4 text-[#1DB954] group-hover/dsp:scale-110 transition-transform" />
-                <span>Spotify</span>
+                <span>Spotify Editorial</span>
               </a>
 
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-105">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300">
                 <Music className="w-4 h-4 text-pink-400" />
                 <span>Apple Music</span>
               </div>
 
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-105">
-                <Play className="w-4 h-4 text-red-500" />
-                <span>YouTube</span>
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300">
+                <Headphones className="w-4 h-4 text-emerald-400" />
+                <span>Beatport Top 100</span>
               </div>
 
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-105">
-                <Headphones className="w-4 h-4 text-cyan-400" />
-                <span>Beatport</span>
-              </div>
-
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300 hover:scale-105">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.03] hover:bg-white/10 border border-white/10 text-white/70 hover:text-white transition-all duration-300">
                 <Radio className="w-4 h-4 text-trillex-orange" />
-                <span>Live Festivals</span>
+                <span>Radio & Sync</span>
               </div>
 
+            </div>
+
+          </div>
+
+          {/* ======================================================== */}
+          {/* CONNECTOR 3: 4-Way Flow to Final Audience Destinies      */}
+          {/* ======================================================== */}
+          <div className="w-full max-w-5xl h-16 md:h-20 relative hidden md:block my-1">
+            <svg className="w-full h-full" viewBox="0 0 1000 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 500 0 L 500 40" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" fill="none" />
+              <path d="M 125 40 L 875 40" stroke="rgba(255,127,80,0.4)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
+              
+              {/* Vertical Drops to 4 Cards */}
+              <path d="M 125 40 L 125 80" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
+              <path d="M 375 40 L 375 80" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
+              <path d="M 625 40 L 625 80" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
+              <path d="M 875 40 L 875 80" stroke="rgba(255,127,80,0.8)" strokeWidth="1.5" strokeDasharray="4 4" fill="none" />
+
+              <circle cx="500" cy="4" r="3.5" fill="#FF7F50" />
+              <circle cx="125" cy="76" r="3" fill="#FF7F50" />
+              <circle cx="375" cy="76" r="3" fill="#FF7F50" />
+              <circle cx="625" cy="76" r="3" fill="#FF7F50" />
+              <circle cx="875" cy="76" r="3" fill="#FF7F50" />
+            </svg>
+          </div>
+
+          {/* Mobile Connector */}
+          <div className="flex md:hidden flex-col items-center my-3">
+            <div className="w-px h-8 bg-trillex-orange/50" />
+          </div>
+
+          {/* ======================================================== */}
+          {/* LEVEL 4: 4 DANCEFLOOR & REAL-WORLD DESTINATION IMPACTS   */}
+          {/* ======================================================== */}
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            
+            {/* 1. Worldwide Listeners */}
+            <div className="bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-5 transition-all duration-300 group shadow-lg flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/80 group-hover:text-trillex-orange transition-colors">
+                    <Globe2 className="w-4 h-4" />
+                  </div>
+                  <div className="flex items-end gap-1 h-3.5 px-1 bg-white/5 rounded">
+                    <span className="w-0.5 bg-white/60 rounded eq-1" />
+                    <span className="w-0.5 bg-white/60 rounded eq-3" />
+                    <span className="w-0.5 bg-white/60 rounded eq-2" />
+                  </div>
+                </div>
+
+                <h5 className="text-sm font-bold font-sans text-white uppercase tracking-wider mb-1 group-hover:text-trillex-orange transition-colors">
+                  WORLDWIDE LISTENERS
+                </h5>
+
+                <p className="text-white/50 text-xs font-mono leading-relaxed">
+                  Millions streaming in 120+ countries daily across personal devices.
+                </p>
+              </div>
+            </div>
+
+            {/* 2. Club Dancefloors */}
+            <div className="bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-5 transition-all duration-300 group shadow-lg flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/80 group-hover:text-trillex-orange transition-colors">
+                    <Activity className="w-4 h-4" />
+                  </div>
+                  <div className="flex items-end gap-1 h-3.5 px-1 bg-white/5 rounded">
+                    <span className="w-0.5 bg-white/60 rounded eq-4" />
+                    <span className="w-0.5 bg-white/60 rounded eq-1" />
+                    <span className="w-0.5 bg-white/60 rounded eq-5" />
+                  </div>
+                </div>
+
+                <h5 className="text-sm font-bold font-sans text-white uppercase tracking-wider mb-1 group-hover:text-trillex-orange transition-colors">
+                  CLUB DANCEFLOORS
+                </h5>
+
+                <p className="text-white/50 text-xs font-mono leading-relaxed">
+                  DJ sets across global club residencies, warehouse raves, and underground venues.
+                </p>
+              </div>
+            </div>
+
+            {/* 3. Festival Mainstages */}
+            <div className="bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-5 transition-all duration-300 group shadow-lg flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/80 group-hover:text-trillex-orange transition-colors">
+                    <Zap className="w-4 h-4 text-trillex-orange" />
+                  </div>
+                  <div className="flex items-end gap-1 h-3.5 px-1 bg-white/5 rounded">
+                    <span className="w-0.5 bg-white/60 rounded eq-2" />
+                    <span className="w-0.5 bg-white/60 rounded eq-5" />
+                    <span className="w-0.5 bg-white/60 rounded eq-3" />
+                  </div>
+                </div>
+
+                <h5 className="text-sm font-bold font-sans text-white uppercase tracking-wider mb-1 group-hover:text-trillex-orange transition-colors">
+                  FESTIVAL MAINSTAGES
+                </h5>
+
+                <p className="text-white/50 text-xs font-mono leading-relaxed">
+                  Peak-time anthems played by top headliners to crowds of 50,000+.
+                </p>
+              </div>
+            </div>
+
+            {/* 4. Curated Playlists */}
+            <div className="bg-[#0A0A0A] border border-white/10 hover:border-white/25 rounded-2xl p-5 transition-all duration-300 group shadow-lg flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/80 group-hover:text-trillex-orange transition-colors">
+                    <Radio className="w-4 h-4" />
+                  </div>
+                  <div className="flex items-end gap-1 h-3.5 px-1 bg-white/5 rounded">
+                    <span className="w-0.5 bg-white/60 rounded eq-3" />
+                    <span className="w-0.5 bg-white/60 rounded eq-2" />
+                    <span className="w-0.5 bg-white/60 rounded eq-4" />
+                  </div>
+                </div>
+
+                <h5 className="text-sm font-bold font-sans text-white uppercase tracking-wider mb-1 group-hover:text-trillex-orange transition-colors">
+                  CURATED PLAYLISTS
+                </h5>
+
+                <p className="text-white/50 text-xs font-mono leading-relaxed">
+                  Heavy rotation across major editorial channels, algorithmic radio, and tastemakers.
+                </p>
+              </div>
             </div>
 
           </div>
