@@ -49,7 +49,7 @@ const ArtistShowcase: React.FC = () => {
                 <stat.icon className="w-4 h-4 text-trillex-orange group-hover:scale-110 transition-transform" />
               </div>
               <div>
-                <div className="text-2xl md:text-4xl font-bold font-sans text-white tracking-tight group-hover:text-trillex-orange transition-colors">
+                <div className="text-2xl md:text-4xl font-bold font-display text-white tracking-tight group-hover:text-trillex-orange transition-colors">
                   {stat.value}
                 </div>
                 <div className="text-[10px] md:text-xs font-mono text-white/40 mt-1">
@@ -63,13 +63,12 @@ const ArtistShowcase: React.FC = () => {
         {/* Section Title & Filter Tabs */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-2 h-2 rounded-full bg-trillex-orange animate-pulse shadow-[0_0_8px_#FF7F50]" />
-              <span className="text-trillex-orange text-xs font-mono font-bold tracking-[0.25em] uppercase">
-                SPOTLIGHT ROSTER
+            <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-white/5 border border-white/10 w-fit mb-3 backdrop-blur-sm">
+              <span className="text-[11px] font-mono text-white/80 tracking-widest uppercase">
+                Spotlight Roster
               </span>
             </div>
-            <h2 className="text-3xl md:text-5xl font-sans font-bold text-white tracking-tight">
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-white tracking-tight">
               FEATURED ARTISTS
             </h2>
           </div>
@@ -155,11 +154,11 @@ const ArtistShowcase: React.FC = () => {
                       {artist.role} • {artist.genre}
                     </div>
 
-                    <h3 className="text-2xl font-bold font-sans text-white group-hover:text-trillex-orange transition-colors mb-3">
+                    <h3 className="text-2xl font-bold font-display text-white group-hover:text-trillex-orange transition-colors mb-3">
                       {artist.name}
                     </h3>
 
-                    <p className="text-white/60 text-xs md:text-sm line-clamp-2 leading-relaxed mb-6">
+                    <p className="text-white/60 text-xs md:text-sm font-sans font-light line-clamp-2 leading-relaxed mb-6">
                       {artist.bio}
                     </p>
                   </div>

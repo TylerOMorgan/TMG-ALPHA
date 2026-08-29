@@ -36,21 +36,19 @@ const ArtistCTA: React.FC = () => {
       <div className="container mx-auto px-6 relative z-10 text-center flex flex-col items-center">
         
         {/* Label */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-2 h-2 rounded-full bg-trillex-orange animate-pulse" />
-          <span className="text-trillex-orange text-xs font-mono font-bold tracking-[0.3em] uppercase">
-            ELEVATE YOUR VISION
+        <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mb-6 backdrop-blur-sm">
+          <span className="text-xs font-mono text-white/80 tracking-widest uppercase">
+            Elevate Your Vision
           </span>
-          <div className="w-2 h-2 rounded-full bg-trillex-orange animate-pulse" />
         </div>
 
         {/* Big Headline */}
-        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-sans font-bold text-white tracking-tight max-w-4xl leading-[1.1] mb-6">
-          READY TO AMPLIFY YOUR SOUND ON A GLOBAL SCALE?
+        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold text-white tracking-tight max-w-4xl leading-[1.1] mb-6">
+          READY TO AMPLIFY YOUR SOUND ON A <span className="text-trillex-orange">GLOBAL SCALE?</span>
         </h2>
 
         {/* Description */}
-        <p className="text-white/60 text-sm md:text-lg font-mono max-w-2xl leading-relaxed mb-10 md:mb-12">
+        <p className="text-white/60 text-base md:text-lg font-sans font-light max-w-2xl leading-relaxed mb-10 md:mb-12">
           Whether you are an established producer aiming for international distribution or an emerging visionary, Trillex Music Group provides the infrastructure to build lasting careers.
         </p>
 

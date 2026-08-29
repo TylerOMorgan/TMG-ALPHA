@@ -47,7 +47,7 @@ const ArtistBannerCard: React.FC<ArtistCardProps> = ({ artist }) => {
             </span>
           </div>
 
-          <h3 className="text-white font-bold font-sans text-base md:text-lg tracking-wide truncate group-hover/card:text-trillex-orange transition-colors">
+          <h3 className="text-white font-bold font-display text-base md:text-lg tracking-wide truncate group-hover/card:text-trillex-orange transition-colors">
             {artist.name}
           </h3>
 
@@ -159,20 +159,19 @@ const ArtistScrollBanner: React.FC = () => {
       <div className="container mx-auto px-6 mb-10 md:mb-14">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-2 h-2 rounded-full bg-trillex-orange animate-pulse shadow-[0_0_8px_#FF7F50]" />
-              <span className="text-trillex-orange text-xs font-mono font-bold tracking-[0.25em] uppercase">
-                SCROLLING ARTIST BANNER
+            <div className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-white/5 border border-white/10 w-fit mb-3 backdrop-blur-sm">
+              <span className="text-[11px] font-mono text-white/80 tracking-widest uppercase">
+                Live Roster Stream
               </span>
             </div>
-            <h2 className="text-2xl md:text-4xl lg:text-5xl font-sans font-bold text-white tracking-tight">
-              LIVE ROSTER STREAM
+            <h2 className="text-2xl md:text-4xl lg:text-5xl font-display font-bold text-white tracking-tight">
+              SCROLLING ARTIST BANNER
             </h2>
           </div>
 
-          <div className="text-white/40 text-xs md:text-sm font-mono flex items-center gap-2">
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span>Hover to freeze stream • Click to stream or follow</span>
+          <div className="text-white/50 text-xs md:text-sm font-sans font-light flex items-center gap-2">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Hover to freeze stream &bull; Click to stream or follow</span>
           </div>
         </div>
       </div>
