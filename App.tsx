@@ -8,6 +8,7 @@ import Navigation from './components/Navigation';
 import Home from './components/pages/Home';
 import About from './components/pages/About';
 import Contact from './components/pages/Contact';
+import Artists from './components/pages/Artists';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,6 +20,9 @@ const getPageFromHash = (): string => {
   }
   if (hash === 'about') {
     return 'about';
+  }
+  if (['artists', 'artist', 'roster'].includes(hash)) {
+    return 'artists';
   }
   return 'home';
 };
@@ -60,6 +64,8 @@ const App: React.FC = () => {
             window.history.pushState(null, '', window.location.pathname);
           } else if (customEvent.detail.page === 'about') {
             window.history.pushState(null, '', '#about');
+          } else if (customEvent.detail.page === 'artists') {
+            window.history.pushState(null, '', '#artists');
           } else if (customEvent.detail.page === 'contact') {
             if (!window.location.hash.includes('demo')) {
               window.history.pushState(null, '', '#general-inquiry');
@@ -206,6 +212,8 @@ const App: React.FC = () => {
         return <Home />;
       case 'about':
         return <About />;
+      case 'artists':
+        return <Artists />;
       case 'contact':
         return <Contact />;
       default:

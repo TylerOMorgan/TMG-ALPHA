@@ -24,6 +24,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
   const navLinks = [
     { name: 'HOME', id: 'home', href: '#' },
     { name: 'ABOUT', id: 'about', href: '#about' },
+    { name: 'ARTISTS', id: 'artists', href: '#artists' },
     { name: 'CONTACT', id: 'contact', href: '#general-inquiry' },
   ];
 
