@@ -637,7 +637,8 @@ const ContactForm: React.FC = () => {
                     Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours
                 </p>
 
-                <div className="flex flex-col gap-4 mt-8 lg:mt-10 w-full max-w-sm">
+                {/* DESKTOP ONLY: Contact and Instagram bubbles in left sidebar */}
+                <div className="hidden lg:flex flex-col gap-4 mt-8 lg:mt-10 w-full max-w-sm">
                      <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
@@ -865,6 +866,63 @@ const ContactForm: React.FC = () => {
                     </button>
 
                 </form>
+            </div>
+
+            {/* MOBILE ONLY: Contact Here & Instagram bubbles under the form */}
+            <div className="flex lg:hidden flex-col gap-4 w-full mt-4">
+                 <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform">
+                            <Mail size={24} />
+                        </div>
+                        <div>
+                            <h4 className="text-white font-bold text-lg">Contact here</h4>
+                            <button 
+                                type="button"
+                                onClick={() => handleCopy("info@trillexmusicgroup.com")}
+                                className="text-white/40 text-sm hover:text-trillex-orange transition-colors text-left"
+                                data-hoverable="true"
+                            >
+                                info@trillexmusicgroup.com
+                            </button>
+                        </div>
+                    </div>
+                 </div>
+
+                 {/* INSTAGRAM CONNECT SECTION */}
+                 <div className="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-md transition-all duration-300 hover:bg-white/10 group">
+                    <div className="flex items-center gap-4 mb-5">
+                        <div className="w-12 h-12 rounded-full bg-trillex-orange/20 flex items-center justify-center text-trillex-orange group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(255,127,80,0.2)]">
+                            <Instagram size={24} />
+                        </div>
+                        <h4 className="text-white font-bold text-lg">Connect on Instagram</h4>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                        {[
+                            { handle: '@trillexmusicgroup', url: 'https://www.instagram.com/trillexmusicgroup' },
+                            { handle: '@trillexbounce', url: 'https://www.instagram.com/trillexbounce' },
+                            { handle: '@trillexavant', url: 'https://www.instagram.com/trillexavant' }
+                        ].map((item, index) => (
+                            <a
+                                key={index}
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group/item flex items-center justify-between w-full px-4 py-3 rounded-xl bg-black/20 border border-white/5 hover:border-trillex-orange/50 hover:bg-trillex-orange/10 transition-all duration-300"
+                            >
+                                <span className="text-sm text-white/60 font-mono group-hover/item:text-white transition-colors">
+                                    {item.handle}
+                                </span>
+                                
+                                <ExternalLink
+                                    size={14} 
+                                    className="text-white/20 group-hover/item:text-trillex-orange group-hover/item:translate-x-0.5 group-hover/item:-translate-y-0.5 transition-all duration-300" 
+                                />
+                            </a>
+                        ))}
+                    </div>
+                 </div>
             </div>
         </div>
     </div>
