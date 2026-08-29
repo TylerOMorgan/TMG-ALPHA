@@ -43,7 +43,7 @@ const Footer: React.FC = () => {
         </span>
         
         {/* Navigation Links */}
-        <div className="flex flex-nowrap items-center gap-x-3 lg:gap-x-6 order-1 lg:order-2 tracking-widest overflow-x-auto w-full lg:w-auto justify-start lg:justify-center px-6 lg:px-0 no-scrollbar mask-gradient">
+        <div className="flex flex-nowrap items-center gap-x-2.5 sm:gap-x-4 lg:gap-x-6 order-1 lg:order-2 tracking-widest overflow-x-auto w-full lg:w-auto justify-center px-3 sm:px-6 lg:px-0 no-scrollbar">
             {/* 1. Brand/Loc */}
             <span className="text-white hover:text-trillex-orange transition-colors cursor-default whitespace-nowrap flex-shrink-0">
                 BKK FOUNDED
@@ -88,9 +88,6 @@ const Footer: React.FC = () => {
                 <Mail className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-[18px] lg:h-[18px] group-hover:scale-110 transition-transform"/>
                 EMAIL
             </a>
-            
-            {/* Spacer for mobile right padding to ensure last item is clickable/visible */}
-            <div className="w-4 lg:hidden flex-shrink-0"></div>
         </div>
     </footer>
   );

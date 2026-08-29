@@ -498,7 +498,7 @@ const ContactForm: React.FC = () => {
   const renderGeneralForm = () => (
     <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-            <div className="flex flex-col pt-4">
+            <div className="flex flex-col pt-4 items-center text-center lg:items-start lg:text-left">
                 <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mb-8 backdrop-blur-sm">
                     <span className="text-xs font-mono text-white/80 tracking-widest uppercase">Contact Us</span>
                 </div>
@@ -513,7 +513,7 @@ const ContactForm: React.FC = () => {
                 <button 
                     type="button"
                     onClick={() => handleCopy("info@trillexmusicgroup.com")} 
-                    className="text-lg md:text-xl text-trillex-orange hover:text-white transition-colors border-b border-trillex-orange/30 hover:border-white pb-1 w-fit text-left cursor-pointer"
+                    className="text-lg md:text-xl text-trillex-orange hover:text-white transition-colors border-b border-trillex-orange/30 hover:border-white pb-1 w-fit text-center lg:text-left cursor-pointer"
                     data-hoverable="true"
                 >
                     info@trillexmusicgroup.com
@@ -623,17 +623,17 @@ const ContactForm: React.FC = () => {
   const renderDemoForm = () => (
     <div className="w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-start">
-            <div className="flex flex-col pt-4">
+            <div className="flex flex-col pt-4 items-center text-center lg:items-start lg:text-left">
                 <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white/5 border border-white/10 w-fit mb-8 backdrop-blur-sm">
                     <span className="text-xs font-mono text-white/80 tracking-widest uppercase">Demo Drop</span>
                 </div>
                 
                 <h2 className="text-4xl md:text-7xl font-display font-bold text-white tracking-tight leading-[1.1] mb-6">
-                    Share Your <br/>
+                    Share Your <br className="hidden lg:block" />
                     <span className="text-trillex-orange">Sound.</span>
                 </h2>
                 
-                <p className="text-lg md:text-xl text-white/60 font-light mb-6">
+                <p className="text-lg md:text-xl text-white/60 font-light mb-6 max-w-lg lg:max-w-none">
                     Thank you for your interest in Trillex Music Group! After submission, we will contact you within 48 hours
                 </p>
 
