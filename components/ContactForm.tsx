@@ -260,6 +260,15 @@ const ContactForm: React.FC = () => {
 
   // Support pre-selecting sub-label from external links/cards
   useEffect(() => {
+    const checkStoredSubLabel = () => {
+      const stored = sessionStorage.getItem('trillex_selected_sublabel');
+      if (stored) {
+        setDemoForm(prev => ({ ...prev, subLabel: stored }));
+        sessionStorage.removeItem('trillex_selected_sublabel');
+      }
+    };
+    checkStoredSubLabel();
+
     const handleSetSubLabel = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail?.subLabel) {
