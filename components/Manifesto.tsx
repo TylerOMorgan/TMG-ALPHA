@@ -55,16 +55,20 @@ const Manifesto: React.FC = () => {
       tl.to(toReveal, {
         opacity: 1,
         color: '#EAEAEA',
-        stagger: 0.2, // Stagger value creates the sequential "typing" effect
+        stagger: 0.15,
+        duration: 0.3,
         ease: "none",
       })
-      // 4. Footer Reveal
+      // 4. Footer Reveal: Reveals sequentially with neon glow and is fully visible as the scroll moves ahead
       .to(footerWords, {
         opacity: 1,
         textShadow: "0 0 12px rgba(255,127,80,0.8)",
         stagger: 0.1,
-        ease: "none",
-      });
+        duration: 0.5,
+        ease: "power2.out",
+      }, "-=1.8")
+      // 5. Hold duration so text and Established in BKK 2024 remain fully visible and comfortable before unpinning
+      .to({}, { duration: 1.0 });
 
     }, sectionRef);
 
