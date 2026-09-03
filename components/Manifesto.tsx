@@ -51,24 +51,24 @@ const Manifesto: React.FC = () => {
         }
       });
 
-      // 3. Reveal Animation
+      // 3. Reveal Animation: Upper text reveals completely first
       tl.to(toReveal, {
         opacity: 1,
         color: '#EAEAEA',
         stagger: 0.15,
-        duration: 0.3,
+        duration: 0.25,
         ease: "none",
       })
-      // 4. Footer Reveal: Reveals sequentially with neon glow and is fully visible as the scroll moves ahead
+      // 4. Footer Reveal: Starts strictly AFTER the entire text above is 100% revealed
       .to(footerWords, {
         opacity: 1,
         textShadow: "0 0 12px rgba(255,127,80,0.8)",
-        stagger: 0.1,
-        duration: 0.5,
+        stagger: 0.12,
+        duration: 0.4,
         ease: "power2.out",
-      }, "-=1.8")
-      // 5. Hold duration so text and Established in BKK 2024 remain fully visible and comfortable before unpinning
-      .to({}, { duration: 1.0 });
+      }, "+=0.1")
+      // 5. Hold duration so full text and Established in BKK 2024 remain fully visible and comfortable as the scroll moves ahead
+      .to({}, { duration: 1.2 });
 
     }, sectionRef);
 
