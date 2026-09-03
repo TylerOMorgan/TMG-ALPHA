@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import Manifesto from '../Manifesto';
+import SvgAnimation from '../SvgAnimation';
 import Services from '../Services';
 import FounderWord from '../FounderWord';
 import Footer from '../Footer';
@@ -15,7 +16,9 @@ const About: React.FC = () => {
     <div className="bg-trillex-black min-h-screen pt-28">
       <Manifesto />
 
-      {/* Diagram explaining how the label works is saved in components/LabelFlowDiagram.tsx */}
+      {/* Trillex Website SVG Animations */}
+      <SvgAnimation />
+
       <Services />
 
       {/* Spacer between Services and FounderWord */}
