@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, User, ChevronDown, Check, ArrowRight, Globe, Instagram, MessageSquare, Music, Users, Loader2, AlertCircle, LucideIcon, Disc, ExternalLink } from 'lucide-react';
+import { Mail, User, ChevronDown, Check, ArrowRight, Globe, Instagram, MessageSquare, Music, Users, Loader2, AlertCircle, LucideIcon, Disc, ExternalLink, Search } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -60,6 +60,21 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ children, onClick, active }
   );
 };
 
+// Genre options for Demo Submission
+const GENRE_OPTIONS = [
+  'Hoodtrap',
+  'Jersey Club',
+  'Mylancore',
+  'Synth Club',
+  'Nola Bounce',
+  'Afrobeats',
+  'Hardtekk',
+  'Hardstyle',
+  'Jumpstyle',
+  'Brazilian Funk',
+  'Others'
+];
+
 // --- CUSTOM SELECT COMPONENT ---
 type SelectOption = string | { label: string; value: string; image: string };
 
@@ -69,6 +84,8 @@ interface CustomSelectProps {
   onChange: (value: string) => void;
   options: SelectOption[];
   icon: LucideIcon;
+  searchable?: boolean;
+  searchPlaceholder?: string;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }
@@ -79,16 +96,20 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   onChange, 
   options, 
   icon: Icon,
+  searchable,
+  searchPlaceholder,
   onMouseEnter,
   onMouseLeave
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
+        setSearchQuery('');
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -98,7 +119,14 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   const handleSelect = (optionValue: string) => {
     onChange(optionValue);
     setIsOpen(false);
+    setSearchQuery('');
   };
+
+  const filteredOptions = options.filter((opt) => {
+    if (!searchQuery.trim()) return true;
+    const optLabel = typeof opt === 'string' ? opt : opt.label;
+    return optLabel.toLowerCase().includes(searchQuery.toLowerCase().trim());
+  });
 
   // Helper to get display data from the current value
   const getSelectedDisplay = () => {
@@ -132,7 +160,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={() => {
+            if (isOpen) setSearchQuery('');
+            setIsOpen(!isOpen);
+          }}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
           className={`w-full bg-white/5 border ${isOpen ? 'border-trillex-orange/50 ring-1 ring-trillex-orange/50' : 'border-white/10'} rounded-xl pl-12 pr-4 py-4 text-base text-left text-white outline-none transition-all duration-300 flex items-center justify-between group hover:bg-white/10`}
@@ -147,26 +178,47 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
         {isOpen && (
           <div className="absolute top-full left-0 w-full mt-2 bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 duration-200">
-            <ul className="flex flex-col max-h-80 overflow-y-auto py-1">
-              {options.map((option) => {
-                const optValue = typeof option === 'string' ? option : option.value;
-                const optLabel = typeof option === 'string' ? option : option.label;
-                const optImage = typeof option === 'string' ? null : option.image;
+            {searchable && (
+              <div className="p-2.5 border-b border-white/10 bg-[#0A0A0A] sticky top-0 z-20">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder={searchPlaceholder || "Search..."}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-white/30 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all"
+                  />
+                </div>
+              </div>
+            )}
+            <ul className="flex flex-col max-h-64 overflow-y-auto py-1">
+              {filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => {
+                  const optValue = typeof option === 'string' ? option : option.value;
+                  const optLabel = typeof option === 'string' ? option : option.label;
+                  const optImage = typeof option === 'string' ? null : option.image;
 
-                return (
-                  <DropdownItem
-                      key={optValue}
-                      active={value === optValue}
-                      onClick={() => handleSelect(optValue)}
-                  >
-                      {/* --- MODIFIED: Increased image size for dropdown list --- */}
-                      {optImage && (
-                        <img src={optImage} alt="" className="w-16 h-16 object-contain rounded-md" />
-                      )}
-                      <span className={optImage ? "text-lg font-medium" : ""}>{optLabel}</span>
-                  </DropdownItem>
-                );
-              })}
+                  return (
+                    <DropdownItem
+                        key={optValue}
+                        active={value === optValue}
+                        onClick={() => handleSelect(optValue)}
+                    >
+                        {/* --- MODIFIED: Increased image size for dropdown list --- */}
+                        {optImage && (
+                          <img src={optImage} alt="" className="w-16 h-16 object-contain rounded-md" />
+                        )}
+                        <span className={optImage ? "text-lg font-medium" : ""}>{optLabel}</span>
+                    </DropdownItem>
+                  );
+                })
+              ) : (
+                <li className="px-4 py-5 text-center text-xs font-mono text-white/40">
+                  No options found
+                </li>
+              )}
             </ul>
           </div>
         )}
@@ -243,6 +295,7 @@ const ContactForm: React.FC = () => {
   });
   
   const [demoForm, setDemoForm] = useState({
+    genre: 'Select',
     subLabel: 'Select',
     artistName: '',
     songTitle: '',
@@ -258,12 +311,12 @@ const ContactForm: React.FC = () => {
   const disableCursor = () => document.body.classList.add('no-custom-cursor');
   const enableCursor = () => document.body.classList.remove('no-custom-cursor');
 
-  // Support pre-selecting sub-label from external links/cards
+  // Support pre-selecting genre/sub-label from external links/cards
   useEffect(() => {
     const checkStoredSubLabel = () => {
       const stored = sessionStorage.getItem('trillex_selected_sublabel');
       if (stored) {
-        setDemoForm(prev => ({ ...prev, subLabel: stored }));
+        setDemoForm(prev => ({ ...prev, subLabel: stored, genre: stored }));
         sessionStorage.removeItem('trillex_selected_sublabel');
       }
     };
@@ -272,7 +325,7 @@ const ContactForm: React.FC = () => {
     const handleSetSubLabel = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail?.subLabel) {
-        setDemoForm(prev => ({ ...prev, subLabel: customEvent.detail.subLabel }));
+        setDemoForm(prev => ({ ...prev, subLabel: customEvent.detail.subLabel, genre: customEvent.detail.subLabel }));
       }
     };
     window.addEventListener('trillex-set-sublabel', handleSetSubLabel);
@@ -453,8 +506,8 @@ const ContactForm: React.FC = () => {
         return; 
     }
 
-    if (demoForm.subLabel === 'Select') {
-        showToast('Missing Field', 'Please select a label', 'error');
+    if (demoForm.genre === 'Select' && demoForm.subLabel === 'Select') {
+        showToast('Missing Field', 'Please select a genre', 'error');
         return;
     }
 
@@ -475,6 +528,7 @@ const ContactForm: React.FC = () => {
         await sendDemoToWebhook(demoForm);
         showToast('Demo Submitted', 'Our A&R team is listening', 'success');
         setDemoForm({
+            genre: 'Select',
             subLabel: 'Select',
             artistName: '',
             songTitle: '',
@@ -734,16 +788,15 @@ const ContactForm: React.FC = () => {
                 
                 <form onSubmit={handleDemoSubmit} className="flex flex-col gap-5 md:gap-6 relative z-10">
                     
-                    {/* TRILLEX SUB-LABEL SELECTION */}
+                    {/* GENRE SELECTION */}
                     <CustomSelect 
-                        label="Trillex Sub-Label"
-                        value={demoForm.subLabel}
-                        onChange={(value) => setDemoForm({...demoForm, subLabel: value})}
-                        options={[
-                            { label: 'Trillex Avant', value: 'Trillex Avant', image: './Avant.png' },
-                            { label: 'Trillex Bounce', value: 'Trillex Bounce', image: './Bounce.png' }
-                        ]}
+                        label="Genre"
+                        value={demoForm.genre !== 'Select' ? demoForm.genre : demoForm.subLabel}
+                        onChange={(value) => setDemoForm({...demoForm, genre: value, subLabel: value})}
+                        options={GENRE_OPTIONS}
                         icon={Disc}
+                        searchable={true}
+                        searchPlaceholder="Search genres..."
                         onMouseEnter={disableCursor}
                         onMouseLeave={enableCursor}
                     />
