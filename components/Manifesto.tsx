@@ -79,7 +79,7 @@ const Manifesto: React.FC = () => {
     <section 
       id="about-manifesto" 
       ref={sectionRef} 
-      className="relative w-full min-h-0 flex items-center justify-center bg-trillex-black pt-0 pb-10"
+      className="relative w-full min-h-0 flex items-center justify-center bg-trillex-black pt-0 pb-2 sm:pb-4"
     >
       <div className="max-w-7xl px-8 md:px-12 text-center flex flex-col items-center">
         
