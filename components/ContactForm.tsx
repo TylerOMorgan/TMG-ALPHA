@@ -104,6 +104,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -115,6 +116,27 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Isolate scroll so cursor over dropdown list scrolls the list, not the page
+  useEffect(() => {
+    const listEl = listRef.current;
+    if (!isOpen || !listEl) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+
+      const { deltaY } = e;
+      const atTop = listEl.scrollTop <= 0 && deltaY < 0;
+      const atBottom = listEl.scrollTop + listEl.clientHeight >= listEl.scrollHeight - 1 && deltaY > 0;
+
+      if (atTop || atBottom) {
+        e.preventDefault();
+      }
+    };
+
+    listEl.addEventListener('wheel', handleWheel, { passive: false });
+    return () => listEl.removeEventListener('wheel', handleWheel);
+  }, [isOpen]);
 
   const handleSelect = (optionValue: string) => {
     onChange(optionValue);
@@ -176,7 +198,12 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 w-full mt-2 bg-[#0c0c0c] border border-white/15 rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.95)] z-50 animate-in fade-in zoom-in-95 duration-200">
+          <div 
+            data-lenis-prevent
+            data-lenis-prevent-wheel
+            data-lenis-prevent-touch
+            className="absolute top-full left-0 w-full mt-2 bg-[#0c0c0c] border border-white/15 rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.95)] z-50 animate-in fade-in zoom-in-95 duration-200"
+          >
             {searchable && (
               <div className="p-3 border-b border-white/10 bg-[#0c0c0c] sticky top-0 z-20">
                 <div className="relative">
@@ -192,7 +219,13 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 </div>
               </div>
             )}
-            <ul className="flex flex-col max-h-[380px] sm:max-h-[420px] overflow-y-auto py-1 divide-y divide-white/[0.04]">
+            <ul 
+              ref={listRef}
+              data-lenis-prevent
+              data-lenis-prevent-wheel
+              data-lenis-prevent-touch
+              className="flex flex-col max-h-[380px] sm:max-h-[420px] overflow-y-auto overscroll-contain py-1 divide-y divide-white/[0.04]"
+            >
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => {
                   const optValue = typeof option === 'string' ? option : option.value;
