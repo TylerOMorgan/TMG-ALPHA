@@ -38,8 +38,8 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ children, onClick, active }
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`relative px-4 py-3 cursor-pointer text-sm transition-colors flex items-center justify-between overflow-hidden
-        ${active ? 'bg-trillex-orange/10 text-trillex-orange' : 'text-white/70 hover:text-white hover:bg-white/5'}
+      className={`relative px-5 py-4 sm:py-4.5 min-h-[58px] sm:min-h-[64px] cursor-pointer text-base transition-colors flex items-center justify-between overflow-hidden
+        ${active ? 'bg-trillex-orange/10 text-trillex-orange' : 'text-white/80 hover:text-white hover:bg-white/5'}
       `}
     >
       {/* The White Circle / Spotlight Effect */}
@@ -52,10 +52,10 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ children, onClick, active }
       />
       
       {/* Content */}
-      <div className="relative z-10 font-medium tracking-wide flex items-center gap-4">
+      <div className="relative z-10 font-medium tracking-wide flex items-center gap-4 sm:gap-5">
         {children}
       </div>
-      {active && <Check size={16} className="relative z-10 text-trillex-orange shrink-0" />}
+      {active && <Check size={18} className="relative z-10 text-trillex-orange shrink-0" />}
     </li>
   );
 };
@@ -142,8 +142,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     
     return (
       <div className="flex items-center gap-3.5">
-        <img src={selectedOption.image} alt="" className="w-8 h-8 object-contain shrink-0 rounded-md" />
-        <span className="text-base font-medium tracking-wide">{selectedOption.label}</span>
+        <img src={selectedOption.image} alt="" className="w-10 h-10 object-contain shrink-0 rounded-md" />
+        <span className="text-base sm:text-lg font-medium tracking-wide">{selectedOption.label}</span>
       </div>
     );
   };
@@ -192,7 +192,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 </div>
               </div>
             )}
-            <ul className="flex flex-col max-h-72 overflow-y-auto py-1 divide-y divide-white/[0.03]">
+            <ul className="flex flex-col max-h-[380px] sm:max-h-[420px] overflow-y-auto py-1 divide-y divide-white/[0.04]">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => {
                   const optValue = typeof option === 'string' ? option : option.value;
@@ -206,14 +206,18 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                         onClick={() => handleSelect(optValue)}
                     >
                         {optImage && (
-                          <img src={optImage} alt="" className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0 rounded-md" />
+                          <img 
+                            src={optImage} 
+                            alt="" 
+                            className="w-12 h-12 sm:w-14 sm:h-14 object-contain shrink-0 rounded-md" 
+                          />
                         )}
-                        <span className="text-sm sm:text-base font-medium tracking-wide">{optLabel}</span>
+                        <span className="text-base sm:text-lg font-medium tracking-wide">{optLabel}</span>
                     </DropdownItem>
                   );
                 })
               ) : (
-                <li className="px-4 py-6 text-center text-xs font-mono text-white/40">
+                <li className="px-4 py-8 text-center text-sm font-mono text-white/40">
                   No options found
                 </li>
               )}
