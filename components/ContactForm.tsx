@@ -60,19 +60,19 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ children, onClick, active }
   );
 };
 
-// Genre options for Demo Submission
-const GENRE_OPTIONS = [
-  'Hoodtrap',
-  'Jersey Club',
-  'Mylancore',
-  'Synth Club',
-  'Nola Bounce',
-  'Afrobeats',
-  'Hardtekk',
-  'Hardstyle',
-  'Jumpstyle',
-  'Brazilian Funk',
-  'Others'
+// Genre options for Demo Submission with custom music chips
+const GENRE_OPTIONS: SelectOption[] = [
+  { label: 'Hoodtrap', value: 'Hoodtrap', image: '/genres/hoodtrap.png' },
+  { label: 'Jersey Club', value: 'Jersey Club', image: '/genres/jersey-club.png' },
+  { label: 'Mylancore', value: 'Mylancore', image: '/genres/mylancore.png' },
+  { label: 'Synth Club', value: 'Synth Club', image: '/genres/synth-club.png' },
+  { label: 'Nola Bounce', value: 'Nola Bounce', image: '/genres/nola-bounce.png' },
+  { label: 'Afrobeats', value: 'Afrobeats', image: '/genres/afrobeats.png' },
+  { label: 'Hardtekk', value: 'Hardtekk', image: '/genres/hardtekk.png' },
+  { label: 'Hardstyle', value: 'Hardstyle', image: '/genres/hardstyle.png' },
+  { label: 'Jumpstyle', value: 'Jumpstyle', image: '/genres/jumpstyle.png' },
+  { label: 'Brazilian Funk', value: 'Brazilian Funk', image: '/genres/brazilian-funk.png' },
+  { label: 'Others', value: 'Others', image: '/genres/others.png' }
 ];
 
 // --- CUSTOM SELECT COMPONENT ---
@@ -140,17 +140,16 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
       return <span>{selectedOption}</span>;
     }
     
-    // --- MODIFIED: Increased image size for selected state ---
     return (
-      <div className="flex items-center gap-4">
-        <img src={selectedOption.image} alt="" className="w-12 h-12 object-contain" />
-        <span className="text-lg font-medium">{selectedOption.label}</span>
+      <div className="flex items-center gap-3.5">
+        <img src={selectedOption.image} alt="" className="w-8 h-8 object-contain shrink-0 rounded-md" />
+        <span className="text-base font-medium tracking-wide">{selectedOption.label}</span>
       </div>
     );
   };
 
   return (
-    <div className="flex flex-col gap-2 relative z-20" ref={containerRef}>
+    <div className={`flex flex-col gap-2 relative transition-all duration-150 ${isOpen ? 'z-50' : 'z-20'}`} ref={containerRef}>
       <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">
         {label}<span className="text-trillex-orange">*</span>
       </label>
@@ -177,23 +176,23 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 w-full mt-2 bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 duration-200">
+          <div className="absolute top-full left-0 w-full mt-2 bg-[#0c0c0c] border border-white/15 rounded-xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.95)] z-50 animate-in fade-in zoom-in-95 duration-200">
             {searchable && (
-              <div className="p-2.5 border-b border-white/10 bg-[#0A0A0A] sticky top-0 z-20">
+              <div className="p-3 border-b border-white/10 bg-[#0c0c0c] sticky top-0 z-20">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 pointer-events-none" />
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 w-4 h-4 pointer-events-none" />
                   <input
                     type="text"
                     placeholder={searchPlaceholder || "Search..."}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-white/30 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder-white/30 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all font-sans"
                   />
                 </div>
               </div>
             )}
-            <ul className="flex flex-col max-h-64 overflow-y-auto py-1">
+            <ul className="flex flex-col max-h-72 overflow-y-auto py-1 divide-y divide-white/[0.03]">
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((option) => {
                   const optValue = typeof option === 'string' ? option : option.value;
@@ -206,16 +205,15 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                         active={value === optValue}
                         onClick={() => handleSelect(optValue)}
                     >
-                        {/* --- MODIFIED: Increased image size for dropdown list --- */}
                         {optImage && (
-                          <img src={optImage} alt="" className="w-16 h-16 object-contain rounded-md" />
+                          <img src={optImage} alt="" className="w-8 h-8 sm:w-9 sm:h-9 object-contain shrink-0 rounded-md" />
                         )}
-                        <span className={optImage ? "text-lg font-medium" : ""}>{optLabel}</span>
+                        <span className="text-sm sm:text-base font-medium tracking-wide">{optLabel}</span>
                     </DropdownItem>
                   );
                 })
               ) : (
-                <li className="px-4 py-5 text-center text-xs font-mono text-white/40">
+                <li className="px-4 py-6 text-center text-xs font-mono text-white/40">
                   No options found
                 </li>
               )}
