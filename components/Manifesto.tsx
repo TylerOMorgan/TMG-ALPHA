@@ -36,8 +36,8 @@ const Manifesto: React.FC = () => {
       // Rest is dimmed (almost hidden)
       gsap.set(toReveal, { opacity: 0.1, color: '#4a4a4a' });
       
-      // Footer Initial State: Dimmed and no glow
-      gsap.set(footerWords, { opacity: 0.1, textShadow: "none" });
+      // Footer Initial State: Always visible with glow, never hidden when scrolled
+      gsap.set(footerWords, { opacity: 1, textShadow: "0 0 12px rgba(255,127,80,0.8)" });
 
       // 2. Timeline with Pinning
       const tl = gsap.timeline({
@@ -56,13 +56,6 @@ const Manifesto: React.FC = () => {
         opacity: 1,
         color: '#EAEAEA',
         stagger: 0.2, // Stagger value creates the sequential "typing" effect
-        ease: "none",
-      })
-      // 4. Footer Reveal
-      .to(footerWords, {
-        opacity: 1,
-        textShadow: "0 0 12px rgba(255,127,80,0.8)",
-        stagger: 0.1,
         ease: "none",
       });
 
@@ -97,13 +90,13 @@ const Manifesto: React.FC = () => {
           ))}
         </div>
         
-        {/* Added Footer Text with Neon Glow and Scroll Reveal */}
+        {/* Footer Text with Neon Glow - Stays visible when scrolled */}
         <div 
             ref={footerRef}
-            className="mt-12 text-trillex-orange text-lg md:text-2xl font-sans font-medium tracking-wider flex gap-x-2 flex-wrap justify-center"
+            className="mt-12 text-trillex-orange text-lg md:text-2xl font-sans font-medium tracking-wider flex gap-x-2 flex-wrap justify-center opacity-100 [text-shadow:0_0_12px_rgba(255,127,80,0.8)]"
         >
              {FOOTER_WORDS.map((word, i) => (
-                <span key={i} className="footer-word will-change-[opacity,text-shadow]">
+                <span key={i} className="footer-word opacity-100">
                     {word}
                 </span>
              ))}
