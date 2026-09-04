@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Mail, User, ChevronDown, Check, ArrowRight, Globe, Instagram, MessageSquare, Music, Users, Loader2, AlertCircle, LucideIcon, Disc, ExternalLink, Search } from 'lucide-react';
+import Logo from './Logo';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -60,23 +61,23 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ children, onClick, active }
   );
 };
 
-// Genre options for Demo Submission with custom music chips
-const GENRE_OPTIONS: SelectOption[] = [
-  { label: 'Hoodtrap', value: 'Hoodtrap', image: '/genres/hoodtrap.png' },
-  { label: 'Jersey Club', value: 'Jersey Club', image: '/genres/jersey-club.png' },
-  { label: 'Mylancore', value: 'Mylancore', image: '/genres/mylancore.png' },
-  { label: 'Synth Club', value: 'Synth Club', image: '/genres/synth-club.png' },
-  { label: 'Nola Bounce', value: 'Nola Bounce', image: '/genres/nola-bounce.png' },
-  { label: 'Afrobeats', value: 'Afrobeats', image: '/genres/afrobeats.png' },
-  { label: 'Hardtekk', value: 'Hardtekk', image: '/genres/hardtekk.png' },
-  { label: 'Hardstyle', value: 'Hardstyle', image: '/genres/hardstyle.png' },
-  { label: 'Jumpstyle', value: 'Jumpstyle', image: '/genres/jumpstyle.png' },
-  { label: 'Brazilian Funk', value: 'Brazilian Funk', image: '/genres/brazilian-funk.png' },
-  { label: 'Others', value: 'Others', image: '/genres/others.png' }
+// Genre options for Demo Submission
+const GENRE_OPTIONS: string[] = [
+  'Hoodtrap',
+  'Jersey Club',
+  'Mylancore',
+  'Synth Club',
+  'Nola Bounce',
+  'Afrobeats',
+  'Hardtekk',
+  'Hardstyle',
+  'Jumpstyle',
+  'Brazilian Funk',
+  'Others'
 ];
 
 // --- CUSTOM SELECT COMPONENT ---
-type SelectOption = string | { label: string; value: string; image: string };
+type SelectOption = string | { label: string; value: string };
 
 interface CustomSelectProps {
   label: string;
@@ -86,6 +87,7 @@ interface CustomSelectProps {
   icon: LucideIcon;
   searchable?: boolean;
   searchPlaceholder?: string;
+  showLogo?: boolean;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }
@@ -98,6 +100,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   icon: Icon,
   searchable,
   searchPlaceholder,
+  showLogo = false,
   onMouseEnter,
   onMouseLeave
 }) => {
@@ -158,16 +161,20 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
     if (!selectedOption || value === 'Select') return null;
 
-    if (typeof selectedOption === 'string') {
-      return <span>{selectedOption}</span>;
+    const optLabel = typeof selectedOption === 'string' ? selectedOption : selectedOption.label;
+
+    if (showLogo) {
+      return (
+        <div className="flex items-center gap-3.5">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center p-1.5 shrink-0 text-trillex-orange">
+            <Logo className="w-full h-full fill-current" />
+          </div>
+          <span className="text-base sm:text-lg font-medium tracking-wide text-white">{optLabel}</span>
+        </div>
+      );
     }
-    
-    return (
-      <div className="flex items-center gap-3.5">
-        <img src={selectedOption.image} alt="" className="w-10 h-10 object-contain shrink-0 rounded-md" />
-        <span className="text-base sm:text-lg font-medium tracking-wide">{selectedOption.label}</span>
-      </div>
-    );
+
+    return <span>{optLabel}</span>;
   };
 
   return (
@@ -230,20 +237,22 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 filteredOptions.map((option) => {
                   const optValue = typeof option === 'string' ? option : option.value;
                   const optLabel = typeof option === 'string' ? option : option.label;
-                  const optImage = typeof option === 'string' ? null : option.image;
+                  const isActive = value === optValue;
 
                   return (
                     <DropdownItem
                         key={optValue}
-                        active={value === optValue}
+                        active={isActive}
                         onClick={() => handleSelect(optValue)}
                     >
-                        {optImage && (
-                          <img 
-                            src={optImage} 
-                            alt="" 
-                            className="w-12 h-12 sm:w-14 sm:h-14 object-contain shrink-0 rounded-md" 
-                          />
+                        {showLogo && (
+                          <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center p-2 shrink-0 transition-colors ${
+                            isActive
+                              ? 'bg-trillex-orange/15 text-trillex-orange border border-trillex-orange/30'
+                              : 'bg-white/[0.04] text-white/70 border border-white/10 group-hover:text-white group-hover:bg-white/10 group-hover:border-white/20'
+                          }`}>
+                            <Logo className="w-full h-full fill-current" />
+                          </div>
                         )}
                         <span className="text-base sm:text-lg font-medium tracking-wide">{optLabel}</span>
                     </DropdownItem>
@@ -832,6 +841,7 @@ const ContactForm: React.FC = () => {
                         icon={Disc}
                         searchable={true}
                         searchPlaceholder="Search genres..."
+                        showLogo={true}
                         onMouseEnter={disableCursor}
                         onMouseLeave={enableCursor}
                     />
