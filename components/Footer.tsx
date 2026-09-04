@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
 
         {/* Copyright */}
         <span className="order-2 lg:order-1 whitespace-nowrap lg:absolute lg:left-6">
-            © 2025 TRILLEX MUSIC GROUP
+            © 2026 TRILLEX MUSIC GROUP
         </span>
         
         {/* Navigation Links */}
