@@ -165,10 +165,8 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
     if (showLogo) {
       return (
-        <div className="flex items-center gap-3.5">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-white/[0.06] border border-white/10 flex items-center justify-center p-1.5 shrink-0 text-trillex-orange">
-            <Logo className="w-full h-full fill-current" />
-          </div>
+        <div className="flex items-center gap-3">
+          <Logo className="w-6 h-6 sm:w-7 sm:h-7 text-trillex-orange shrink-0 fill-current" />
           <span className="text-base sm:text-lg font-medium tracking-wide text-white">{optLabel}</span>
         </div>
       );
@@ -246,13 +244,11 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                         onClick={() => handleSelect(optValue)}
                     >
                         {showLogo && (
-                          <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center p-2 shrink-0 transition-colors ${
+                          <Logo className={`w-6 h-6 sm:w-7 sm:h-7 shrink-0 transition-colors fill-current ${
                             isActive
-                              ? 'bg-trillex-orange/15 text-trillex-orange border border-trillex-orange/30'
-                              : 'bg-white/[0.04] text-white/70 border border-white/10 group-hover:text-white group-hover:bg-white/10 group-hover:border-white/20'
-                          }`}>
-                            <Logo className="w-full h-full fill-current" />
-                          </div>
+                              ? 'text-trillex-orange'
+                              : 'text-white/60 group-hover:text-white'
+                          }`} />
                         )}
                         <span className="text-base sm:text-lg font-medium tracking-wide">{optLabel}</span>
                     </DropdownItem>
