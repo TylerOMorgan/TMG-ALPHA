@@ -218,7 +218,7 @@ const FounderWord: React.FC = () => {
                     {/* Gradient Text Quote */}
                     <p 
                         ref={quoteRef}
-                        className="text-xl md:text-3xl lg:text-4xl leading-relaxed font-light italic text-transparent bg-clip-text"
+                        className="text-xl md:text-3xl lg:text-4xl leading-relaxed font-light italic text-transparent bg-clip-text pb-3 md:pb-4 pr-2"
                         style={{ 
                             backgroundImage: 'linear-gradient(90deg, #EAEAEA 0%, #EAEAEA 50%, #333333 100%)',
                             backgroundSize: '200% 100%',
