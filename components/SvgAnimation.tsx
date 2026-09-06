@@ -4,7 +4,7 @@ const SvgAnimation: React.FC = () => {
   return (
     <section 
       id="about-ecosystem-animation"
-      className="relative w-full pt-0 -mt-10 sm:-mt-14 md:-mt-20 pb-16 sm:pb-24 md:pb-32 bg-trillex-black flex flex-col items-center justify-center overflow-hidden select-none"
+      className="relative w-full pt-0 pb-16 sm:pb-24 md:pb-32 bg-trillex-black flex flex-col items-center justify-center overflow-hidden select-none"
     >
       {/* Subtle ambient gradient glow in the background matching the brand palette */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] lg:w-[1100px] h-[300px] md:h-[450px] bg-gradient-to-r from-trillex-orange/10 via-cyan-500/5 to-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />

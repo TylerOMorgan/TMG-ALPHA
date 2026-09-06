@@ -13,7 +13,7 @@ const About: React.FC = () => {
   }, []);
   
   return (
-    <div className="bg-trillex-black min-h-screen pt-28">
+    <div className="bg-trillex-black min-h-screen pt-20 md:pt-24">
       <Manifesto />
 
       {/* Trillex Website SVG Animations */}

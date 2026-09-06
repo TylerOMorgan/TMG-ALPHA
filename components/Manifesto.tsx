@@ -79,12 +79,12 @@ const Manifesto: React.FC = () => {
     <section 
       id="about-manifesto" 
       ref={sectionRef} 
-      className="relative z-10 w-full min-h-0 flex items-center justify-center bg-trillex-black pt-0 pb-12 sm:pb-16"
+      className="relative z-10 w-full min-h-0 flex items-center justify-center bg-trillex-black pt-0 pb-6 sm:pb-8"
     >
       <div className="max-w-7xl px-8 md:px-12 text-center flex flex-col items-center">
         
         {/* About Label: Left aligned and larger */}
-        <div className="w-full flex justify-start mb-8">
+        <div className="w-full flex justify-start mb-4 sm:mb-6">
             <span className="text-trillex-orange text-xl font-mono font-bold tracking-widest uppercase">
                 About
             </span>
@@ -104,7 +104,7 @@ const Manifesto: React.FC = () => {
         {/* Added Footer Text with Neon Glow and Scroll Reveal */}
         <div 
             ref={footerRef}
-            className="mt-10 sm:mt-12 text-trillex-orange text-lg md:text-2xl font-sans font-medium tracking-wider flex gap-x-2 flex-wrap justify-center relative z-20"
+            className="mt-6 sm:mt-8 text-trillex-orange text-lg md:text-2xl font-sans font-medium tracking-wider flex gap-x-2 flex-wrap justify-center relative z-20"
         >
              {FOOTER_WORDS.map((word, i) => (
                 <span key={i} className="footer-word will-change-[opacity,text-shadow]">
