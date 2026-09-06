@@ -1,14 +1,48 @@
 import React, { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, User, ChevronDown, Check, ArrowRight, Globe, Instagram, MessageSquare, Music, Users, Loader2, AlertCircle, LucideIcon, Disc, ExternalLink, Search } from 'lucide-react';
-import Logo from './Logo';
+import { Mail, User, ChevronDown, Check, ArrowRight, Globe, Instagram, MessageSquare, Music, Users, Loader2, AlertCircle, LucideIcon, Disc, ExternalLink, Search, Link } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // Webhook URLs
 const DEMO_WEBHOOK_URL = import.meta.env.VITE_DEMO_WEBHOOK_URL;
 const GENERAL_WEBHOOK_URL = import.meta.env.VITE_GENERAL_WEBHOOK_URL;
+
+// Platform Icons for Demo Link
+const SoundCloudIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 640 512" fill="currentColor" className={className} aria-label="SoundCloud">
+    <path d="M639.8 298.6c-1.3 23.1-11.5 44.8-28.4 60.5s-39.2 24.4-62.3 24.1h-218c-4.8 0-9.4-2-12.8-5.4s-5.3-8-5.3-12.8V130.2c-.2-4 .9-8 3.1-11.4s5.3-6.1 9-7.7c0 0 20.1-13.9 62.3-13.9c25.8 0 51.1 6.9 73.3 20.1c17.3 10.2 32.3 23.8 44.1 40.1s20 34.8 24.2 54.4c7.5-2.1 15.3-3.2 23.1-3.2c11.7-.1 23.3 2.2 34.2 6.7S606.8 226.6 615 235s14.6 18.3 18.9 29.3s6.3 22.6 5.9 34.3zm-354-153.5c.1-1 0-2-.3-2.9s-.8-1.8-1.5-2.6s-1.5-1.3-2.4-1.7s-1.9-.6-2.9-.6s-2 .2-2.9 .6s-1.7 1-2.4 1.7s-1.2 1.6-1.5 2.6s-.4 1.9-.3 2.9c-6 78.9-10.6 152.9 0 231.6c.2 1.7 1 3.3 2.3 4.5s3 1.8 4.7 1.8s3.4-.6 4.7-1.8s2.1-2.8 2.3-4.5c11.3-79.4 6.6-152 0-231.6zm-44 27.3c-.2-1.8-1.1-3.5-2.4-4.7s-3.1-1.9-5-1.9s-3.6 .7-5 1.9s-2.2 2.9-2.4 4.7c-7.9 67.9-7.9 136.5 0 204.4c.3 1.8 1.2 3.4 2.5 4.5s3.1 1.8 4.8 1.8s3.5-.6 4.8-1.8s2.2-2.8 2.5-4.5c8.8-67.8 8.8-136.5 .1-204.4zm-44.3-6.9c-.2-1.8-1-3.4-2.3-4.6s-3-1.8-4.8-1.8s-3.5 .7-4.8 1.8s-2.1 2.8-2.3 4.6c-6.7 72-10.2 139.3 0 211.1c0 1.9 .7 3.7 2.1 5s3.1 2.1 5 2.1s3.7-.7 5-2.1s2.1-3.1 2.1-5c10.5-72.8 7.3-138.2 .1-211.1zm-44 20.6c0-1.9-.8-3.8-2.1-5.2s-3.2-2.1-5.2-2.1s-3.8 .8-5.2 2.1s-2.1 3.2-2.1 5.2c-8.1 63.3-8.1 127.5 0 190.8c.2 1.8 1 3.4 2.4 4.6s3.1 1.9 4.8 1.9s3.5-.7 4.8-1.9s2.2-2.8 2.4-4.6c8.8-63.3 8.9-127.5 .3-190.8zM109 233.7c0-1.9-.8-3.8-2.1-5.1s-3.2-2.1-5.1-2.1s-3.8 .8-5.1 2.1s-2.1 3.2-2.1 5.1c-10.5 49.2-5.5 93.9 .4 143.6c.3 1.6 1.1 3.1 2.3 4.2s2.8 1.7 4.5 1.7s3.2-.6 4.5-1.7s2.1-2.5 2.3-4.2c6.6-50.4 11.6-94.1 .4-143.6zm-44.1-7.5c-.2-1.8-1.1-3.5-2.4-4.8s-3.2-1.9-5-1.9s-3.6 .7-5 1.9s-2.2 2.9-2.4 4.8c-9.3 50.2-6.2 94.4 .3 144.5c.7 7.6 13.6 7.5 14.4 0c7.2-50.9 10.5-93.8 .3-144.5zM20.3 250.8c-.2-1.8-1.1-3.5-2.4-4.8s-3.2-1.9-5-1.9s-3.6 .7-5 1.9s-2.3 2.9-2.4 4.8c-8.5 33.7-5.9 61.6 .6 95.4c.2 1.7 1 3.3 2.3 4.4s2.9 1.8 4.7 1.8s3.4-.6 4.7-1.8s2.1-2.7 2.3-4.4c7.5-34.5 11.2-61.8 .4-95.4z"/>
+  </svg>
+);
+
+const TikTokIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 448 512" fill="currentColor" className={className} aria-label="TikTok">
+    <path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z"/>
+  </svg>
+);
+
+const GoogleDriveIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg viewBox="0 0 512 512" fill="none" className={className} aria-label="Google Drive">
+    <path d="M339 314.9L175.4 32h161.2l163.6 282.9H339z" fill="#FFBA00" />
+    <path d="M154.1 67.4L0 338.5 80.6 480 237 208.8 154.1 67.4z" fill="#00AC47" />
+    <path d="M201.5 338.5L120.9 480h310.5L512 338.5H201.5z" fill="#2684FC" />
+  </svg>
+);
+
+const getDemoLinkIcon = (url: string) => {
+  const clean = url.trim().toLowerCase();
+  if (clean.includes('soundcloud')) {
+    return <SoundCloudIcon className="w-5 h-5 text-[#FF5500] shrink-0 drop-shadow-[0_0_8px_rgba(255,85,0,0.4)] transition-all duration-300 animate-in fade-in zoom-in-75" />;
+  }
+  if (clean.includes('tiktok')) {
+    return <TikTokIcon className="w-5 h-5 text-white shrink-0 filter drop-shadow-[-1.5px_0px_0_#25F4EE] drop-shadow-[1.5px_0px_0_#FE2C55] transition-all duration-300 animate-in fade-in zoom-in-75" />;
+  }
+  if (clean.includes('drive.google') || clean.includes('docs.google') || clean.includes('google.com/drive')) {
+    return <GoogleDriveIcon className="w-5 h-5 shrink-0 drop-shadow-[0_0_8px_rgba(66,133,244,0.3)] transition-all duration-300 animate-in fade-in zoom-in-75" />;
+  }
+  return <Link className="w-5 h-5 text-white/30 group-focus-within/input:text-trillex-orange transition-colors shrink-0" />;
+};
 
 // --- SPOTLIGHT DROPDOWN ITEM COMPONENT ---
 interface DropdownItemProps {
@@ -53,26 +87,26 @@ const DropdownItem: React.FC<DropdownItemProps> = ({ children, onClick, active }
       />
       
       {/* Content */}
-      <div className="relative z-10 font-medium tracking-wide flex items-center gap-4 sm:gap-5">
+      <div className="relative z-10 font-medium tracking-wide flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
         {children}
       </div>
-      {active && <Check size={18} className="relative z-10 text-trillex-orange shrink-0" />}
+      {active && <Check size={18} className="relative z-10 text-trillex-orange shrink-0 ml-3" />}
     </li>
   );
 };
 
 // Genre options for Demo Submission
 const GENRE_OPTIONS: string[] = [
+  'Hardtekk',
+  'Brazilian Funk',
   'Hoodtrap',
   'Jersey Club',
+  'Hardstyle',
   'Mylancore',
+  'Afrobeats',
+  'Jumpstyle',
   'Synth Club',
   'Nola Bounce',
-  'Afrobeats',
-  'Hardtekk',
-  'Hardstyle',
-  'Jumpstyle',
-  'Brazilian Funk',
   'Others'
 ];
 
@@ -87,7 +121,7 @@ interface CustomSelectProps {
   icon: LucideIcon;
   searchable?: boolean;
   searchPlaceholder?: string;
-  showLogo?: boolean;
+  allowCustom?: boolean;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
 }
@@ -100,20 +134,24 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   icon: Icon,
   searchable,
   searchPlaceholder,
-  showLogo = false,
+  allowCustom = false,
   onMouseEnter,
   onMouseLeave
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isEditingCustom, setIsEditingCustom] = useState(false);
+  const [customText, setCustomText] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const customInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setSearchQuery('');
+        setIsEditingCustom(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -145,7 +183,21 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
     onChange(optionValue);
     setIsOpen(false);
     setSearchQuery('');
+    setIsEditingCustom(false);
   };
+
+  const handleCustomConfirm = () => {
+    const trimmed = customText.trim();
+    if (trimmed) {
+      handleSelect(trimmed);
+    }
+  };
+
+  const isPredefined = options.some(opt => {
+    const optVal = typeof opt === 'string' ? opt : opt.value;
+    return optVal !== 'Others' && optVal.toLowerCase() === value.toLowerCase();
+  });
+  const isCustomActive = Boolean(allowCustom && value && value !== 'Select' && !isPredefined);
 
   const filteredOptions = options.filter((opt) => {
     if (!searchQuery.trim()) return true;
@@ -155,24 +207,24 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
 
   // Helper to get display data from the current value
   const getSelectedDisplay = () => {
+    if (!value || value === 'Select') return null;
+
     const selectedOption = options.find(opt => 
       typeof opt === 'string' ? opt === value : opt.value === value
     );
 
-    if (!selectedOption || value === 'Select') return null;
-
-    const optLabel = typeof selectedOption === 'string' ? selectedOption : selectedOption.label;
-
-    if (showLogo) {
-      return (
-        <div className="flex items-center gap-3">
-          <Logo className="w-6 h-6 sm:w-7 sm:h-7 text-trillex-orange shrink-0 fill-current" />
-          <span className="text-base sm:text-lg font-medium tracking-wide text-white">{optLabel}</span>
-        </div>
-      );
+    if (selectedOption) {
+      const optLabel = typeof selectedOption === 'string' ? selectedOption : selectedOption.label;
+      return <span>{optLabel}</span>;
     }
 
-    return <span>{optLabel}</span>;
+    // Custom value entered via Others
+    return (
+      <span className="flex items-center gap-2">
+        <span>{value}</span>
+        <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-trillex-orange/20 text-trillex-orange border border-trillex-orange/30">Custom</span>
+      </span>
+    );
   };
 
   return (
@@ -187,7 +239,10 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         <button
           type="button"
           onClick={() => {
-            if (isOpen) setSearchQuery('');
+            if (isOpen) {
+              setSearchQuery('');
+              setIsEditingCustom(false);
+            }
             setIsOpen(!isOpen);
           }}
           onMouseEnter={onMouseEnter}
@@ -235,28 +290,90 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
                 filteredOptions.map((option) => {
                   const optValue = typeof option === 'string' ? option : option.value;
                   const optLabel = typeof option === 'string' ? option : option.label;
-                  const isActive = value === optValue;
+                  const isOthersOption = allowCustom && optValue === 'Others';
+                  const isActive = isOthersOption ? (isCustomActive || value === 'Others') : value === optValue;
+
+                  if (isOthersOption && isEditingCustom) {
+                    return (
+                      <li
+                        key="others-custom-input"
+                        className="relative px-4 py-3 bg-white/10 border-y border-trillex-orange/30 flex items-center gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="relative flex-1">
+                          <input
+                            ref={customInputRef}
+                            autoFocus
+                            type="text"
+                            placeholder="Enter your genre..."
+                            value={customText}
+                            onChange={(e) => setCustomText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleCustomConfirm();
+                              } else if (e.key === 'Escape') {
+                                setIsEditingCustom(false);
+                              }
+                            }}
+                            className="w-full bg-black/60 border border-white/20 rounded-lg px-3 py-2 text-sm text-white placeholder-white/40 focus:border-trillex-orange focus:ring-1 focus:ring-trillex-orange outline-none font-sans"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleCustomConfirm}
+                          disabled={!customText.trim()}
+                          className="px-3 py-2 bg-trillex-orange text-black font-semibold text-xs rounded-lg hover:bg-white transition-colors flex items-center gap-1 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <Check size={14} />
+                          <span>Done</span>
+                        </button>
+                      </li>
+                    );
+                  }
 
                   return (
                     <DropdownItem
                         key={optValue}
                         active={isActive}
-                        onClick={() => handleSelect(optValue)}
+                        onClick={() => {
+                          if (isOthersOption) {
+                            setCustomText(isCustomActive ? value : '');
+                            setIsEditingCustom(true);
+                          } else {
+                            handleSelect(optValue);
+                          }
+                        }}
                     >
-                        {showLogo && (
-                          <Logo className={`w-6 h-6 sm:w-7 sm:h-7 shrink-0 transition-colors fill-current ${
-                            isActive
-                              ? 'text-trillex-orange'
-                              : 'text-white/60 group-hover:text-white'
-                          }`} />
-                        )}
-                        <span className="text-base sm:text-lg font-medium tracking-wide">{optLabel}</span>
+                        <div className="flex items-center justify-between w-full gap-4 sm:gap-6">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-base sm:text-lg font-medium tracking-wide">{optLabel}</span>
+                            {isOthersOption && isCustomActive && (
+                              <span className="text-xs font-mono text-trillex-orange">({value})</span>
+                            )}
+                          </div>
+                          {isOthersOption && (
+                            <span className="text-xs sm:text-sm font-medium text-white/50 group-hover:text-trillex-orange transition-colors whitespace-nowrap pl-4 ml-auto">
+                              {isCustomActive ? 'Edit' : 'Enter your genre'}
+                            </span>
+                          )}
+                        </div>
                     </DropdownItem>
                   );
                 })
               ) : (
-                <li className="px-4 py-8 text-center text-sm font-mono text-white/40">
-                  No options found
+                <li className="px-4 py-8 text-center text-sm font-mono text-white/50 flex flex-col items-center gap-3">
+                  <span>No options found</span>
+                  {allowCustom && searchQuery.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => handleSelect(searchQuery.trim())}
+                      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-trillex-orange/15 border border-trillex-orange/30 text-trillex-orange hover:bg-trillex-orange hover:text-black transition-all text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                    >
+                      <span>Use &ldquo;{searchQuery.trim()}&rdquo;</span>
+                      <Check size={14} />
+                    </button>
+                  )}
                 </li>
               )}
             </ul>
@@ -539,10 +656,10 @@ const ContactForm: React.FC = () => {
     e.preventDefault();
 
     const link = demoForm.demoLink.trim();
-    const isValidLink = link.startsWith('https://soundcloud.com') || link.startsWith('https://on.soundcloud.com');
+    const isValidLink = /^https?:\/\/(?:[a-zA-Z0-9-]+\.)*(soundcloud\.com|tiktok\.com|drive\.google\.com|docs\.google\.com)(\/.*)?$/i.test(link);
 
     if (!isValidLink) {
-        showToast('Invalid Link', 'Must start with https://soundcloud.com', 'error');
+        showToast('Invalid Link', 'Must be a SoundCloud, TikTok, or Google Drive link', 'error');
         return; 
     }
 
@@ -622,7 +739,7 @@ const ContactForm: React.FC = () => {
                              </div>
                              <div>
                                  <h4 className="text-white font-bold">Global HQ</h4>
-                                 <p className="text-white/40 text-sm">Bangkok, Thailand</p>
+                                 <p className="text-white/40 text-sm">Singapore</p>
                              </div>
                          </div>
                     </div>
@@ -738,7 +855,7 @@ const ContactForm: React.FC = () => {
                              </div>
                              <div>
                                  <h4 className="text-white font-bold">Global HQ</h4>
-                                 <p className="text-white/40 text-sm">Bangkok, Thailand</p>
+                                 <p className="text-white/40 text-sm">Singapore</p>
                              </div>
                          </div>
                     </div>
@@ -837,7 +954,7 @@ const ContactForm: React.FC = () => {
                         icon={Disc}
                         searchable={true}
                         searchPlaceholder="Search genres..."
-                        showLogo={true}
+                        allowCustom={true}
                         onMouseEnter={disableCursor}
                         onMouseLeave={enableCursor}
                     />
@@ -900,25 +1017,23 @@ const ContactForm: React.FC = () => {
                     )}
 
                       <div className="flex flex-col gap-2">
-                          <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Demo Link (SoundCloud Private Link ONLY)<span className="text-trillex-orange">*</span></label>
+                          <label className="text-xs font-mono text-white/70 uppercase tracking-wider pl-1">Demo Link (SoundCloud / TikTok / Google Drive)<span className="text-trillex-orange">*</span></label>
                           <div className="relative group/input">
-                              <img
-                                  src="./soundcloud.png"
-                                  alt="SoundCloud"
-                                  className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-6 object-contain opacity-50 group-focus-within/input:opacity-100 transition-opacity pointer-events-none"
-                              />
+                              <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center w-5 h-5 pointer-events-none">
+                                  {getDemoLinkIcon(demoForm.demoLink)}
+                              </div>
 
                               <input
                                   required
                                   type="url"
-                                  pattern="^https:\/\/(on\.)?soundcloud\.com.*"
-                                  title="URL must start with https://soundcloud.com or https://on.soundcloud.com"
-                                  placeholder="https://soundcloud.com/..."
+                                  pattern="^https?:\/\/(?:[a-zA-Z0-9-]+\.)*(soundcloud\.com|tiktok\.com|drive\.google\.com|docs\.google\.com)(\/.*)?"
+                                  title="URL must be from SoundCloud, TikTok, or Google Drive"
+                                  placeholder="SoundCloud, TikTok, or Google Drive link..."
                                   value={demoForm.demoLink}
                                   onChange={(e) => setDemoForm({ ...demoForm, demoLink: e.target.value })}
-                                  onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Please send a SoundCloud link.')}
+                                  onInvalid={(e) => (e.target as HTMLInputElement).setCustomValidity('Please provide a valid SoundCloud, TikTok, or Google Drive link.')}
                                   onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
-                                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-16 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300 [&:not(:placeholder-shown):invalid]:border-red-500/50 [&:not(:placeholder-shown):invalid]:focus:border-red-500"
+                                  className="w-full bg-white/5 border border-white/10 rounded-xl pl-12 pr-4 py-4 text-base text-white placeholder-white/20 focus:border-trillex-orange/50 focus:bg-white/10 focus:ring-1 focus:ring-trillex-orange/50 outline-none transition-all duration-300 [&:not(:placeholder-shown):invalid]:border-red-500/50 [&:not(:placeholder-shown):invalid]:focus:border-red-500"
                               />
                           </div>
                       </div>
