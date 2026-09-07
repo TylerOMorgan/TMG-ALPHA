@@ -138,74 +138,129 @@ const Manifesto: React.FC = () => {
       {/* Scroll Teaser - Logo Apex peeking at bottom of viewport on initial load */}
       {typeof document !== 'undefined' && createPortal(
         <div 
-          ref={teaserRef} 
-          className="fixed bottom-0 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center pointer-events-auto cursor-pointer select-none group"
-          onClick={() => window.scrollBy({ top: 350, behavior: 'smooth' })}
-          title="Scroll to explore"
-          aria-label="Scroll to explore"
+          className="fixed bottom-0 inset-x-0 z-40 flex justify-center pointer-events-none"
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            pointerEvents: 'none',
+            zIndex: 40,
+          }}
         >
-          <style>{`
-            @keyframes teaserGlowPulse {
-              0%, 100% {
-                opacity: 0.55;
-                transform: translateX(-50%) scale(0.92) translate3d(0, 0, 0);
-              }
-              50% {
-                opacity: 1;
-                transform: translateX(-50%) scale(1.08) translate3d(0, 0, 0);
-              }
-            }
-            @keyframes teaserCorePulse {
-              0%, 100% {
-                opacity: 0.60;
-                transform: translateX(-50%) scale(0.95) translate3d(0, 0, 0);
-              }
-              50% {
-                opacity: 1;
-                transform: translateX(-50%) scale(1.12) translate3d(0, 0, 0);
-              }
-            }
-            @keyframes teaserAuraPulse {
-              0%, 100% {
-                filter: drop-shadow(0 0 8px rgba(255, 120, 20, 0.35)) drop-shadow(0 0 18px rgba(255, 90, 0, 0.18));
-              }
-              50% {
-                filter: drop-shadow(0 0 14px rgba(255, 140, 30, 0.70)) drop-shadow(0 0 28px rgba(255, 100, 0, 0.42));
-              }
-            }
-          `}</style>
-
-          {/* Layer 1: Wide atmospheric ambient bloom - multi-stop radial gradient without banding or pixelation */}
           <div 
-            className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 w-[340px] sm:w-[440px] md:w-[480px] h-[140px] sm:h-[160px] pointer-events-none blur-2xl sm:blur-3xl will-change-[transform,opacity]"
+            ref={teaserRef} 
+            className="relative flex flex-col items-center pointer-events-auto cursor-pointer select-none group"
             style={{
-              background: 'radial-gradient(ellipse 60% 60% at 50% 70%, rgba(255, 110, 15, 0.35) 0%, rgba(255, 95, 0, 0.22) 30%, rgba(255, 75, 0, 0.10) 55%, rgba(255, 60, 0, 0.03) 75%, transparent 100%)',
-              animation: 'teaserGlowPulse 3s ease-in-out infinite',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              pointerEvents: 'auto',
+              cursor: 'pointer',
+              userSelect: 'none',
             }}
-          />
-
-          {/* Layer 2: Concentrated warm core glow directly behind the keys */}
-          <div 
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[180px] sm:w-[240px] h-[80px] sm:h-[95px] pointer-events-none blur-lg sm:blur-xl will-change-[transform,opacity]"
-            style={{
-              background: 'radial-gradient(ellipse 55% 55% at 50% 60%, rgba(255, 145, 35, 0.50) 0%, rgba(255, 110, 20, 0.30) 35%, rgba(255, 80, 0, 0.12) 65%, transparent 100%)',
-              animation: 'teaserCorePulse 3s ease-in-out infinite 0.2s',
-            }}
-          />
-          
-          {/* Top apex of logo: unclipped on top/left/right so drop shadows bloom smoothly */}
-          <div 
-            className="relative w-64 sm:w-72 md:w-80 h-8 sm:h-9 md:h-10 flex items-start justify-center"
-            style={{
-              clipPath: 'inset(-100px -100px 0px -100px)',
-            }}
+            onClick={() => window.scrollBy({ top: 350, behavior: 'smooth' })}
+            title="Scroll to explore"
+            aria-label="Scroll to explore"
           >
-            <Logo 
-              className="w-24 sm:w-28 md:w-32 h-24 sm:h-28 md:h-32 text-white/95 group-hover:text-white shrink-0 -mt-1 transition-colors duration-200" 
+            <style>{`
+              @keyframes teaserGlowPulse {
+                0%, 100% {
+                  opacity: 0.55;
+                  transform: translateX(-50%) scale(0.92) translate3d(0, 0, 0);
+                }
+                50% {
+                  opacity: 1;
+                  transform: translateX(-50%) scale(1.08) translate3d(0, 0, 0);
+                }
+              }
+              @keyframes teaserCorePulse {
+                0%, 100% {
+                  opacity: 0.60;
+                  transform: translateX(-50%) scale(0.95) translate3d(0, 0, 0);
+                }
+                50% {
+                  opacity: 1;
+                  transform: translateX(-50%) scale(1.12) translate3d(0, 0, 0);
+                }
+              }
+              @keyframes teaserAuraPulse {
+                0%, 100% {
+                  filter: drop-shadow(0 0 8px rgba(255, 120, 20, 0.35)) drop-shadow(0 0 18px rgba(255, 90, 0, 0.18));
+                }
+                50% {
+                  filter: drop-shadow(0 0 14px rgba(255, 140, 30, 0.70)) drop-shadow(0 0 28px rgba(255, 100, 0, 0.42));
+                }
+              }
+            `}</style>
+
+            {/* Layer 1: Wide atmospheric ambient bloom - multi-stop radial gradient without banding or pixelation */}
+            <div 
+              className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 w-[340px] sm:w-[440px] md:w-[480px] h-[140px] sm:h-[160px] pointer-events-none blur-2xl sm:blur-3xl will-change-[transform,opacity]"
               style={{
-                animation: 'teaserAuraPulse 3s ease-in-out infinite',
+                position: 'absolute',
+                left: '50%',
+                bottom: '-8px',
+                width: 'clamp(340px, 45vw, 480px)',
+                height: 'clamp(140px, 16vw, 160px)',
+                transform: 'translateX(-50%)',
+                background: 'radial-gradient(ellipse 60% 60% at 50% 70%, rgba(255, 110, 15, 0.35) 0%, rgba(255, 95, 0, 0.22) 30%, rgba(255, 75, 0, 0.10) 55%, rgba(255, 60, 0, 0.03) 75%, transparent 100%)',
+                animation: 'teaserGlowPulse 3s ease-in-out infinite',
               }}
             />
+
+            {/* Layer 2: Concentrated warm core glow directly behind the keys */}
+            <div 
+              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[180px] sm:w-[240px] h-[80px] sm:h-[95px] pointer-events-none blur-lg sm:blur-xl will-change-[transform,opacity]"
+              style={{
+                position: 'absolute',
+                left: '50%',
+                bottom: '0px',
+                width: 'clamp(180px, 24vw, 240px)',
+                height: 'clamp(80px, 10vw, 95px)',
+                transform: 'translateX(-50%)',
+                background: 'radial-gradient(ellipse 55% 55% at 50% 60%, rgba(255, 145, 35, 0.50) 0%, rgba(255, 110, 20, 0.30) 35%, rgba(255, 80, 0, 0.12) 65%, transparent 100%)',
+                animation: 'teaserCorePulse 3s ease-in-out infinite 0.2s',
+              }}
+            />
+            
+            {/* Top apex of logo: unclipped on top/left/right so drop shadows bloom smoothly */}
+            <div 
+              className="relative w-64 sm:w-72 md:w-80 h-8 sm:h-9 md:h-10 flex items-start justify-center"
+              style={{
+                position: 'relative',
+                width: 'clamp(256px, 30vw, 320px)',
+                height: 'clamp(32px, 4vw, 40px)',
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                clipPath: 'inset(-100px -100px 0px -100px)',
+              }}
+            >
+              <div
+                className="shrink-0 flex items-start justify-center"
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'center',
+                  transform: 'translateX(17.93%)',
+                }}
+              >
+                <Logo 
+                  className="w-24 sm:w-28 md:w-32 h-24 sm:h-28 md:h-32 text-white/95 group-hover:text-white shrink-0 -mt-1 transition-colors duration-200" 
+                  style={{
+                    width: 'clamp(96px, 12vw, 128px)',
+                    height: 'clamp(96px, 12vw, 128px)',
+                    marginTop: '-4px',
+                    animation: 'teaserAuraPulse 3s ease-in-out infinite',
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>,
         document.body

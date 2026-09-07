@@ -2,15 +2,17 @@ import React from 'react';
 
 interface LogoProps {
   className?: string;
+  style?: React.CSSProperties;
 }
 
-const Logo: React.FC<LogoProps> = ({ className }) => {
+const Logo: React.FC<LogoProps> = ({ className, style }) => {
   return (
     <svg
       viewBox="0 0 300 300"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      style={style}
       aria-label="TRILLEX Logo"
     >
       <path 
