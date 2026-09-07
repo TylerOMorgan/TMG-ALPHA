@@ -234,13 +234,14 @@ const SvgAnimation: React.FC = () => {
     <section 
       id="about-ecosystem-animation"
       ref={sectionRef}
-      className="relative w-full pt-0 sm:pt-2 md:pt-4 pb-16 sm:pb-24 md:pb-32 bg-trillex-black flex flex-col items-center justify-center overflow-hidden select-none"
+      className="relative w-full h-screen min-h-[500px] max-h-[100vh] py-0 bg-trillex-black flex flex-col items-center justify-center overflow-hidden select-none"
+      style={{ minHeight: '100vh', height: '100vh' }}
     >
       {/* Subtle ambient gradient glow in the background matching the brand palette */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] lg:w-[1100px] h-[300px] md:h-[450px] bg-gradient-to-r from-trillex-orange/10 via-cyan-500/5 to-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl relative z-10">
-        <div className="relative w-full aspect-[16/9] flex items-center justify-center">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl h-full flex items-center justify-center relative z-10">
+        <div className="relative w-full max-h-[85vh] aspect-[16/9] flex items-center justify-center">
           {svgContent ? (
             <div 
               ref={containerRef}
