@@ -160,52 +160,72 @@ const App: React.FC = () => {
       
       // Determine duration based on load type
       const counterDuration = isInitialLoad.current ? 2.2 : 0;
-      const exitDuration = isInitialLoad.current ? 1.1 : 1.0;
+      const exitDuration = isInitialLoad.current ? 1.0 : 0.8;
 
-      // Pulsing Glow Effect for Logo (runs independently)
-      if (logoRef.current) {
-        gsap.fromTo(logoRef.current, 
-            { filter: "drop-shadow(0 0 0px rgba(255, 127, 80, 0))" },
-            {
-            filter: "drop-shadow(0 0 15px rgba(255, 127, 80, 0.6))",
-            repeat: -1,
-            yoyo: true,
-            duration: 0.8,
-            ease: "sine.inOut"
-            }
-        );
-      }
-
-      // 1. Counter 0 -> 100
-      tl.to(counter, {
-        val: 100,
-        duration: counterDuration,
-        ease: "none",
-        onUpdate: () => {
-          if (counterRef.current) {
-            counterRef.current.innerText = Math.floor(counter.val).toString().padStart(2, '0');
-          }
+      if (counterDuration > 0) {
+        // Initial setup for logo
+        if (logoRef.current) {
+          gsap.set(logoRef.current, { 
+            backgroundPosition: "0% 0%",
+            filter: "drop-shadow(0 0 4px rgba(255, 127, 80, 0.2))"
+          });
         }
-      });
 
-      // Logo fill sync with counter
-      if (logoRef.current) {
-        gsap.set(logoRef.current, { backgroundPosition: "0% 0%" });
+        // 1. Synchronized Counter & Liquid Logo Fill with organic ease
+        tl.to(counter, {
+          val: 100,
+          duration: counterDuration,
+          ease: "power2.inOut",
+          onUpdate: () => {
+            if (counterRef.current) {
+              counterRef.current.innerText = Math.floor(counter.val).toString().padStart(2, '0');
+            }
+          }
+        }, 0);
 
-        tl.to(logoRef.current, {
+        if (logoRef.current) {
+          // Fill rises smoothly with matching ease
+          tl.to(logoRef.current, {
             backgroundPosition: "0% 100%",
             duration: counterDuration,
-            ease: "none"
-        }, "<");
-      }
+            ease: "power2.inOut"
+          }, 0);
 
-      // 2. Curtain Reveal (Exit)
-      if (preloaderRef.current) {
-        tl.to(preloaderRef.current, {
+          // Glow builds up smoothly as fill reaches 100%
+          tl.to(logoRef.current, {
+            filter: "drop-shadow(0 0 24px rgba(255, 127, 80, 0.7))",
+            duration: counterDuration,
+            ease: "power1.in"
+          }, 0);
+        }
+
+        // Brief 0.15s settle pause at 100
+        tl.to({}, { duration: 0.15 });
+
+        // 2. Smooth Content Fade & Float Up
+        tl.to([logoRef.current, counterRef.current].filter(Boolean), {
+          y: -24,
+          opacity: 0,
+          duration: 0.5,
+          ease: "power2.in"
+        });
+
+        // 3. Curtain Reveal sweeps away cleanly
+        if (preloaderRef.current) {
+          tl.to(preloaderRef.current, {
             yPercent: -100,
             duration: exitDuration,
             ease: "power4.inOut",
-        });
+          }, "<0.1");
+        }
+      } else {
+        if (preloaderRef.current) {
+          tl.to(preloaderRef.current, {
+            yPercent: -100,
+            duration: exitDuration,
+            ease: "power4.inOut",
+          });
+        }
       }
     });
 
@@ -238,23 +258,24 @@ const App: React.FC = () => {
             <div className="text-center relative flex flex-col items-center justify-center w-full">
             <div 
                 ref={logoRef}
-                className="font-display font-bold text-[15vw] md:text-[12vw] leading-none tracking-tighter mb-6 select-none"
+                className="font-display font-bold text-[15vw] md:text-[12vw] leading-none tracking-tighter mb-6 select-none will-change-transform"
                 style={{ 
-                WebkitTextStroke: '1px #FF7F50', 
-                color: 'transparent',
-                backgroundImage: 'linear-gradient(0deg, #FF7F50 50%, transparent 50%)',
-                backgroundSize: '100% 200%',
-                backgroundPosition: '0% 0%', 
-                WebkitBackgroundClip: 'text',
-                backgroundClip: 'text',
-                paddingLeft: '0.12em',
-                paddingRight: '0.12em'
+                  WebkitTextStroke: '1px #FF7F50', 
+                  color: 'transparent',
+                  backgroundImage: 'linear-gradient(0deg, #FF7F50 0%, #FF7F50 49.8%, transparent 50.2%, transparent 100%)',
+                  backgroundSize: '100% 200%',
+                  backgroundPosition: '0% 0%', 
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  paddingLeft: '0.12em',
+                  paddingRight: '0.12em',
+                  willChange: 'background-position, filter, transform'
                 }}
             >
                 TRILLEX
             </div>
             
-            <div ref={counterRef} className="text-trillex-orange font-mono text-xl md:text-2xl font-bold animate-pulse">
+            <div ref={counterRef} className="text-trillex-orange font-mono text-xl md:text-2xl font-bold tracking-widest will-change-transform">
                 00
             </div>
             </div>
