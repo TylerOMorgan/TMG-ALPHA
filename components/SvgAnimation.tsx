@@ -35,10 +35,10 @@ const fetchSvg = async (): Promise<string> => {
   if (cachedSvgContent) return cachedSvgContent;
   if (!fetchPromise) {
     const urls = [
-      "/Trillex%20Website%20SVG%20Animations%20-%20Edit.svg?v=aligned_v3",
-      "/Trillex Website SVG Animations - Edit.svg?v=aligned_v3",
-      "/Trillex%20Website%20SVG%20Animations.svg?v=aligned_v3",
-      "/Trillex Website SVG Animations.svg?v=aligned_v3"
+      "/Trillex%20Website%20SVG%20Animations%20-%20Edit.svg?v=clean_final_v4",
+      "/Trillex Website SVG Animations - Edit.svg?v=clean_final_v4",
+      "/Trillex%20Website%20SVG%20Animations.svg?v=clean_final_v4",
+      "/Trillex Website SVG Animations.svg?v=clean_final_v4"
     ];
     fetchPromise = (async () => {
       let lastErr: any = null;

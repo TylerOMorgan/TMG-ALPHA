@@ -536,50 +536,8 @@
     kf_arrowHeadLeftSolid_transform_0 5s linear both paused,
     kf_arrowHeadLeftSolid_opacity_0 5s linear both paused;
 }
-8.25% {
-    transform: translateX(5.756px) translateY(-6px) translateX(421.245px) translateY(57px);
-  }
-  12.02% {
-    transform: translateX(5.756px) translateY(-6px) translateX(405.159px) translateY(73px);
-  }
-  23.52% {
-    transform: translateX(5.756px) translateY(-6px) translateX(325.736px) translateY(73px);
-  }
-  27.29% {
-    transform: translateX(5.756px) translateY(-6px) translateX(309.65px) translateY(89px);
-  }
-  45.1% {
-    transform: translateX(5.756px) translateY(-6px) translateX(309.65px) translateY(212px);
-  }
-  48.87% {
-    transform: translateX(5.756px) translateY(-6px) translateX(293.564px) translateY(228px);
-  }
-  89.04% {
-    transform: translateX(5.756px) translateY(-6px) translateX(16.086px) translateY(228px);
-  }
-  92.81% {
-    transform: translateX(5.756px) translateY(-6px) translateX(0px) translateY(244px);
-  }
-  100% {
-    transform: translateX(5.756px) translateY(-6px) translateX(0px) translateY(293.698px);
-  }
-}
-55.54% {
-    animation-timing-function: linear;
-    opacity: 0;
-  }
-  58.36% {
-    animation-timing-function: linear;
-    opacity: 1;
-  }
-  97.6% {
-    animation-timing-function: linear;
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.206;
-  }
-}
+
+
 @keyframes kf_solidLine_path-trim_0 {
   0% {
     stroke-dasharray: 0 1;
@@ -668,50 +626,8 @@
     kf_arrowHeadSolid_transform_0 5s linear both paused,
     kf_arrowHeadSolid_opacity_0 5s linear both paused;
 }
-8.27% {
-    transform: translateX(-3px) translateY(-5px) translateX(0px) translateY(57px);
-  }
-  12.03% {
-    transform: translateX(-3px) translateY(-5px) translateX(16px) translateY(73px);
-  }
-  23.63% {
-    transform: translateX(-3px) translateY(-5px) translateX(96px) translateY(73px);
-  }
-  27.4% {
-    transform: translateX(-3px) translateY(-5px) translateX(112px) translateY(89px);
-  }
-  45.24% {
-    transform: translateX(-3px) translateY(-5px) translateX(112px) translateY(212px);
-  }
-  49% {
-    transform: translateX(-3px) translateY(-5px) translateX(128px) translateY(228px);
-  }
-  89.03% {
-    transform: translateX(-3px) translateY(-5px) translateX(404px) translateY(228px);
-  }
-  92.79% {
-    transform: translateX(-3px) translateY(-5px) translateX(420px) translateY(244px);
-  }
-  100% {
-    transform: translateX(-3px) translateY(-5px) translateX(420px) translateY(293.705px);
-  }
-}
-55.54% {
-    animation-timing-function: linear;
-    opacity: 0;
-  }
-  58.36% {
-    animation-timing-function: linear;
-    opacity: 1;
-  }
-  97.6% {
-    animation-timing-function: linear;
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.206;
-  }
-}
+
+
 </style>
 <g id="Trillex_Website_SVG_Animations" clip-path="url(#clip0_316_11)">
 <g id="TMG" transform="translate(458 93)">
