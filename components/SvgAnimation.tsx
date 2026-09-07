@@ -35,8 +35,10 @@ const fetchSvg = async (): Promise<string> => {
   if (cachedSvgContent) return cachedSvgContent;
   if (!fetchPromise) {
     const urls = [
-      "/Trillex%20Website%20SVG%20Animations.svg",
-      "/Trillex Website SVG Animations.svg"
+      "/Trillex%20Website%20SVG%20Animations%20-%20Edit.svg?v=noballs",
+      "/Trillex Website SVG Animations - Edit.svg?v=noballs",
+      "/Trillex%20Website%20SVG%20Animations%20-%20Edit.svg",
+      "/Trillex Website SVG Animations - Edit.svg"
     ];
     fetchPromise = (async () => {
       let lastErr: any = null;
