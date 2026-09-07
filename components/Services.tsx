@@ -198,6 +198,7 @@ const ServiceCard = React.memo(({ item }: { item: { title: string, img: string }
   <div 
     className="relative w-full aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden bg-white/5 shadow-2xl group border border-white/5 transition-all duration-500 ease-out hover:scale-105 hover:border-trillex-orange hover:shadow-[0_0_40px_rgba(255,127,80,0.6)] hover:z-50 pointer-events-auto"
     data-hoverable="true"
+    style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
   >
     <img 
       src={item.img} 

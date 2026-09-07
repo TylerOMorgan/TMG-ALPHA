@@ -148,6 +148,12 @@ const App: React.FC = () => {
         onComplete: () => {
             setLoading(false);
             isInitialLoad.current = false; // Subsequent loads will be faster
+            requestAnimationFrame(() => {
+              ScrollTrigger.refresh();
+              if (typeof window !== 'undefined' && (window as any).lenis) {
+                (window as any).lenis.resize();
+              }
+            });
         }
       });
       const counter = { val: 0 };

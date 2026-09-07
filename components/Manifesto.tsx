@@ -51,7 +51,6 @@ const Manifesto: React.FC = () => {
           end: "+=85%", // Ends right after Established in BKK 2024 is fully revealed
           pin: true,      // Pin the section in place
           scrub: 0.5,     // Smooth scrubbing
-          anticipatePin: 1
         }
       });
 

@@ -28,7 +28,7 @@ const FounderWord: React.FC = () => {
           trigger: sectionRef.current,
           start: "top bottom",
           end: "bottom top",
-          scrub: 1,
+          scrub: 0.5,
         }
       });
 
@@ -42,7 +42,7 @@ const FounderWord: React.FC = () => {
             trigger: quoteRef.current,
             start: "top 85%",
             end: "bottom 65%",
-            scrub: 1,
+            scrub: 0.5,
           }
         }
       );
