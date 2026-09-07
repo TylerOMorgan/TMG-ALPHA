@@ -240,7 +240,9 @@ const App: React.FC = () => {
                 backgroundSize: '100% 200%',
                 backgroundPosition: '0% 0%', 
                 WebkitBackgroundClip: 'text',
-                backgroundClip: 'text'
+                backgroundClip: 'text',
+                paddingLeft: '0.12em',
+                paddingRight: '0.12em'
                 }}
             >
                 TRILLEX
