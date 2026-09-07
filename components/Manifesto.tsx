@@ -134,7 +134,7 @@ const Manifesto: React.FC = () => {
         </div>
       </div>
 
-      {/* Scroll Teaser - Logo Apex peeking at bottom of viewport on initial load (Point 2) */}
+      {/* Scroll Teaser - Logo Apex peeking at bottom of viewport on initial load */}
       {typeof document !== 'undefined' && createPortal(
         <div 
           ref={teaserRef} 
@@ -143,12 +143,68 @@ const Manifesto: React.FC = () => {
           title="Scroll to explore"
           aria-label="Scroll to explore"
         >
-          {/* Ambient subtle glow */}
-          <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-32 sm:w-36 h-12 bg-gradient-to-r from-trillex-orange/30 via-amber-500/25 to-trillex-orange/30 rounded-full blur-xl pointer-events-none animate-pulse" />
+          <style>{`
+            @keyframes teaserGlowPulse {
+              0%, 100% {
+                opacity: 0.55;
+                transform: translateX(-50%) scale(0.92) translate3d(0, 0, 0);
+              }
+              50% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.08) translate3d(0, 0, 0);
+              }
+            }
+            @keyframes teaserCorePulse {
+              0%, 100% {
+                opacity: 0.60;
+                transform: translateX(-50%) scale(0.95) translate3d(0, 0, 0);
+              }
+              50% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.12) translate3d(0, 0, 0);
+              }
+            }
+            @keyframes teaserAuraPulse {
+              0%, 100% {
+                filter: drop-shadow(0 0 8px rgba(255, 120, 20, 0.35)) drop-shadow(0 0 18px rgba(255, 90, 0, 0.18));
+              }
+              50% {
+                filter: drop-shadow(0 0 14px rgba(255, 140, 30, 0.70)) drop-shadow(0 0 28px rgba(255, 100, 0, 0.42));
+              }
+            }
+          `}</style>
+
+          {/* Layer 1: Wide atmospheric ambient bloom - multi-stop radial gradient without banding or pixelation */}
+          <div 
+            className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 w-[340px] sm:w-[440px] md:w-[480px] h-[140px] sm:h-[160px] pointer-events-none blur-2xl sm:blur-3xl will-change-[transform,opacity]"
+            style={{
+              background: 'radial-gradient(ellipse 60% 60% at 50% 70%, rgba(255, 110, 15, 0.35) 0%, rgba(255, 95, 0, 0.22) 30%, rgba(255, 75, 0, 0.10) 55%, rgba(255, 60, 0, 0.03) 75%, transparent 100%)',
+              animation: 'teaserGlowPulse 3s ease-in-out infinite',
+            }}
+          />
+
+          {/* Layer 2: Concentrated warm core glow directly behind the keys */}
+          <div 
+            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[180px] sm:w-[240px] h-[80px] sm:h-[95px] pointer-events-none blur-lg sm:blur-xl will-change-[transform,opacity]"
+            style={{
+              background: 'radial-gradient(ellipse 55% 55% at 50% 60%, rgba(255, 145, 35, 0.50) 0%, rgba(255, 110, 20, 0.30) 35%, rgba(255, 80, 0, 0.12) 65%, transparent 100%)',
+              animation: 'teaserCorePulse 3s ease-in-out infinite 0.2s',
+            }}
+          />
           
-          {/* Top apex of logo matching user snippet */}
-          <div className="relative w-24 sm:w-28 md:w-32 h-8 sm:h-9 md:h-10 overflow-hidden flex items-start justify-center">
-            <Logo className="w-24 sm:w-28 md:w-32 h-24 sm:h-28 md:h-32 text-white/90 group-hover:text-white shrink-0 -mt-1 transition-colors drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]" />
+          {/* Top apex of logo: unclipped on top/left/right so drop shadows bloom smoothly */}
+          <div 
+            className="relative w-64 sm:w-72 md:w-80 h-8 sm:h-9 md:h-10 flex items-start justify-center"
+            style={{
+              clipPath: 'inset(-100px -100px 0px -100px)',
+            }}
+          >
+            <Logo 
+              className="w-24 sm:w-28 md:w-32 h-24 sm:h-28 md:h-32 text-white/95 group-hover:text-white shrink-0 -mt-1 transition-colors duration-200" 
+              style={{
+                animation: 'teaserAuraPulse 3s ease-in-out infinite',
+              }}
+            />
           </div>
         </div>,
         document.body
