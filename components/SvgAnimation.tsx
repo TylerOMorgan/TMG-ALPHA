@@ -4,6 +4,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+if (typeof window !== "undefined") {
+  (window as any).ScrollTrigger = ScrollTrigger;
+}
+
 // Module-level SVG cache to avoid re-fetching 7.5MB asset on page re-visits
 let cachedSvgContent: string | null = null;
 let fetchPromise: Promise<string> | null = null;
@@ -166,16 +170,32 @@ const SvgAnimation: React.FC = () => {
 
     // Create GSAP ScrollTrigger with smooth scrub using a tween proxy
     ctx = gsap.context(() => {
+      // 1. Dedicated Pin Trigger: Pins sectionRef centered in viewport
+      const pinST = ScrollTrigger.create({
+        id: "svg-pin",
+        trigger: sectionRef.current,
+        start: "center center",
+        end: "+=120%", // Smooth, comfortable scroll distance
+        pin: true,
+        anticipatePin: 1,
+      });
+
+      // 2. Scrub Trigger: Begins unfolding immediately from Manifesto unpin (Scroll Position 1)
       gsap.to(proxy, {
         progress: 1,
         ease: "none",
         scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "center center",
-          end: "+=120%", // Smooth, comfortable scroll distance
-          pin: true,
+          id: "svg-scrub",
+          start: () => {
+            const mST = ScrollTrigger.getById("manifesto-trigger");
+            return mST ? mST.end : "top center";
+          },
+          end: () => {
+            const pST = ScrollTrigger.getById("svg-pin") || pinST;
+            return pST ? pST.end : "+=120%";
+          },
           scrub: 0.5, // 0.5s smooth easing
-          anticipatePin: 1,
+          invalidateOnRefresh: true,
           onRefresh: () => {
             // Re-sync animations when ScrollTrigger recalculates pins or layout
             scrub(proxy.progress);

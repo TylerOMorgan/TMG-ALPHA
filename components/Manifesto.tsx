@@ -45,6 +45,7 @@ const Manifesto: React.FC = () => {
       // 2. Timeline with Pinning
       const tl = gsap.timeline({
         scrollTrigger: {
+          id: "manifesto-trigger",
           trigger: sectionRef.current,
           start: "center center", // Lock when the section center hits viewport center
           end: "+=85%", // Ends right after Established in BKK 2024 is fully revealed
