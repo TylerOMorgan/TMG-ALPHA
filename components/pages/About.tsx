@@ -5,19 +5,25 @@ import Services from '../Services';
 import FounderWord from '../FounderWord';
 import Footer from '../Footer';
 
-const About: React.FC = () => {
+interface AboutProps {
+  isActive?: boolean;
+}
+
+const About: React.FC<AboutProps> = ({ isActive = true }) => {
 
   // Set page title
   useEffect(() => {
-    document.title = 'ABOUT — TRILLEX';
-  }, []);
+    if (isActive) {
+      document.title = 'ABOUT — TRILLEX';
+    }
+  }, [isActive]);
   
   return (
     <div className="bg-trillex-black min-h-screen pt-20 md:pt-24">
-      <Manifesto />
+      <Manifesto isActive={isActive} />
 
       {/* Trillex Website SVG Animations */}
-      <SvgAnimation />
+      <SvgAnimation isActive={isActive} />
 
       <Services />
 
@@ -30,4 +36,4 @@ const About: React.FC = () => {
   );
 };
 
-export default About;
+export default React.memo(About);

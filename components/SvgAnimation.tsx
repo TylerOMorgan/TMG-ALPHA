@@ -1,72 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ECOSYSTEM_SVG_DATA } from "../utils/ecosystemSvgData";
 
 gsap.registerPlugin(ScrollTrigger);
 
 if (typeof window !== "undefined") {
   (window as any).ScrollTrigger = ScrollTrigger;
-}
-
-// Module-level SVG cache to avoid re-fetching 7.5MB asset on page re-visits
-let cachedSvgContent: string | null = null;
-let fetchPromise: Promise<string> | null = null;
-
-const processSvg = (rawSvg: string): string => {
-  let processed = rawSvg
-    // Ensure SVG root has a unique ID for scoped styling
-    .replace(/<svg\b(?![^>]*\bid=)/i, '<svg id="trillex-ecosystem-svg"')
-    // Replace infinite loops with paused single iterations
-    .replace(/5s\s+linear\s+infinite/g, "5s linear both paused")
-    .replace(/5s\s+linear\s+both(?! paused)/g, "5s linear both paused");
-
-  // Ensure scoped paused rule exists inside SVG <style> to prevent idle autoplay
-  if (!processed.includes("animation-play-state: paused !important;")) {
-    processed = processed.replace(
-      /<style>/i,
-      "<style>\n#trillex-ecosystem-svg * {\n  animation-play-state: paused !important;\n}\n"
-    );
-  }
-
-  return processed;
-};
-
-const fetchSvg = async (): Promise<string> => {
-  if (cachedSvgContent) return cachedSvgContent;
-  if (!fetchPromise) {
-    const urls = [
-      "/Trillex%20Website%20SVG%20Animations%20-%20Edit.svg?v=clean_final_v4",
-      "/Trillex Website SVG Animations - Edit.svg?v=clean_final_v4",
-      "/Trillex%20Website%20SVG%20Animations.svg?v=clean_final_v4",
-      "/Trillex Website SVG Animations.svg?v=clean_final_v4"
-    ];
-    fetchPromise = (async () => {
-      let lastErr: any = null;
-      for (const url of urls) {
-        try {
-          const res = await fetch(url);
-          if (res.ok) {
-            const text = await res.text();
-            cachedSvgContent = processSvg(text);
-            return cachedSvgContent;
-          }
-        } catch (err) {
-          lastErr = err;
-        }
-      }
-      fetchPromise = null;
-      throw lastErr || new Error("Failed to load ecosystem SVG from known paths");
-    })().catch(err => {
-      fetchPromise = null;
-      throw err;
-    });
-  }
-  return fetchPromise;
-};
-
-// Start preloading immediately in browser environments
-if (typeof window !== "undefined") {
-  fetchSvg().catch(() => {});
 }
 
 // Helper: collect active Web Animation objects from the container subtree dynamically
@@ -111,39 +51,22 @@ const getLiveAnimations = (container: HTMLElement): Animation[] => {
   return found;
 };
 
-const SvgAnimation: React.FC = () => {
+interface SvgAnimationProps {
+  isActive?: boolean;
+}
+
+const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [svgContent, setSvgContent] = useState<string | null>(() => cachedSvgContent);
 
-  // 1. Fetch SVG text if not yet loaded from cache
+  // Link SVG animations to GSAP ScrollTrigger when page is active
   useEffect(() => {
-    let isMounted = true;
-    if (!svgContent) {
-      fetchSvg()
-        .then(content => {
-          if (isMounted) {
-            setSvgContent(content);
-          }
-        })
-        .catch(err => {
-          console.error("Failed to load ecosystem SVG:", err);
-        });
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [svgContent]);
-
-  // 2. Link SVG animations to GSAP ScrollTrigger
-  useEffect(() => {
-    if (!svgContent || !containerRef.current || !sectionRef.current) return;
+    if (!isActive || !containerRef.current || !sectionRef.current) return;
 
     let ctx: gsap.Context | null = null;
 
-    // Force layout recalc to ensure browser creates CSS Animation instances
-    void containerRef.current.offsetHeight;
+    // Cache live animation handles
+    let liveAnims = getLiveAnimations(containerRef.current);
 
     // Scrub all live animations to exact timestamp cleanly in both directions
     const scrub = (progress: number) => {
@@ -152,8 +75,10 @@ const SvgAnimation: React.FC = () => {
       // Map [0, 1] to [0ms, 4999ms]
       const time = clampedProgress * 4999;
 
-      if (!containerRef.current) return;
-      const liveAnims = getLiveAnimations(containerRef.current);
+      if (liveAnims.length === 0 && containerRef.current) {
+        liveAnims = getLiveAnimations(containerRef.current);
+      }
+
       for (let i = 0; i < liveAnims.length; i++) {
         try {
           if (liveAnims[i].playState !== "paused") {
@@ -182,7 +107,9 @@ const SvgAnimation: React.FC = () => {
         anticipatePin: 1,
       });
 
-      // 2. Scrub Trigger: Begins unfolding immediately from Manifesto unpin (Scroll Position 1)
+      // 2. Scrub Trigger: ease:none = 1:1 with scroll (no disconnection).
+      //    Starts when manifesto pins (so SVG has a head-start by the time it's centered).
+      //    Ends at SVG pin end so the fold/unfold plays while SVG is the main focus.
       gsap.to(proxy, {
         progress: 1,
         ease: "none",
@@ -190,16 +117,15 @@ const SvgAnimation: React.FC = () => {
           id: "svg-scrub",
           start: () => {
             const mST = ScrollTrigger.getById("manifesto-trigger");
-            return mST ? mST.end : "top center";
+            return mST ? mST.start : "top center";
           },
           end: () => {
             const pST = ScrollTrigger.getById("svg-pin") || pinST;
             return pST ? pST.end : "+=120%";
           },
-          scrub: 0.5, // 0.5s smooth easing
+          scrub: 0.3,
           invalidateOnRefresh: true,
           onRefresh: () => {
-            // Re-sync animations when ScrollTrigger recalculates pins or layout
             scrub(proxy.progress);
           }
         },
@@ -209,26 +135,19 @@ const SvgAnimation: React.FC = () => {
       });
     }, sectionRef.current);
 
-    // Helper to safely refresh ScrollTrigger without resetting ongoing scroll progress
+    // Fast refresh for layout stabilization
     const syncLayout = () => {
       ScrollTrigger.refresh();
       scrub(proxy.progress);
     };
 
-    // Staggered refreshes for layout stabilization with Lenis & preloader
     const rafId = requestAnimationFrame(syncLayout);
-    const timer1 = setTimeout(syncLayout, 150);
-    const timer2 = setTimeout(syncLayout, 600);
-    const timer3 = setTimeout(syncLayout, 2500); // sync with preloader curtain reveal
 
     return () => {
       cancelAnimationFrame(rafId);
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-      clearTimeout(timer3);
       if (ctx) ctx.revert();
     };
-  }, [svgContent]);
+  }, [isActive]);
 
   return (
     <section 
@@ -240,21 +159,17 @@ const SvgAnimation: React.FC = () => {
       {/* Subtle ambient gradient glow in the background matching the brand palette */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] lg:w-[1100px] h-[300px] md:h-[450px] bg-gradient-to-r from-trillex-orange/10 via-cyan-500/5 to-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl h-full flex items-center justify-center relative z-10">
-        <div className="relative w-full max-h-[85vh] aspect-[16/9] flex items-center justify-center">
-          {svgContent ? (
-            <div 
-              ref={containerRef}
-              className="w-full h-full flex items-center justify-center pointer-events-none select-none [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
-              dangerouslySetInnerHTML={{ __html: svgContent }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center pointer-events-none select-none" />
-          )}
+      <div className="w-full max-w-7xl px-8 md:px-12 h-full flex items-center justify-center relative z-10">
+        <div className="relative w-full max-h-[90vh] aspect-[16/9] flex items-center justify-center">
+          <div 
+            ref={containerRef}
+            className="w-full h-full flex items-center justify-center pointer-events-none select-none [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
+            dangerouslySetInnerHTML={{ __html: ECOSYSTEM_SVG_DATA }}
+          />
         </div>
       </div>
     </section>
   );
 };
 
-export default SvgAnimation;
+export default React.memo(SvgAnimation);

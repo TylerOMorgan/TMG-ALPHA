@@ -78,25 +78,24 @@ const App: React.FC = () => {
     return () => window.removeEventListener('trillex-navigate', handleNav);
   }, []);
 
-  // Effect 1: Handle Page Change -> Scroll Top & Preloader
+  // Effect 1: Handle Page Change -> Scroll Top + Refresh layout
   useEffect(() => {
-    // Trigger preloader when switching to Home
-    if (activePage === 'home') {
-        setLoading(true);
+    // Always force instant scroll to top when changing pages
+    if (typeof window !== 'undefined' && (window as any).lenis) {
+      (window as any).lenis.scrollTo(0, { immediate: true });
     }
-
-    // Always force scroll to top when changing pages
     window.scrollTo(0, 0);
     
-    // Refresh ScrollTrigger after DOM updates.
-    const timer = requestAnimationFrame(() => {
-       ScrollTrigger.refresh();
-       // Double refresh for safety on complex layouts
-       setTimeout(() => ScrollTrigger.refresh(), 200);
+    // Resize Lenis & refresh ScrollTrigger after the newly-visible page paints
+    const rafId = requestAnimationFrame(() => {
+      if (typeof window !== 'undefined' && (window as any).lenis) {
+        (window as any).lenis.resize();
+      }
+      ScrollTrigger.refresh();
     });
 
-    return () => cancelAnimationFrame(timer);
-  }, [activePage]); 
+    return () => cancelAnimationFrame(rafId);
+  }, [activePage]);
 
   // Effect 2: Handle Targeted Section Scrolling (Optimized)
   useEffect(() => {
@@ -232,20 +231,6 @@ const App: React.FC = () => {
     return () => ctx.revert();
   }, [loading]);
 
-  const renderPage = () => {
-    switch (activePage) {
-      case 'home':
-        return <Home />;
-      case 'about':
-        return <About />;
-      case 'artists':
-        return <Artists />;
-      case 'contact':
-        return <Contact />;
-      default:
-        return <Home />;
-    }
-  };
 
   return (
     <>
@@ -288,12 +273,27 @@ const App: React.FC = () => {
       */}
       <Cursor />
 
-      {/* Main Content */}
+      {/* Main Content — all pages kept mounted, visibility toggled via display */}
       <SmoothScroll>
         <Navigation activePage={activePage} onNavigate={setActivePage} />
         
         <main className="relative w-full bg-trillex-black min-h-screen">
-          {renderPage()}
+          {/* Home is always mounted to preserve Three.js WebGL canvas */}
+          <div style={{ display: activePage === 'home' ? 'block' : 'none' }}>
+            <Home />
+          </div>
+          {/* About is always mounted to preserve GSAP ScrollTrigger instances */}
+          <div style={{ display: activePage === 'about' ? 'block' : 'none' }}>
+            <About isActive={activePage === 'about'} />
+          </div>
+          {/* Artists */}
+          <div style={{ display: activePage === 'artists' ? 'block' : 'none' }}>
+            <Artists />
+          </div>
+          {/* Contact */}
+          <div style={{ display: activePage === 'contact' ? 'block' : 'none' }}>
+            <Contact />
+          </div>
         </main>
       </SmoothScroll>
     </>

@@ -16,7 +16,7 @@ const PIVOT_INDEX = WORDS.findIndex((word, i) => word === 'on' && WORDS[i-1] ===
 const FOOTER_TEXT = "Established in BKK 2024";
 const FOOTER_WORDS = FOOTER_TEXT.split(' ');
 
-const Manifesto: React.FC = () => {
+const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
@@ -34,12 +34,8 @@ const Manifesto: React.FC = () => {
       const toReveal = Array.from(words).slice(PIVOT_INDEX + 1);
 
       // 1. Initial State:
-      // First part is fully visible white
       gsap.set(initialVisible, { opacity: 1, color: '#EAEAEA' });
-      // Rest is dimmed (almost hidden)
       gsap.set(toReveal, { opacity: 0.1, color: '#4a4a4a' });
-      
-      // Footer Initial State: Dimmed and no glow
       gsap.set(footerWords, { opacity: 0.1, textShadow: "none" });
 
       // 2. Timeline with Pinning
@@ -47,14 +43,14 @@ const Manifesto: React.FC = () => {
         scrollTrigger: {
           id: "manifesto-trigger",
           trigger: sectionRef.current,
-          start: "center center", // Lock when the section center hits viewport center
-          end: "+=85%", // Ends right after Established in BKK 2024 is fully revealed
-          pin: true,      // Pin the section in place
-          scrub: 0.5,     // Smooth scrubbing
+          start: "center center",
+          end: "+=85%",
+          pin: true,
+          scrub: 0.5,
         }
       });
 
-      // 3. Reveal Animation: Upper text reveals completely first
+      // 3. Reveal Animation
       tl.to(toReveal, {
         opacity: 1,
         color: '#EAEAEA',
@@ -62,7 +58,6 @@ const Manifesto: React.FC = () => {
         duration: 0.25,
         ease: "none",
       })
-      // 4. Footer Reveal: Starts strictly AFTER the entire text above is 100% revealed
       .to(footerWords, {
         opacity: 1,
         textShadow: "0 0 12px rgba(255,127,80,0.8)",
@@ -70,29 +65,42 @@ const Manifesto: React.FC = () => {
         duration: 0.4,
         ease: "power2.out",
       }, "+=0.1");
-
-      // 5. Scroll Teaser: smoothly fades out over the first 80px of scroll
-      if (teaserRef.current) {
-        gsap.to(teaserRef.current, {
-          opacity: 0,
-          y: 20,
-          ease: "power1.out",
-          scrollTrigger: {
-            start: 0,
-            end: 80,
-            scrub: true,
-            onUpdate: (self) => {
-              if (teaserRef.current) {
-                teaserRef.current.style.pointerEvents = self.progress > 0.5 ? 'none' : 'auto';
-              }
-            }
-          }
-        });
-      }
-
     }, sectionRef);
 
     return () => ctx.revert();
+  }, []);
+
+  // Teaser visibility: driven by raw Lenis scroll, immune to GSAP pin spacers
+  useEffect(() => {
+    if (!teaserRef.current) return;
+
+    const FADE_START = 0;
+    const FADE_END = 80;
+
+    const onScroll = ({ scroll }: { scroll: number }) => {
+      if (!teaserRef.current) return;
+      const progress = Math.min(Math.max((scroll - FADE_START) / (FADE_END - FADE_START), 0), 1);
+      const opacity = 1 - progress;
+      teaserRef.current.style.opacity = String(opacity);
+      teaserRef.current.style.transform = `translateY(${progress * 20}px)`;
+      teaserRef.current.style.pointerEvents = opacity < 0.5 ? 'none' : 'auto';
+    };
+
+    // Wait one frame for Lenis to be ready
+    const rafId = requestAnimationFrame(() => {
+      const lenis = (window as any).lenis;
+      if (lenis) {
+        lenis.on('scroll', onScroll);
+        // Set initial state based on current scroll
+        onScroll({ scroll: lenis.scroll ?? 0 });
+      }
+    });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      const lenis = (window as any).lenis;
+      if (lenis) lenis.off('scroll', onScroll);
+    };
   }, []);
 
   return (
@@ -101,9 +109,9 @@ const Manifesto: React.FC = () => {
       ref={sectionRef} 
       className="relative z-10 w-full min-h-0 flex items-center justify-center bg-trillex-black pt-0 pb-1 sm:pb-2"
     >
-      <div className="max-w-7xl px-8 md:px-12 text-center flex flex-col items-center">
+      <div className="w-full max-w-7xl px-8 md:px-12 text-center flex flex-col items-center">
         
-        {/* About Label: Left aligned and larger */}
+        {/* About Label */}
         <div className="w-full flex justify-start mb-4 sm:mb-6">
             <span className="text-trillex-orange text-xl font-mono font-bold tracking-widest uppercase">
                 About
@@ -121,7 +129,7 @@ const Manifesto: React.FC = () => {
           ))}
         </div>
         
-        {/* Added Footer Text with Neon Glow and Scroll Reveal */}
+        {/* Footer Text with Neon Glow and Scroll Reveal */}
         <div 
             ref={footerRef}
             className="mt-6 sm:mt-8 text-trillex-orange text-lg md:text-2xl font-sans font-medium tracking-wider flex gap-x-2 flex-wrap justify-center relative z-20"
@@ -134,8 +142,8 @@ const Manifesto: React.FC = () => {
         </div>
       </div>
 
-      {/* Scroll Teaser - Logo Apex peeking at bottom of viewport on initial load */}
-      {typeof document !== 'undefined' && createPortal(
+      {/* Scroll Teaser — visible on load, disappears on first scroll */}
+      {isActive && typeof document !== 'undefined' && createPortal(
         <div 
           className="fixed bottom-0 inset-x-0 z-40 flex justify-center pointer-events-none"
           style={{
@@ -166,70 +174,24 @@ const Manifesto: React.FC = () => {
             title="Scroll to explore"
             aria-label="Scroll to explore"
           >
-            <style>{`
-              @keyframes teaserGlowPulse {
-                0%, 100% {
-                  opacity: 0.55;
-                  transform: translateX(-50%) scale(0.92) translate3d(0, 0, 0);
-                }
-                50% {
-                  opacity: 1;
-                  transform: translateX(-50%) scale(1.08) translate3d(0, 0, 0);
-                }
-              }
-              @keyframes teaserCorePulse {
-                0%, 100% {
-                  opacity: 0.60;
-                  transform: translateX(-50%) scale(0.95) translate3d(0, 0, 0);
-                }
-                50% {
-                  opacity: 1;
-                  transform: translateX(-50%) scale(1.12) translate3d(0, 0, 0);
-                }
-              }
-              @keyframes teaserAuraPulse {
-                0%, 100% {
-                  filter: drop-shadow(0 0 8px rgba(255, 120, 20, 0.35)) drop-shadow(0 0 18px rgba(255, 90, 0, 0.18));
-                }
-                50% {
-                  filter: drop-shadow(0 0 14px rgba(255, 140, 30, 0.70)) drop-shadow(0 0 28px rgba(255, 100, 0, 0.42));
-                }
-              }
-            `}</style>
-
-            {/* Layer 1: Wide atmospheric ambient bloom - multi-stop radial gradient without banding or pixelation */}
+            {/* Ambient glow: orange left, green right */}
             <div 
-              className="absolute -bottom-2 sm:-bottom-3 left-1/2 -translate-x-1/2 w-[340px] sm:w-[440px] md:w-[480px] h-[140px] sm:h-[160px] pointer-events-none blur-2xl sm:blur-3xl will-change-[transform,opacity]"
               style={{
                 position: 'absolute',
                 left: '50%',
-                bottom: '-8px',
-                width: 'clamp(340px, 45vw, 480px)',
-                height: 'clamp(140px, 16vw, 160px)',
+                bottom: '-55px',
+                width: 'clamp(500px, 60vw, 850px)',
+                height: 'clamp(110px, 14vw, 160px)',
                 transform: 'translateX(-50%)',
-                background: 'radial-gradient(ellipse 60% 60% at 50% 70%, rgba(255, 110, 15, 0.35) 0%, rgba(255, 95, 0, 0.22) 30%, rgba(255, 75, 0, 0.10) 55%, rgba(255, 60, 0, 0.03) 75%, transparent 100%)',
-                animation: 'teaserGlowPulse 3s ease-in-out infinite',
+                pointerEvents: 'none',
+                background: 'linear-gradient(to right, rgba(255,127,80,0.20), rgba(6,182,212,0.05), rgba(52,211,153,0.20))',
+                borderRadius: '9999px',
+                filter: 'blur(48px)',
               }}
             />
 
-            {/* Layer 2: Concentrated warm core glow directly behind the keys */}
+            {/* Logo apex peeking at bottom */}
             <div 
-              className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[180px] sm:w-[240px] h-[80px] sm:h-[95px] pointer-events-none blur-lg sm:blur-xl will-change-[transform,opacity]"
-              style={{
-                position: 'absolute',
-                left: '50%',
-                bottom: '0px',
-                width: 'clamp(180px, 24vw, 240px)',
-                height: 'clamp(80px, 10vw, 95px)',
-                transform: 'translateX(-50%)',
-                background: 'radial-gradient(ellipse 55% 55% at 50% 60%, rgba(255, 145, 35, 0.50) 0%, rgba(255, 110, 20, 0.30) 35%, rgba(255, 80, 0, 0.12) 65%, transparent 100%)',
-                animation: 'teaserCorePulse 3s ease-in-out infinite 0.2s',
-              }}
-            />
-            
-            {/* Top apex of logo: unclipped on top/left/right so drop shadows bloom smoothly */}
-            <div 
-              className="relative w-64 sm:w-72 md:w-80 h-8 sm:h-9 md:h-10 flex items-start justify-center"
               style={{
                 position: 'relative',
                 width: 'clamp(256px, 30vw, 320px)',
@@ -241,7 +203,6 @@ const Manifesto: React.FC = () => {
               }}
             >
               <div
-                className="shrink-0 flex items-start justify-center"
                 style={{
                   display: 'flex',
                   alignItems: 'flex-start',
@@ -250,12 +211,11 @@ const Manifesto: React.FC = () => {
                 }}
               >
                 <Logo 
-                  className="w-24 sm:w-28 md:w-32 h-24 sm:h-28 md:h-32 text-white/95 group-hover:text-white shrink-0 -mt-1 transition-colors duration-200" 
+                  className="text-white/70 group-hover:text-white/90 shrink-0 transition-colors duration-200" 
                   style={{
                     width: 'clamp(96px, 12vw, 128px)',
                     height: 'clamp(96px, 12vw, 128px)',
                     marginTop: '-4px',
-                    animation: 'teaserAuraPulse 3s ease-in-out infinite',
                   }}
                 />
               </div>
