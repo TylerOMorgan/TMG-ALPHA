@@ -70,37 +70,25 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
     return () => ctx.revert();
   }, []);
 
-  // Teaser visibility: driven by raw Lenis scroll, immune to GSAP pin spacers
+  // Teaser visibility: plain window scroll event — always reliable regardless of Lenis timing
   useEffect(() => {
     if (!teaserRef.current) return;
 
-    const FADE_START = 0;
     const FADE_END = 80;
 
-    const onScroll = ({ scroll }: { scroll: number }) => {
+    const onScroll = () => {
       if (!teaserRef.current) return;
-      const progress = Math.min(Math.max((scroll - FADE_START) / (FADE_END - FADE_START), 0), 1);
+      const progress = Math.min(window.scrollY / FADE_END, 1);
       const opacity = 1 - progress;
       teaserRef.current.style.opacity = String(opacity);
       teaserRef.current.style.transform = `translateY(${progress * 20}px)`;
       teaserRef.current.style.pointerEvents = opacity < 0.5 ? 'none' : 'auto';
     };
 
-    // Wait one frame for Lenis to be ready
-    const rafId = requestAnimationFrame(() => {
-      const lenis = (window as any).lenis;
-      if (lenis) {
-        lenis.on('scroll', onScroll);
-        // Set initial state based on current scroll
-        onScroll({ scroll: lenis.scroll ?? 0 });
-      }
-    });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // set initial state immediately
 
-    return () => {
-      cancelAnimationFrame(rafId);
-      const lenis = (window as any).lenis;
-      if (lenis) lenis.off('scroll', onScroll);
-    };
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   return (
