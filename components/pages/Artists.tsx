@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
-import ArtistScrollBanner from '../ArtistScrollBanner';
-import ArtistShowcase from '../ArtistShowcase';
-import ArtistCTA from '../ArtistCTA';
-import Footer from '../Footer';
+import React, { useEffect } from "react";
+import ArtistScrollBanner from "../ArtistScrollBanner";
+import ArtistShowcase from "../ArtistShowcase";
+import ArtistCTA from "../ArtistCTA";
+import Footer from "../Footer";
 
-const Artists: React.FC = () => {
+const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   useEffect(() => {
-    document.title = 'ARTISTS & ROSTER — TRILLEX MUSIC GROUP';
-  }, []);
+    if (isActive) {
+      document.title = "ARTISTS & ROSTER — TRILLEX MUSIC GROUP";
+    }
+  }, [isActive]);
 
   return (
     <div className="bg-trillex-black min-h-screen pt-28 md:pt-36">
@@ -25,7 +27,8 @@ const Artists: React.FC = () => {
         </h1>
 
         <p className="text-white/60 text-base sm:text-lg md:text-xl font-sans font-light max-w-2xl leading-relaxed">
-          Home to ground-breaking electronic producers, sound architects, and genre-defining acts across our global imprint network.
+          Home to ground-breaking electronic producers, sound architects, and
+          genre-defining acts across our global imprint network.
         </p>
       </section>
 

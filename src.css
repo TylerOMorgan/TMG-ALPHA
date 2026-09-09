@@ -1,13 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Trillex Global Stylesheet */
-html, body {
+html,
+body {
   background-color: #050505 !important;
-  color: #EAEAEA;
+  color: #eaeaea;
   margin: 0;
   padding: 0;
 }
 
+body {
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Space Grotesque", sans-serif;
+}
+
 /* Lenis Smooth Scroll Recommended Styles */
-html.lenis, html.lenis body {
+html.lenis,
+html.lenis body {
   height: auto;
 }
 .lenis.lenis-smooth {
@@ -22,6 +41,3 @@ html.lenis, html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
-
-
-
