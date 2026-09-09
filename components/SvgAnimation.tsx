@@ -133,7 +133,9 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
     // Shared progress proxy for GSAP tween and timer synchronizations
     const proxy = { progress: 0 };
 
-    // Initialize at frame 0
+    // Initialize at frame 0 (resting state). The static teaser at the
+    // viewport bottom already shows the apex, so the section arrives empty
+    // and unfolds as scroll reaches it — one continuous motion.
     scrub(0);
 
     // Create GSAP ScrollTrigger with smooth scrub using a tween proxy

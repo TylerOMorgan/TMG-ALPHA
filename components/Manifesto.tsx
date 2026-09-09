@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Logo from "./Logo";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -89,7 +88,6 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
       const progress = Math.min(scroll / FADE_END, 1);
       const opacity = 1 - progress;
       teaserRef.current.style.opacity = String(opacity);
-      teaserRef.current.style.transform = `translateY(${progress * 20}px)`;
       teaserRef.current.style.pointerEvents = "none";
     };
 
@@ -173,7 +171,8 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
               }}
               aria-hidden="true"
             >
-              {/* Ambient glow: orange left, green right */}
+              {/* Subtler foreground glow — same palette as the ecosystem
+                  section's ambient glow so scroll feels continuous */}
               <div
                 style={{
                   position: "absolute",
@@ -184,13 +183,14 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
                   transform: "translateX(-50%)",
                   pointerEvents: "none",
                   background:
-                    "linear-gradient(to right, rgba(255,127,80,0.20), rgba(6,182,212,0.05), rgba(52,211,153,0.20))",
+                    "linear-gradient(to right, rgba(255,127,80,0.10), rgba(6,182,212,0.05), rgba(52,211,153,0.10))",
                   borderRadius: "9999px",
-                  filter: "blur(48px)",
+                  filter: "blur(140px)",
                 }}
               />
 
-              {/* Logo apex peeking at bottom */}
+              {/* Ecosystem apex peeking at bottom — cropped icon from the
+                  SVG's own header image (ecosystem-img0), icon only */}
               <div
                 style={{
                   position: "relative",
@@ -202,23 +202,19 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
                   clipPath: "inset(-100px -100px 0px -100px)",
                 }}
               >
-                <div
+                <img
+                  src="/ecosystem-apex.webp"
+                  alt=""
+                  draggable={false}
                   style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    justifyContent: "center",
-                    transform: "translateX(17.93%)",
+                    width: "clamp(96px, 12vw, 128px)",
+                    height: "clamp(96px, 12vw, 128px)",
+                    marginTop: "-4px",
+                    opacity: 0.7,
+                    objectFit: "contain",
+                    pointerEvents: "none",
                   }}
-                >
-                  <Logo
-                    className="text-white/70 group-hover:text-white/90 shrink-0 transition-colors duration-200"
-                    style={{
-                      width: "clamp(96px, 12vw, 128px)",
-                      height: "clamp(96px, 12vw, 128px)",
-                      marginTop: "-4px",
-                    }}
-                  />
-                </div>
+                />
               </div>
             </div>
           </div>,
