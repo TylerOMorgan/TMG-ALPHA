@@ -182,7 +182,7 @@ const FounderWord: React.FC = () => {
       {/* Background Parallax Text */}
       <h2
         ref={bgTextRef}
-        className="absolute top-[-10%] right-0 text-[25vw] font-display font-bold text-white/[0.03] pointer-events-none select-none leading-none z-0 whitespace-nowrap will-change-transform"
+        className="absolute top-[-20%] right-0 text-[25vw] font-display font-bold text-white/[0.03] pointer-events-none select-none leading-none z-0 whitespace-nowrap will-change-transform"
       >
         VISION
       </h2>
