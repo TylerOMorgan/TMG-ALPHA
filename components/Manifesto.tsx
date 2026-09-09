@@ -70,25 +70,24 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
     return () => ctx.revert();
   }, []);
 
-  // Teaser visibility: plain window scroll event — always reliable regardless of Lenis timing
+  // Teaser visibility: GSAP ticker reads lenis.scroll every frame (most reliable)
   useEffect(() => {
     if (!teaserRef.current) return;
-
     const FADE_END = 80;
 
-    const onScroll = () => {
+    const update = () => {
       if (!teaserRef.current) return;
-      const progress = Math.min(window.scrollY / FADE_END, 1);
+      const lenis = (window as any).lenis;
+      const scroll = lenis ? lenis.scroll : window.scrollY;
+      const progress = Math.min(scroll / FADE_END, 1);
       const opacity = 1 - progress;
       teaserRef.current.style.opacity = String(opacity);
       teaserRef.current.style.transform = `translateY(${progress * 20}px)`;
       teaserRef.current.style.pointerEvents = opacity < 0.5 ? 'none' : 'auto';
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll(); // set initial state immediately
-
-    return () => window.removeEventListener('scroll', onScroll);
+    gsap.ticker.add(update);
+    return () => gsap.ticker.remove(update);
   }, []);
 
   return (
