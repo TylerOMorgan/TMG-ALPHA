@@ -191,11 +191,10 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
       }
 
       // Pulse flow visibility:
-      // When folding/unfolding (<78%), pulses are hidden.
-      // Once lines connect (78% -> 90%), pulses smoothly fade in.
-      // Above 90%, pulses are fully visible and flowing continuously.
-      // When scrolling back up, pulses fade out cleanly so lines fold back cleanly.
-      const pulseOpacity = Math.max(0, Math.min(1, (clampedProgress - 0.78) / 0.12));
+      // Lines finish drawing by 65%. Ramp pulse opacity smoothly from 50% to 70%,
+      // so pulses are at 100% full intensity for the entire unfolded duration (70% - 100%).
+      // When scrolling back up, pulses fade out cleanly before lines retract.
+      const pulseOpacity = Math.max(0, Math.min(1, (clampedProgress - 0.50) / 0.20));
       updatePulseOpacity(pulseOpacity);
 
       // Keep pulse animations flowing in real-time
