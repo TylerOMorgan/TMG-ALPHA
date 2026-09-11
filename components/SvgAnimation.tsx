@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ECOSYSTEM_SVG_DATA } from "../utils/ecosystemSvgData";
+import { PIVOT_INDEX } from "./Manifesto";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -126,11 +127,12 @@ interface SvgAnimationProps {
 
 const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
+  const svgWrapperRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const unfoldedBloomRef = useRef<HTMLDivElement>(null);
 
-  // Link SVG animations to GSAP ScrollTrigger when page is active
   useEffect(() => {
-    if (!isActive || !containerRef.current || !sectionRef.current) return;
+    if (!isActive || !containerRef.current || !svgWrapperRef.current) return;
 
     let ctx: gsap.Context | null = null;
 
@@ -168,15 +170,34 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
       }
     };
 
-    // Scrub unfolding animations cleanly in both directions (Option 3)
+    let lastScrubTime = -1;
+
+    // Scrub unfolding animations cleanly in both directions
     const scrub = (progress: number) => {
       const validProgress =
         typeof progress === "number" && !isNaN(progress) ? progress : 0;
       const clampedProgress = Math.min(Math.max(validProgress, 0), 1);
-      // Map [0, 1] to [0ms, 4999ms]
-      const time = clampedProgress * 4999;
 
-      // Always re-collect live unfolding animations to handle WAAPI clone lifecycle
+      // Map progress [0, 1] to animation time:
+      // At progress === 0: time = 0 (only apex icon visible, lines hidden, cards invisible).
+      // As soon as progress > 0, the diagram begins unfolding immediately with the scroll.
+      // (The raw SVG keyframes have an idle delay from 0 to 1000ms before lines start drawing;
+      // we fast-track that in the first 3% of progress so the user sees lines drawing immediately).
+      let time = 0;
+      if (clampedProgress > 0) {
+        if (clampedProgress < 0.03) {
+          time = (clampedProgress / 0.03) * 1000;
+        } else {
+          time = 1000 + ((clampedProgress - 0.03) / 0.97) * 3999;
+        }
+      }
+
+      // Avoid redundant DOM updates if time hasn't changed (e.g. repeated calls at progress === 0)
+      if (time === 0 && lastScrubTime === 0) {
+        return;
+      }
+      lastScrubTime = time;
+
       if (containerRef.current) {
         liveUnfoldingAnims = getLiveUnfoldingAnimations(containerRef.current);
       }
@@ -192,126 +213,186 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
       }
 
       // Pulse flow visibility:
-      // Lines finish drawing by 65%. Ramp pulse opacity smoothly from 50% to 70%,
-      // so pulses are at 100% full intensity for the entire unfolded duration (70% - 100%).
-      // When scrolling back up, pulses fade out cleanly before lines retract.
-      const pulseOpacity = Math.max(0, Math.min(1, (clampedProgress - 0.50) / 0.20));
+      // Fade in pulses once lines connect (progress 0.55 to 0.75),
+      // full intensity through unfolded rest (0.75 to 1.0)
+      const pulseOpacity = Math.max(0, Math.min(1, (clampedProgress - 0.55) / 0.20));
       updatePulseOpacity(pulseOpacity);
 
-      // Keep pulse animations flowing in real-time
+      // Fade in the wide atmospheric bloom as diagram unfolds
+      if (unfoldedBloomRef.current) {
+        const bloomOpacity = Math.max(0, Math.min(1, (clampedProgress - 0.10) / 0.30));
+        unfoldedBloomRef.current.style.opacity = bloomOpacity.toFixed(2);
+      }
+
       ensurePulseRunning();
     };
 
-    // Shared progress proxy for GSAP tween
-    const proxy = { progress: 0 };
+    const stage = document.getElementById("about-hero-stage");
+    if (!stage || !containerRef.current || !svgWrapperRef.current) return;
 
-    // Initialize at frame 0 (resting folded state)
-    scrub(0);
-
-    let applyAnchorPosition: (() => void) | null = null;
-
-    // Create synchronized pin & scrub trigger
     ctx = gsap.context(() => {
-      // 1. Calculate dynamic bottom-peeking offset
-      // Target: TMG logo apex peeks ~38px above viewport bottom at scroll = 0
-      let initialY = 0;
-      const calculateInitialY = () => {
-        if (!containerRef.current || !sectionRef.current) return 0;
+      const manifesto = stage.querySelector("#about-manifesto") as HTMLElement | null;
+      const words = manifesto ? manifesto.querySelectorAll(".word") : [];
+      const footerWords = manifesto ? manifesto.querySelectorAll(".footer-word") : [];
+
+      // Initial word visibility split based on pivot index
+      const initialVisible = Array.from(words).slice(0, PIVOT_INDEX + 1);
+      const toReveal = Array.from(words).slice(PIVOT_INDEX + 1);
+
+      // Set initial states for Manifesto text
+      gsap.set(initialVisible, { opacity: 1, color: "#EAEAEA" });
+      gsap.set(toReveal, { opacity: 0.1, color: "#4a4a4a" });
+      gsap.set(footerWords, { opacity: 0.1, textShadow: "none" });
+      if (manifesto) gsap.set(manifesto, { opacity: 1 });
+
+      // Calculate resting Y so logo midpoint aligns exactly with bottom of viewport (half visible)
+      let restingY = 0;
+      const calculateRestingY = () => {
+        if (!containerRef.current || !svgWrapperRef.current) return 0;
         const logo = containerRef.current.querySelector(
           "#Trillex_Main_No_BG_1"
-        ) as HTMLElement | null;
+        ) as SVGElement | null;
         if (!logo) return 0;
 
-        // Current un-translated logo top relative to document
-        const currentTransformY =
-          (gsap.getProperty(sectionRef.current, "y") as number) || 0;
+        const currentY =
+          (gsap.getProperty(svgWrapperRef.current, "y") as number) || 0;
         const logoRect = logo.getBoundingClientRect();
-        const logoDocTop = logoRect.top + window.scrollY - currentTransformY;
+        // Compute un-translated center of logo in viewport coordinates
+        const logoCenterY = logoRect.top + logoRect.height * 0.5 - currentY;
 
-        // Desired viewport top of logo apex at scroll = 0: ~44px visible from bottom
-        const desiredViewportTop = window.innerHeight - 44;
-        return desiredViewportTop - logoDocTop;
+        // Exactly align logo midpoint with bottom of viewport (window.innerHeight)
+        return window.innerHeight - logoCenterY;
       };
 
-      initialY = calculateInitialY();
-      if (initialY !== 0) {
-        gsap.set(sectionRef.current, { y: initialY });
-      }
+      restingY = calculateRestingY();
+      gsap.set(svgWrapperRef.current, { y: restingY, force3D: true });
 
-      // 2. Anchor Trigger: Keeps the section resting at the bottom of the viewport
-      // while Manifesto reveals, smoothly interpolating to y: 0 when Manifesto completes
-      const getManifestoEnd = () => {
-        const mST = ScrollTrigger.getById("manifesto-trigger");
-        return mST ? mST.end : window.innerHeight * 0.85;
-      };
+      // Initialize SVG scrub at frame 0 (resting folded apex state)
+      scrub(0);
 
-      applyAnchorPosition = () => {
-        if (!sectionRef.current) return;
-        const anchorST = ScrollTrigger.getById("svg-bottom-anchor");
-        const prog = anchorST ? anchorST.progress : 0;
-        const currentY = initialY * (1 - prog);
-        gsap.set(sectionRef.current, { y: currentY });
-      };
+      // Scrub proxy object for GSAP tween
+      const scrubProxy = { progress: 0 };
 
-      ScrollTrigger.create({
-        id: "svg-bottom-anchor",
-        trigger: document.body,
-        start: 0,
-        end: getManifestoEnd,
-        scrub: true,
-        invalidateOnRefresh: true,
-        onRefresh: () => {
-          initialY = calculateInitialY();
-          if (applyAnchorPosition) applyAnchorPosition();
-        },
-        onUpdate: (self) => {
-          if (!sectionRef.current) return;
-          const currentY = initialY * (1 - self.progress);
-          gsap.set(sectionRef.current, { y: currentY });
-        },
-      });
+      // Single synchronized master timeline pinning the hero stage
+      let transitionStartTime = 5.36;
 
-      if (applyAnchorPosition) {
-        ScrollTrigger.addEventListener("refresh", applyAnchorPosition);
-      }
-
-      // 3. Unfolding scrub timeline (pinned centered in viewport)
-      gsap.to(proxy, {
-        progress: 1,
-        ease: "none",
+      const tl = gsap.timeline({
         scrollTrigger: {
-          id: "svg-ecosystem-scrub",
-          trigger: sectionRef.current,
-          start: "center center",
-          end: "+=130%",
+          id: "about-hero-timeline",
+          trigger: stage,
+          start: "top top",
+          end: () => `+=${window.innerHeight * 2.5}`,
           pin: true,
-          scrub: 0.35,
+          scrub: 0.4,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          onUpdate: () => {
-            scrub(proxy.progress);
+          onRefreshInit: () => {
+            restingY = calculateRestingY();
           },
           onRefresh: () => {
-            scrub(proxy.progress);
+            restingY = calculateRestingY();
+            if (tl.time() <= transitionStartTime) {
+              gsap.set(svgWrapperRef.current, { y: restingY, force3D: true });
+              scrub(0);
+            }
           },
         },
       });
-    }, sectionRef.current);
 
-    // Layout refresh
+      // 1. Text 1 (toReveal) reveals completely word-by-word first
+      tl.to(
+        toReveal,
+        {
+          opacity: 1,
+          color: "#EAEAEA",
+          stagger: 0.15,
+          duration: 0.25,
+          ease: "none",
+        },
+        0
+      );
+
+      // 2. ONLY AFTER Text 1 is 100% revealed, Text 2 (footerWords: "Established in BKK 2024")
+      //    reveals sequentially (matching original sequential timeline: .to(toReveal, ...).to(footerWords, ..., "+=0.1"))
+      tl.to(
+        footerWords,
+        {
+          opacity: 1,
+          textShadow: "0 0 12px rgba(255,127,80,0.8)",
+          stagger: 0.12,
+          duration: 0.4,
+          ease: "power2.out",
+        },
+        "+=0.1"
+      );
+
+      // Point 1: Text 1 and Text 2 are both 100% revealed
+      const point1Time = tl.duration();
+      const holdDuration = 0.2;
+      transitionStartTime = point1Time + holdDuration;
+
+      // 3. Throughout entire reveal of Text 1 and Text 2 (and Point 1 hold),
+      //    SVG apex icon stays anchored stationary at restingY (half visible at viewport bottom).
+      //    Only after Point 1, further scrolling transitions apex icon up to center (y: 0).
+      tl.set(svgWrapperRef.current, { y: () => restingY }, 0);
+      tl.fromTo(
+        svgWrapperRef.current,
+        { y: () => restingY },
+        {
+          y: 0,
+          duration: 2.4,
+          ease: "power2.inOut",
+        },
+        transitionStartTime
+      );
+
+      // 4. Scrub proxy stays at 0 (folded resting apex state) throughout entire reveal of Text 1 & 2.
+      //    Only after Point 1, further scrolling unfolds SVG ecosystem diagram.
+      tl.set(scrubProxy, { progress: 0 }, 0);
+      tl.fromTo(
+        scrubProxy,
+        { progress: 0 },
+        {
+          progress: 1,
+          duration: 3.8,
+          ease: "none",
+          onUpdate: () => {
+            scrub(scrubProxy.progress);
+          },
+        },
+        transitionStartTime
+      );
+
+      // 5. Only after Point 1: Manifesto fades out smoothly as transition begins
+      if (manifesto) {
+        tl.set(manifesto, { opacity: 1, visibility: "inherit" }, 0);
+        tl.fromTo(
+          manifesto,
+          { opacity: 1, visibility: "inherit" },
+          {
+            opacity: 0,
+            duration: 1.2,
+            ease: "power1.out",
+            onComplete: () => {
+              if (manifesto) manifesto.style.visibility = "hidden";
+            },
+            onReverseComplete: () => {
+              if (manifesto) manifesto.style.visibility = "inherit";
+            },
+          },
+          transitionStartTime
+        );
+      }
+    }, stage);
+
     const syncLayout = () => {
       ScrollTrigger.refresh();
-      if (applyAnchorPosition) applyAnchorPosition();
-      scrub(proxy.progress);
     };
 
     const rafId = requestAnimationFrame(syncLayout);
 
     return () => {
       cancelAnimationFrame(rafId);
-      if (applyAnchorPosition) {
-        ScrollTrigger.removeEventListener("refresh", applyAnchorPosition);
-      }
       if (ctx) ctx.revert();
     };
   }, [isActive]);
@@ -320,20 +401,22 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
     <section
       id="about-ecosystem-animation"
       ref={sectionRef}
-      className="relative z-20 w-full h-screen min-h-[500px] max-h-[100vh] py-0 bg-transparent flex flex-col items-center justify-center overflow-hidden select-none"
-      style={{ minHeight: "100vh", height: "100vh" }}
+      className="absolute inset-0 z-20 w-full h-full flex flex-col items-center justify-center overflow-hidden pointer-events-none select-none"
     >
-      {/* Concentrated ambient apex glow matching the brand palette behind the TMG logo */}
-      <div className="absolute top-[16%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[700px] md:w-[900px] h-[140px] sm:h-[180px] bg-gradient-to-r from-trillex-orange/20 via-cyan-500/12 to-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
-
       {/* Wide atmospheric ambient gradient bloom behind the unfolded diagram */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[950px] lg:w-[1200px] h-[350px] md:h-[500px] bg-gradient-to-r from-trillex-orange/10 via-cyan-500/5 to-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div
+        ref={unfoldedBloomRef}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[950px] lg:w-[1200px] h-[350px] md:h-[500px] bg-gradient-to-r from-trillex-orange/10 via-cyan-500/5 to-emerald-500/10 rounded-full blur-[140px] pointer-events-none opacity-0"
+      />
 
-      <div className="w-full max-w-7xl px-8 md:px-12 h-full flex items-center justify-center relative z-10">
+      <div
+        ref={svgWrapperRef}
+        className="w-full max-w-7xl px-8 md:px-12 h-full flex items-center justify-center relative z-10 will-change-transform"
+      >
         <div className="relative w-full max-h-[90vh] aspect-[16/9] flex items-center justify-center">
           <div
             ref={containerRef}
-            className="w-full h-full flex items-center justify-center pointer-events-none select-none [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain"
+            className="w-full h-full flex items-center justify-center pointer-events-none select-none [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain relative z-10"
             dangerouslySetInnerHTML={{ __html: ECOSYSTEM_SVG_DATA }}
           />
         </div>

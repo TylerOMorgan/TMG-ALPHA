@@ -19,11 +19,15 @@ const About: React.FC<AboutProps> = ({ isActive = true }) => {
   }, [isActive]);
   
   return (
-    <div className="bg-trillex-black min-h-screen pt-20 md:pt-24">
-      <Manifesto isActive={isActive} />
-
-      {/* Trillex Website SVG Animations */}
-      <SvgAnimation isActive={isActive} />
+    <div className="bg-trillex-black min-h-screen">
+      {/* Pinned Hero Stage: Combined Manifesto Reveal & Ecosystem SVG Unfolding Animation */}
+      <div
+        id="about-hero-stage"
+        className="relative w-full h-screen min-h-[580px] overflow-hidden select-none"
+      >
+        <Manifesto isActive={isActive} />
+        <SvgAnimation isActive={isActive} />
+      </div>
 
       <Services />
 
