@@ -9,6 +9,29 @@ if (typeof window !== "undefined") {
   (window as any).ScrollTrigger = ScrollTrigger;
 }
 
+// Helper: detect pulse animations
+const isPulseAnimation = (anim: Animation): boolean => {
+  try {
+    const name = (anim as any).animationName || "";
+    if (typeof name === "string" && name.toLowerCase().includes("pulse")) {
+      return true;
+    }
+    const target = (anim.effect as any)?.target;
+    if (target) {
+      if (typeof target.id === "string" && target.id.toLowerCase().includes("pulse")) {
+        return true;
+      }
+      if (typeof target.className === "string" && target.className.toLowerCase().includes("pulse")) {
+        return true;
+      }
+      if (target.closest && target.closest(".ecosystem-pulse-group")) {
+        return true;
+      }
+    }
+  } catch {}
+  return false;
+};
+
 // Helper: collect active Web Animation objects from the container subtree dynamically.
 // Dedupes by (target, animationName): React 19's concurrent renderer can leave
 // multiple WAAPI clones of the same CSS animation on one element. The clones
@@ -86,6 +109,16 @@ const getLiveAnimations = (container: HTMLElement): Animation[] => {
   return deduped;
 };
 
+// Filter live animations to only those driving the unfolding/folding diagram
+const getLiveUnfoldingAnimations = (container: HTMLElement): Animation[] => {
+  return getLiveAnimations(container).filter((anim) => !isPulseAnimation(anim));
+};
+
+// Filter live animations to pulse animations
+const getLivePulseAnimations = (container: HTMLElement): Animation[] => {
+  return getLiveAnimations(container).filter((anim) => isPulseAnimation(anim));
+};
+
 interface SvgAnimationProps {
   isActive?: boolean;
 }
@@ -100,14 +133,41 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
 
     let ctx: gsap.Context | null = null;
 
-    // Cache live animation handles (deduped to one per target+name)
-    let liveAnims = getLiveAnimations(containerRef.current);
-    // Re-collect (and re-dedupe) on every scrub: React 19's concurrent
-    // renderer can mint fresh WAAPI clones of the same CSS animations at any
-    // time (e.g. after HMR-style re-renders). A stale cached list would keep
-    // writing currentTime to orphaned handles while the live clones sit at 0.
+    // Cache live unfolding animation handles (deduped to one per target+name)
+    let liveUnfoldingAnims = getLiveUnfoldingAnimations(containerRef.current);
 
-    // Scrub all live animations to exact timestamp cleanly in both directions
+    // Cache pulse group DOM nodes
+    let pulseGroups: HTMLElement[] | null = null;
+    const updatePulseOpacity = (opacity: number) => {
+      if (!pulseGroups || pulseGroups.length === 0) {
+        if (containerRef.current) {
+          pulseGroups = Array.from(
+            containerRef.current.querySelectorAll<HTMLElement>(".ecosystem-pulse-group")
+          );
+        }
+      }
+      if (pulseGroups) {
+        const val = opacity.toFixed(3);
+        for (let i = 0; i < pulseGroups.length; i++) {
+          pulseGroups[i].style.opacity = val;
+        }
+      }
+    };
+
+    // Ensure pulse animations are actively playing in real time
+    const ensurePulseRunning = () => {
+      if (!containerRef.current) return;
+      const pulseAnims = getLivePulseAnimations(containerRef.current);
+      for (let i = 0; i < pulseAnims.length; i++) {
+        try {
+          if (pulseAnims[i].playState !== "running") {
+            pulseAnims[i].play();
+          }
+        } catch {}
+      }
+    };
+
+    // Scrub unfolding animations cleanly in both directions (Option 3)
     const scrub = (progress: number) => {
       const validProgress =
         typeof progress === "number" && !isNaN(progress) ? progress : 0;
@@ -115,70 +175,64 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
       // Map [0, 1] to [0ms, 4999ms]
       const time = clampedProgress * 4999;
 
-      // Always re-collect: clones come and go, never trust a cached list
+      // Always re-collect live unfolding animations to handle WAAPI clone lifecycle
       if (containerRef.current) {
-        liveAnims = getLiveAnimations(containerRef.current);
+        liveUnfoldingAnims = getLiveUnfoldingAnimations(containerRef.current);
       }
 
-      for (let i = 0; i < liveAnims.length; i++) {
+      // Scrub ONLY unfolding animations (TMG scale, cards sliding, lines drawing)
+      for (let i = 0; i < liveUnfoldingAnims.length; i++) {
         try {
-          if (liveAnims[i].playState !== "paused") {
-            liveAnims[i].pause();
+          if (liveUnfoldingAnims[i].playState !== "paused") {
+            liveUnfoldingAnims[i].pause();
           }
-          liveAnims[i].currentTime = time;
+          liveUnfoldingAnims[i].currentTime = time;
         } catch {}
       }
+
+      // Pulse flow visibility:
+      // When folding/unfolding (<78%), pulses are hidden.
+      // Once lines connect (78% -> 90%), pulses smoothly fade in.
+      // Above 90%, pulses are fully visible and flowing continuously.
+      // When scrolling back up, pulses fade out cleanly so lines fold back cleanly.
+      const pulseOpacity = Math.max(0, Math.min(1, (clampedProgress - 0.78) / 0.12));
+      updatePulseOpacity(pulseOpacity);
+
+      // Keep pulse animations flowing in real-time
+      ensurePulseRunning();
     };
 
-    // Shared progress proxy for GSAP tween and timer synchronizations
+    // Shared progress proxy for GSAP tween
     const proxy = { progress: 0 };
 
-    // Initialize at frame 0 (resting state). The static teaser at the
-    // viewport bottom already shows the apex, so the section arrives empty
-    // and unfolds as scroll reaches it — one continuous motion.
+    // Initialize at frame 0 (resting folded state)
     scrub(0);
 
-    // Create GSAP ScrollTrigger with smooth scrub using a tween proxy
+    // Create synchronized pin & scrub trigger
     ctx = gsap.context(() => {
-      // 1. Dedicated Pin Trigger: Pins sectionRef centered in viewport
-      const pinST = ScrollTrigger.create({
-        id: "svg-pin",
-        trigger: sectionRef.current,
-        start: "center center",
-        end: "+=120%", // Smooth, comfortable scroll distance
-        pin: true,
-        anticipatePin: 1,
-      });
-
-      // 2. Scrub Trigger: ease:none = 1:1 with scroll (no disconnection).
-      //    Starts when manifesto pins (so SVG has a head-start by the time it's centered).
-      //    Ends at SVG pin end so the fold/unfold plays while SVG is the main focus.
       gsap.to(proxy, {
         progress: 1,
         ease: "none",
         scrollTrigger: {
-          id: "svg-scrub",
-          start: () => {
-            const mST = ScrollTrigger.getById("manifesto-trigger");
-            return mST ? mST.start : "top center";
-          },
-          end: () => {
-            const pST = ScrollTrigger.getById("svg-pin") || pinST;
-            return pST ? pST.end : "+=120%";
-          },
-          scrub: 0.3,
+          id: "svg-ecosystem-scrub",
+          trigger: sectionRef.current,
+          start: "center center",
+          end: "+=130%",
+          pin: true,
+          scrub: 0.35,
+          anticipatePin: 1,
           invalidateOnRefresh: true,
+          onUpdate: () => {
+            scrub(proxy.progress);
+          },
           onRefresh: () => {
             scrub(proxy.progress);
           },
         },
-        onUpdate: () => {
-          scrub(proxy.progress);
-        },
       });
     }, sectionRef.current);
 
-    // Fast refresh for layout stabilization
+    // Layout refresh
     const syncLayout = () => {
       ScrollTrigger.refresh();
       scrub(proxy.progress);
