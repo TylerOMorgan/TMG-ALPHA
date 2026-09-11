@@ -182,12 +182,13 @@ const App: React.FC = () => {
         // Initial setup for logo
         if (logoRef.current) {
           gsap.set(logoRef.current, {
-            backgroundPosition: "0% 0%",
             filter: "drop-shadow(0 0 4px rgba(255, 127, 80, 0.2))",
           });
+          logoRef.current.style.backgroundImage =
+            "linear-gradient(to top, #FF7F50 0%, transparent 0%)";
         }
 
-        // 1. Synchronized Counter & Liquid Logo Fill with organic ease
+        // 1. Synchronized Counter & Liquid Logo Fill driven by a single unified tick
         tl.to(
           counter,
           {
@@ -195,10 +196,27 @@ const App: React.FC = () => {
             duration: counterDuration,
             ease: "power2.inOut",
             onUpdate: () => {
+              const val = Math.min(100, Math.max(0, counter.val));
               if (counterRef.current) {
-                counterRef.current.innerText = Math.floor(counter.val)
+                counterRef.current.innerText = Math.floor(val)
                   .toString()
                   .padStart(2, "0");
+              }
+              if (logoRef.current) {
+                // Exact cap-height mapping for Space Grotesque Bold:
+                // Glyphs sit between 11.2% (baseline) and 82.8% (cap-height) of the container
+                const bottomOffset = 11.2;
+                const topOffset = 82.8;
+                const fillPct =
+                  val <= 0
+                    ? 0
+                    : val >= 100
+                      ? 100
+                      : bottomOffset + (val / 100) * (topOffset - bottomOffset);
+
+                const low = Math.max(0, fillPct - 0.2).toFixed(2);
+                const high = Math.min(100, fillPct + 0.2).toFixed(2);
+                logoRef.current.style.backgroundImage = `linear-gradient(to top, #FF7F50 ${low}%, transparent ${high}%)`;
               }
             },
           },
@@ -206,17 +224,6 @@ const App: React.FC = () => {
         );
 
         if (logoRef.current) {
-          // Fill rises smoothly with matching ease
-          tl.to(
-            logoRef.current,
-            {
-              backgroundPosition: "0% 100%",
-              duration: counterDuration,
-              ease: "power2.inOut",
-            },
-            0,
-          );
-
           // Glow builds up smoothly as fill reaches 100%
           tl.to(
             logoRef.current,
@@ -282,14 +289,12 @@ const App: React.FC = () => {
                 WebkitTextStroke: "1px #FF7F50",
                 color: "transparent",
                 backgroundImage:
-                  "linear-gradient(0deg, #FF7F50 0%, #FF7F50 49.8%, transparent 50.2%, transparent 100%)",
-                backgroundSize: "100% 200%",
-                backgroundPosition: "0% 0%",
+                  "linear-gradient(to top, #FF7F50 0%, transparent 0%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 paddingLeft: "0.12em",
                 paddingRight: "0.12em",
-                willChange: "background-position, filter, transform",
+                willChange: "filter, transform",
               }}
             >
               TRILLEX
