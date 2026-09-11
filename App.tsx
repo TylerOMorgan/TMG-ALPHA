@@ -95,8 +95,13 @@ const App: React.FC = () => {
     return () => window.removeEventListener("trillex-navigate", handleNav);
   }, []);
 
-  // Effect 1: Handle Page Change -> Scroll Top + Refresh layout
+  // Effect 1: Handle Page Change -> Scroll Top + Refresh layout + Preloader on Home
   useEffect(() => {
+    // Trigger preloader when switching to Home (matching production behavior)
+    if (activePage === "home") {
+      setLoading(true);
+    }
+
     // Always force instant scroll to top when changing pages
     if (typeof window !== "undefined" && (window as any).lenis) {
       (window as any).lenis.scrollTo(0, { immediate: true });
@@ -260,6 +265,16 @@ const App: React.FC = () => {
           );
         }
       } else {
+        if (logoRef.current) {
+          logoRef.current.style.backgroundImage =
+            "linear-gradient(to top, #FF7F50 100%, transparent 100%)";
+          gsap.set(logoRef.current, {
+            filter: "drop-shadow(0 0 24px rgba(255, 127, 80, 0.7))",
+          });
+        }
+        if (counterRef.current) {
+          counterRef.current.innerText = "100";
+        }
         if (preloaderRef.current) {
           tl.to(preloaderRef.current, {
             yPercent: -100,
