@@ -7,6 +7,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 if (typeof window !== "undefined") {
   (window as any).ScrollTrigger = ScrollTrigger;
+  (window as any).gsap = gsap;
 }
 
 // Helper: detect pulse animations
@@ -207,8 +208,74 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
     // Initialize at frame 0 (resting folded state)
     scrub(0);
 
+    let applyAnchorPosition: (() => void) | null = null;
+
     // Create synchronized pin & scrub trigger
     ctx = gsap.context(() => {
+      // 1. Calculate dynamic bottom-peeking offset
+      // Target: TMG logo apex peeks ~38px above viewport bottom at scroll = 0
+      let initialY = 0;
+      const calculateInitialY = () => {
+        if (!containerRef.current || !sectionRef.current) return 0;
+        const logo = containerRef.current.querySelector(
+          "#Trillex_Main_No_BG_1"
+        ) as HTMLElement | null;
+        if (!logo) return 0;
+
+        // Current un-translated logo top relative to document
+        const currentTransformY =
+          (gsap.getProperty(sectionRef.current, "y") as number) || 0;
+        const logoRect = logo.getBoundingClientRect();
+        const logoDocTop = logoRect.top + window.scrollY - currentTransformY;
+
+        // Desired viewport top of logo apex at scroll = 0: ~38px visible from bottom
+        const desiredViewportTop = window.innerHeight - 38;
+        return desiredViewportTop - logoDocTop;
+      };
+
+      initialY = calculateInitialY();
+      if (initialY !== 0) {
+        gsap.set(sectionRef.current, { y: initialY });
+      }
+
+      // 2. Anchor Trigger: Keeps the section resting at the bottom of the viewport
+      // while Manifesto reveals, smoothly interpolating to y: 0 when Manifesto completes
+      const getManifestoEnd = () => {
+        const mST = ScrollTrigger.getById("manifesto-trigger");
+        return mST ? mST.end : window.innerHeight * 0.85;
+      };
+
+      applyAnchorPosition = () => {
+        if (!sectionRef.current) return;
+        const anchorST = ScrollTrigger.getById("svg-bottom-anchor");
+        const prog = anchorST ? anchorST.progress : 0;
+        const currentY = initialY * (1 - prog);
+        gsap.set(sectionRef.current, { y: currentY });
+      };
+
+      ScrollTrigger.create({
+        id: "svg-bottom-anchor",
+        trigger: document.body,
+        start: 0,
+        end: getManifestoEnd,
+        scrub: true,
+        invalidateOnRefresh: true,
+        onRefresh: () => {
+          initialY = calculateInitialY();
+          if (applyAnchorPosition) applyAnchorPosition();
+        },
+        onUpdate: (self) => {
+          if (!sectionRef.current) return;
+          const currentY = initialY * (1 - self.progress);
+          gsap.set(sectionRef.current, { y: currentY });
+        },
+      });
+
+      if (applyAnchorPosition) {
+        ScrollTrigger.addEventListener("refresh", applyAnchorPosition);
+      }
+
+      // 3. Unfolding scrub timeline (pinned centered in viewport)
       gsap.to(proxy, {
         progress: 1,
         ease: "none",
@@ -234,6 +301,7 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
     // Layout refresh
     const syncLayout = () => {
       ScrollTrigger.refresh();
+      if (applyAnchorPosition) applyAnchorPosition();
       scrub(proxy.progress);
     };
 
@@ -241,6 +309,9 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
 
     return () => {
       cancelAnimationFrame(rafId);
+      if (applyAnchorPosition) {
+        ScrollTrigger.removeEventListener("refresh", applyAnchorPosition);
+      }
       if (ctx) ctx.revert();
     };
   }, [isActive]);
@@ -252,8 +323,11 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
       className="relative w-full h-screen min-h-[500px] max-h-[100vh] py-0 bg-trillex-black flex flex-col items-center justify-center overflow-hidden select-none"
       style={{ minHeight: "100vh", height: "100vh" }}
     >
-      {/* Subtle ambient gradient glow in the background matching the brand palette */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[900px] lg:w-[1100px] h-[300px] md:h-[450px] bg-gradient-to-r from-trillex-orange/10 via-cyan-500/5 to-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
+      {/* Concentrated ambient apex glow matching the brand palette behind the TMG logo */}
+      <div className="absolute top-[16%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] sm:w-[700px] md:w-[900px] h-[140px] sm:h-[180px] bg-gradient-to-r from-trillex-orange/20 via-cyan-500/12 to-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Wide atmospheric ambient gradient bloom behind the unfolded diagram */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[950px] lg:w-[1200px] h-[350px] md:h-[500px] bg-gradient-to-r from-trillex-orange/10 via-cyan-500/5 to-emerald-500/10 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="w-full max-w-7xl px-8 md:px-12 h-full flex items-center justify-center relative z-10">
         <div className="relative w-full max-h-[90vh] aspect-[16/9] flex items-center justify-center">

@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -21,7 +20,6 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
-  const teaserRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!textRef.current || !sectionRef.current || !footerRef.current) return;
@@ -74,28 +72,6 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
     return () => ctx.revert();
   }, []);
 
-  // Teaser visibility: GSAP ticker reads lenis.scroll every frame (most reliable).
-  // Depends on isActive: About is keep-alive mounted, so a [] effect would run
-  // while the portal is unmounted (teaserRef null) and never re-attach.
-  useEffect(() => {
-    if (!isActive || !teaserRef.current) return;
-    const FADE_END = 80;
-
-    const update = () => {
-      if (!teaserRef.current) return;
-      const lenis = (window as any).lenis;
-      const scroll = lenis ? lenis.scroll : window.scrollY;
-      const progress = Math.min(scroll / FADE_END, 1);
-      const opacity = 1 - progress;
-      teaserRef.current.style.opacity = String(opacity);
-      teaserRef.current.style.pointerEvents = "none";
-    };
-
-    update(); // set initial state immediately (e.g. deep-linked mid-page)
-    gsap.ticker.add(update);
-    return () => gsap.ticker.remove(update);
-  }, [isActive]);
-
   return (
     <section
       id="about-manifesto"
@@ -139,87 +115,6 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
           ))}
         </div>
       </div>
-
-      {/* Scroll Teaser — visible on load, disappears on first scroll */}
-      {isActive &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <div
-            className="fixed bottom-0 inset-x-0 z-40 flex justify-center pointer-events-none"
-            style={{
-              position: "fixed",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              pointerEvents: "none",
-              zIndex: 40,
-            }}
-          >
-            <div
-              ref={teaserRef}
-              className="relative flex flex-col items-center pointer-events-none select-none group"
-              style={{
-                position: "relative",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                pointerEvents: "none",
-                userSelect: "none",
-              }}
-              aria-hidden="true"
-            >
-              {/* Subtler foreground glow — same palette as the ecosystem
-                  section's ambient glow so scroll feels continuous */}
-              <div
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  bottom: "-55px",
-                  width: "clamp(500px, 60vw, 850px)",
-                  height: "clamp(110px, 14vw, 160px)",
-                  transform: "translateX(-50%)",
-                  pointerEvents: "none",
-                  background:
-                    "linear-gradient(to right, rgba(255,127,80,0.10), rgba(6,182,212,0.05), rgba(52,211,153,0.10))",
-                  borderRadius: "9999px",
-                  filter: "blur(140px)",
-                }}
-              />
-
-              {/* Ecosystem apex peeking at bottom — cropped icon from the
-                  SVG's own header image (ecosystem-img0), icon only */}
-              <div
-                style={{
-                  position: "relative",
-                  width: "clamp(256px, 30vw, 320px)",
-                  height: "clamp(32px, 4vw, 40px)",
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "center",
-                  clipPath: "inset(-100px -100px 0px -100px)",
-                }}
-              >
-                <img
-                  src="/ecosystem-apex.webp"
-                  alt=""
-                  draggable={false}
-                  style={{
-                    width: "clamp(96px, 12vw, 128px)",
-                    height: "clamp(96px, 12vw, 128px)",
-                    marginTop: "-4px",
-                    opacity: 0.7,
-                    objectFit: "contain",
-                    pointerEvents: "none",
-                  }}
-                />
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
     </section>
   );
 };
