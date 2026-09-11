@@ -228,8 +228,8 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
         const logoRect = logo.getBoundingClientRect();
         const logoDocTop = logoRect.top + window.scrollY - currentTransformY;
 
-        // Desired viewport top of logo apex at scroll = 0: ~38px visible from bottom
-        const desiredViewportTop = window.innerHeight - 38;
+        // Desired viewport top of logo apex at scroll = 0: ~44px visible from bottom
+        const desiredViewportTop = window.innerHeight - 44;
         return desiredViewportTop - logoDocTop;
       };
 
@@ -320,7 +320,7 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
     <section
       id="about-ecosystem-animation"
       ref={sectionRef}
-      className="relative w-full h-screen min-h-[500px] max-h-[100vh] py-0 bg-trillex-black flex flex-col items-center justify-center overflow-hidden select-none"
+      className="relative z-20 w-full h-screen min-h-[500px] max-h-[100vh] py-0 bg-transparent flex flex-col items-center justify-center overflow-hidden select-none"
       style={{ minHeight: "100vh", height: "100vh" }}
     >
       {/* Concentrated ambient apex glow matching the brand palette behind the TMG logo */}

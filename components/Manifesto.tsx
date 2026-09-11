@@ -76,7 +76,7 @@ const Manifesto: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
     <section
       id="about-manifesto"
       ref={sectionRef}
-      className="relative z-10 w-full min-h-0 flex items-center justify-center bg-trillex-black pt-0 pb-1 sm:pb-2"
+      className="relative z-10 w-full min-h-0 flex items-center justify-center bg-transparent pt-0 pb-1 sm:pb-2"
     >
       <div className="w-full max-w-7xl px-8 md:px-12 text-center flex flex-col items-center">
         {/* About Label */}
