@@ -29,7 +29,7 @@ const About: React.FC<AboutProps> = ({ isActive = true }) => {
         <SvgAnimation isActive={isActive} />
       </div>
 
-      <Services />
+      <Services isActive={isActive} />
 
       {/* Spacer between Services and FounderWord */}
       <div className="w-full h-24 md:h-48" />

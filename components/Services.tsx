@@ -58,7 +58,11 @@ const column4Items = [
   services[4]
 ];
 
-const Services: React.FC = () => {
+interface ServicesProps {
+  isActive?: boolean;
+}
+
+const Services: React.FC<ServicesProps> = ({ isActive = true }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const col1Ref = useRef<HTMLDivElement>(null);
@@ -68,6 +72,7 @@ const Services: React.FC = () => {
   const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!isActive) return;
     if (!containerRef.current || !gridRef.current) return;
 
     // Use MatchMedia for responsive animations that survive resizing/rotation
@@ -105,41 +110,42 @@ const Services: React.FC = () => {
       tl.to(col3Ref.current, { yPercent: -40, ease: "none" }, 0);
       tl.to(col4Ref.current, { yPercent: 15, ease: "none" }, 0);
 
-      // 3. Foreground Text Parallax (balanced from +15% to -15% so text is centered at viewport center)
-      gsap.fromTo(textRef.current, 
-        { yPercent: 15 },
-        {
-          yPercent: -15,
-          ease: "none",
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true
-          }
+      // 3. Foreground Text Parallax
+      gsap.to(textRef.current, {
+        yPercent: 30,
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
         }
-      );
+      });
 
     }, containerRef);
 
+    const rafId = requestAnimationFrame(() => {
+      ScrollTrigger.refresh();
+    });
+
     return () => {
+        cancelAnimationFrame(rafId);
         ctx.revert();
         mm.revert();
     };
-  }, []);
+  }, [isActive]);
 
   return (
     <section 
       ref={containerRef} 
       // Increased height on mobile (130vh) to allow for smoother scrolling interaction of the tall columns
       className="relative w-full h-[130vh] md:h-[110vh] supports-[height:130dvh]:h-[130dvh] bg-trillex-black overflow-hidden perspective-[1000px] z-0"
-      style={{ minHeight: '110vh', height: '110vh', backgroundColor: '#050505' }}
     >
       {/* 3D Skewed Grid Plane */}
       <div 
         ref={gridRef} 
         className="absolute inset-[-10%] md:inset-[-20%] w-[120%] md:w-[140%] h-[120%] md:h-[140%] flex justify-center gap-2 md:gap-6 will-change-transform opacity-60 pointer-events-none"
-        style={{ transformStyle: 'preserve-3d', position: 'absolute', top: '-15%', left: '-15%', right: '-15%', bottom: '-15%' }}
+        style={{ transformStyle: 'preserve-3d' }}
       >
         {/* Column 1 - 45% on mobile, 40% on Tablet (perfect fit), 25% on Desktop */}
         <div ref={col1Ref} className="flex flex-col gap-4 md:gap-8 w-[45%] md:w-[40%] lg:w-1/4 pt-10 will-change-transform">
@@ -198,7 +204,6 @@ const ServiceCard = React.memo(({ item }: { item: { title: string, img: string }
   <div 
     className="relative w-full aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden bg-white/5 shadow-2xl group border border-white/5 transition-all duration-500 ease-out hover:scale-105 hover:border-trillex-orange hover:shadow-[0_0_40px_rgba(255,127,80,0.6)] hover:z-50 pointer-events-auto"
     data-hoverable="true"
-    style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
   >
     <img 
       src={item.img} 
