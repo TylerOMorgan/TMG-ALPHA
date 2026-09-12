@@ -15,6 +15,11 @@ const FounderWord: React.FC = () => {
   const bgTextRef = useRef<HTMLHeadingElement>(null);
   const quoteRef = useRef<HTMLParagraphElement>(null);
 
+  const xTo = useRef<((value: number) => gsap.core.Tween) | null>(null);
+  const yTo = useRef<((value: number) => gsap.core.Tween) | null>(null);
+  const rotXTo = useRef<((value: number) => gsap.core.Tween) | null>(null);
+  const rotYTo = useRef<((value: number) => gsap.core.Tween) | null>(null);
+
   useEffect(() => {
     if (!sectionRef.current) return;
 
@@ -125,6 +130,27 @@ const FounderWord: React.FC = () => {
           },
         },
       );
+
+      // Initialize quickTo setters for high-performance mouse parallax tracking
+      if (logoRef.current) {
+        gsap.set(logoRef.current, { transformPerspective: 1000 });
+        xTo.current = gsap.quickTo(logoRef.current, "x", {
+          duration: 0.8,
+          ease: "power2.out",
+        });
+        yTo.current = gsap.quickTo(logoRef.current, "y", {
+          duration: 0.8,
+          ease: "power2.out",
+        });
+        rotXTo.current = gsap.quickTo(logoRef.current, "rotationX", {
+          duration: 0.8,
+          ease: "power2.out",
+        });
+        rotYTo.current = gsap.quickTo(logoRef.current, "rotationY", {
+          duration: 0.8,
+          ease: "power2.out",
+        });
+      }
     }, sectionRef);
 
     return () => {
@@ -133,10 +159,16 @@ const FounderWord: React.FC = () => {
   }, []);
 
   // Mouse Move - 3D Tilt Effect on Logo
-  // OPTIMIZATION: Removed scroll listener entirely.
-  // Calculating rect directly here is cheaper than running a listener on every scroll pixel.
+  // OPTIMIZATION: Uses gsap.quickTo to avoid per-event tween allocations
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!logoRef.current || !sectionRef.current) return;
+    if (
+      !sectionRef.current ||
+      !xTo.current ||
+      !yTo.current ||
+      !rotXTo.current ||
+      !rotYTo.current
+    )
+      return;
 
     // Get fresh coordinates relative to viewport
     const rect = sectionRef.current.getBoundingClientRect();
@@ -147,29 +179,24 @@ const FounderWord: React.FC = () => {
     const x = ((clientX - rect.left) / rect.width - 0.5) * 2;
     const y = ((clientY - rect.top) / rect.height - 0.5) * 2;
 
-    gsap.to(logoRef.current, {
-      rotationY: x * 15,
-      rotationX: -y * 15,
-      x: x * 20,
-      y: y * 20,
-      transformPerspective: 1000,
-      duration: 1,
-      ease: "power2.out",
-      overwrite: "auto",
-    });
+    rotYTo.current(x * 15);
+    rotXTo.current(-y * 15);
+    xTo.current(x * 20);
+    yTo.current(y * 20);
   };
 
   const handleMouseLeave = () => {
-    if (!logoRef.current) return;
-    gsap.to(logoRef.current, {
-      rotationY: 0,
-      rotationX: 0,
-      x: 0,
-      y: 0,
-      duration: 1,
-      ease: "elastic.out(1, 0.9)",
-      overwrite: "auto",
-    });
+    if (
+      xTo.current &&
+      yTo.current &&
+      rotXTo.current &&
+      rotYTo.current
+    ) {
+      rotYTo.current(0);
+      rotXTo.current(0);
+      xTo.current(0);
+      yTo.current(0);
+    }
   };
 
   return (

@@ -79,36 +79,44 @@ const Services: React.FC<ServicesProps> = ({ isActive = true }) => {
     const mm = gsap.matchMedia();
 
     const ctx = gsap.context(() => {
-      
-      // 1. The Geometry: Responsive Tilt
-      mm.add({
-        isMobile: "(max-width: 767px)",
-        isDesktop: "(min-width: 768px)",
-      }, (context) => {
-        const { isMobile } = context.conditions as { isMobile: boolean };
-        
-        gsap.set(gridRef.current, {
+      // Responsive column animations & tilt geometry
+      mm.add(
+        {
+          isMobileOrTablet: "(max-width: 1023px)",
+          isDesktop: "(min-width: 1024px)",
+        },
+        (context) => {
+          const { isDesktop } = context.conditions as { isDesktop: boolean };
+
+          // 1. The Geometry: Responsive Tilt
+          gsap.set(gridRef.current, {
             rotationX: 20,
-            rotationZ: isMobile ? -5 : -10, // Less rotation on mobile to save horizontal space
-            scale: isMobile ? 1.05 : 1.1, 
-        });
-      });
+            rotationZ: isDesktop ? -10 : -5,
+            scale: isDesktop ? 1.1 : 1.05,
+          });
 
-      // 2. The Scroll Animation
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 0.5,
+          // 2. The Scroll Animation
+          const tl = gsap.timeline({
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 0.5,
+            },
+          });
+
+          // Move columns in ALTERNATING directions
+          // Columns 1 and 4 are visible across all screen sizes
+          tl.to(col1Ref.current, { yPercent: -25, ease: "none" }, 0);
+          tl.to(col4Ref.current, { yPercent: 15, ease: "none" }, 0);
+
+          // Columns 2 and 3 are only visible on desktop (lg:flex)
+          if (isDesktop && col2Ref.current && col3Ref.current) {
+            tl.to(col2Ref.current, { yPercent: 25, ease: "none" }, 0);
+            tl.to(col3Ref.current, { yPercent: -40, ease: "none" }, 0);
+          }
         }
-      });
-
-      // Move columns in ALTERNATING directions
-      tl.to(col1Ref.current, { yPercent: -25, ease: "none" }, 0);
-      tl.to(col2Ref.current, { yPercent: 25, ease: "none" }, 0);
-      tl.to(col3Ref.current, { yPercent: -40, ease: "none" }, 0);
-      tl.to(col4Ref.current, { yPercent: 15, ease: "none" }, 0);
+      );
 
       // 3. Foreground Text Parallax
       gsap.to(textRef.current, {
@@ -118,10 +126,9 @@ const Services: React.FC<ServicesProps> = ({ isActive = true }) => {
           trigger: containerRef.current,
           start: "top bottom",
           end: "bottom top",
-          scrub: true
-        }
+          scrub: true,
+        },
       });
-
     }, containerRef);
 
     const rafId = requestAnimationFrame(() => {
@@ -204,6 +211,12 @@ const ServiceCard = React.memo(({ item }: { item: { title: string, img: string }
   <div 
     className="relative w-full aspect-[3/4] rounded-xl md:rounded-2xl overflow-hidden bg-white/5 shadow-2xl group border border-white/5 transition-all duration-500 ease-out hover:scale-105 hover:border-trillex-orange hover:shadow-[0_0_40px_rgba(255,127,80,0.6)] hover:z-50 pointer-events-auto"
     data-hoverable="true"
+    style={{
+      contentVisibility: 'auto',
+      containIntrinsicSize: '300px 400px',
+      transform: 'translateZ(0)',
+      backfaceVisibility: 'hidden',
+    }}
   >
     <img 
       src={item.img} 
@@ -211,6 +224,7 @@ const ServiceCard = React.memo(({ item }: { item: { title: string, img: string }
       className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity duration-500 grayscale group-hover:grayscale-0"
       loading="lazy"
       decoding="async"
+      sizes="(max-width: 768px) 45vw, (max-width: 1024px) 40vw, 25vw"
     />
     <div className="absolute inset-0 flex items-center justify-center p-2 md:p-4 z-10">
       <span className="text-white font-display font-bold text-2xl md:text-3xl lg:text-5xl uppercase tracking-tighter text-center opacity-70 md:opacity-50 group-hover:opacity-100 transition-all duration-300 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] scale-95 group-hover:scale-100 leading-none">

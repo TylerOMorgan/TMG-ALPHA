@@ -1,10 +1,9 @@
 import React from "react";
 
-// Optimization: Define static data outside component to avoid re-splitting on every render
+// Static data defined outside component to avoid re-splitting on every render
 export const TEXT =
   "Founded with a clear vision, Trillex Music Group runs on global scale, transparency, and precise execution. Our systems support artists with clear communication and fast action. We move with discipline and honesty, setting a higher standard for how a modern music company should operate.";
 export const WORDS = TEXT.split(" ");
-// Find the index of "on" in "...runs on" to set as the split point for the animation
 export const PIVOT_INDEX = WORDS.findIndex(
   (word, i) => word === "on" && WORDS[i - 1] === "runs",
 );
@@ -20,11 +19,12 @@ const Manifesto: React.FC<ManifestoProps> = () => {
   return (
     <section
       id="about-manifesto"
-      className="absolute inset-0 z-10 w-full h-full flex items-center justify-center bg-transparent pt-20 md:pt-24 pb-8 pointer-events-none select-none"
+      style={{ top: "20px" }}
+      className="absolute inset-x-0 top-[20px] z-10 w-full flex justify-center bg-transparent pt-28 pb-12 sm:pb-16 pointer-events-none select-none"
     >
-      <div className="w-full max-w-7xl px-8 md:px-12 text-center flex flex-col items-center pointer-events-auto">
+      <div className="max-w-7xl px-8 md:px-12 text-center flex flex-col items-center pointer-events-auto">
         {/* About Label */}
-        <div className="w-full flex justify-start mb-4 sm:mb-6">
+        <div className="w-full flex justify-start mb-8">
           <span className="text-trillex-orange text-xl font-mono font-bold tracking-widest uppercase">
             About
           </span>
@@ -34,7 +34,7 @@ const Manifesto: React.FC<ManifestoProps> = () => {
           {WORDS.map((word, i) => (
             <span
               key={i}
-              className="word will-change-[opacity,color]"
+              className="word transition-colors duration-200 will-change-[opacity,color]"
             >
               {word}
             </span>
@@ -42,7 +42,7 @@ const Manifesto: React.FC<ManifestoProps> = () => {
         </div>
 
         {/* Footer Text with Neon Glow and Scroll Reveal */}
-        <div className="mt-6 sm:mt-8 text-trillex-orange text-lg md:text-2xl font-sans font-medium tracking-wider flex gap-x-2 flex-wrap justify-center relative z-20">
+        <div className="mt-10 sm:mt-12 text-trillex-orange text-lg md:text-2xl font-sans font-medium tracking-wider flex gap-x-2 flex-wrap justify-center relative z-20">
           {FOOTER_WORDS.map((word, i) => (
             <span
               key={i}

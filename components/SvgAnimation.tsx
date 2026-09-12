@@ -136,21 +136,34 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
 
     let ctx: gsap.Context | null = null;
 
-    // Cache live unfolding animation handles (deduped to one per target+name)
-    let liveUnfoldingAnims = getLiveUnfoldingAnimations(containerRef.current);
+    // Pre-cache live unfolding and pulse animation handles (deduped to one per target+name)
+    let liveUnfoldingAnims: Animation[] = [];
+    let livePulseAnims: Animation[] = [];
 
-    // Cache pulse group DOM nodes
+    const initAnimationHandles = () => {
+      if (!containerRef.current) return;
+      liveUnfoldingAnims = getLiveUnfoldingAnimations(containerRef.current);
+      livePulseAnims = getLivePulseAnimations(containerRef.current);
+    };
+
+    initAnimationHandles();
+
+    // Cache pulse group DOM nodes and track opacity to eliminate redundant DOM writes
     let pulseGroups: HTMLElement[] | null = null;
+    let lastPulseOpacity = -1;
+
     const updatePulseOpacity = (opacity: number) => {
-      if (!pulseGroups || pulseGroups.length === 0) {
-        if (containerRef.current) {
-          pulseGroups = Array.from(
-            containerRef.current.querySelectorAll<HTMLElement>(".ecosystem-pulse-group")
-          );
-        }
+      const rounded = Math.round(opacity * 100) / 100;
+      if (rounded === lastPulseOpacity) return;
+      lastPulseOpacity = rounded;
+
+      if (!pulseGroups && containerRef.current) {
+        pulseGroups = Array.from(
+          containerRef.current.querySelectorAll<HTMLElement>(".ecosystem-pulse-group")
+        );
       }
       if (pulseGroups) {
-        const val = opacity.toFixed(3);
+        const val = rounded.toFixed(2);
         for (let i = 0; i < pulseGroups.length; i++) {
           pulseGroups[i].style.opacity = val;
         }
@@ -159,18 +172,22 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
 
     // Ensure pulse animations are actively playing in real time
     const ensurePulseRunning = () => {
-      if (!containerRef.current) return;
-      const pulseAnims = getLivePulseAnimations(containerRef.current);
-      for (let i = 0; i < pulseAnims.length; i++) {
+      if (livePulseAnims.length === 0 && containerRef.current) {
+        livePulseAnims = getLivePulseAnimations(containerRef.current);
+      }
+      for (let i = 0; i < livePulseAnims.length; i++) {
         try {
-          if (pulseAnims[i].playState !== "running") {
-            pulseAnims[i].play();
+          if (livePulseAnims[i].playState !== "running") {
+            livePulseAnims[i].play();
           }
         } catch {}
       }
     };
 
+    ensurePulseRunning();
+
     let lastScrubTime = -1;
+    let lastBloomOpacity = -1;
 
     // Scrub unfolding animations cleanly in both directions
     const scrub = (progress: number) => {
@@ -178,31 +195,26 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
         typeof progress === "number" && !isNaN(progress) ? progress : 0;
       const clampedProgress = Math.min(Math.max(validProgress, 0), 1);
 
-      // Map progress [0, 1] to animation time:
-      // At progress === 0: time = 0 (only apex icon visible, lines hidden, cards invisible).
-      // As soon as progress > 0, the diagram begins unfolding immediately with the scroll.
-      // (The raw SVG keyframes have an idle delay from 0 to 1000ms before lines start drawing;
-      // we fast-track that in the first 3% of progress so the user sees lines drawing immediately).
+      // Smooth, continuous mapping from progress [0, 1] to animation time [0ms, 4999ms]
+      // using a smooth power curve without abrupt velocity cliffs:
       let time = 0;
       if (clampedProgress > 0) {
-        if (clampedProgress < 0.03) {
-          time = (clampedProgress / 0.03) * 1000;
-        } else {
-          time = 1000 + ((clampedProgress - 0.03) / 0.97) * 3999;
-        }
+        time = Math.min(4999, Math.pow(clampedProgress, 0.8) * 4999);
       }
 
-      // Avoid redundant DOM updates if time hasn't changed (e.g. repeated calls at progress === 0)
+      // Avoid redundant DOM updates if time hasn't changed
       if (time === 0 && lastScrubTime === 0) {
         return;
       }
       lastScrubTime = time;
 
-      if (containerRef.current) {
-        liveUnfoldingAnims = getLiveUnfoldingAnimations(containerRef.current);
+      // Lazy handle acquisition if handles were not yet mounted on frame 0
+      if (liveUnfoldingAnims.length === 0 && containerRef.current) {
+        initAnimationHandles();
       }
 
       // Scrub ONLY unfolding animations (TMG scale, cards sliding, lines drawing)
+      // Iterating pre-cached handles without traversing the DOM subtree
       for (let i = 0; i < liveUnfoldingAnims.length; i++) {
         try {
           if (liveUnfoldingAnims[i].playState !== "paused") {
@@ -221,10 +233,12 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
       // Fade in the wide atmospheric bloom as diagram unfolds
       if (unfoldedBloomRef.current) {
         const bloomOpacity = Math.max(0, Math.min(1, (clampedProgress - 0.10) / 0.30));
-        unfoldedBloomRef.current.style.opacity = bloomOpacity.toFixed(2);
+        const roundedBloom = Math.round(bloomOpacity * 100) / 100;
+        if (roundedBloom !== lastBloomOpacity) {
+          lastBloomOpacity = roundedBloom;
+          unfoldedBloomRef.current.style.opacity = roundedBloom.toFixed(2);
+        }
       }
-
-      ensurePulseRunning();
     };
 
     const stage = document.getElementById("about-hero-stage");
@@ -386,7 +400,12 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
     }, stage);
 
     const syncLayout = () => {
+      initAnimationHandles();
+      ensurePulseRunning();
       ScrollTrigger.refresh();
+      if (typeof window !== "undefined" && (window as any).lenis) {
+        (window as any).lenis.resize();
+      }
     };
 
     const rafId = requestAnimationFrame(syncLayout);

@@ -27,11 +27,17 @@ const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     // Sync Lenis with ScrollTrigger
     lenis.on('scroll', ScrollTrigger.update);
 
+    // Keep Lenis synchronized whenever ScrollTrigger recalculates pins or page height
+    const handleRefresh = () => {
+      lenis.resize();
+    };
+    ScrollTrigger.addEventListener('refresh', handleRefresh);
+
     const update = (time: number) => {
       lenis.raf(time * 1000);
     };
     gsap.ticker.add(update);
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing(500, 33);
 
     // Custom Event Listener for programmatic scrolling via Lenis
     const handleScrollTo = (e: Event) => {
@@ -57,6 +63,7 @@ const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     window.addEventListener('trillex-scroll-to', handleScrollTo);
 
     return () => {
+      ScrollTrigger.removeEventListener('refresh', handleRefresh);
       window.removeEventListener('trillex-scroll-to', handleScrollTo);
       gsap.ticker.remove(update);
       lenis.destroy();
