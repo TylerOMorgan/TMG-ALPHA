@@ -275,7 +275,20 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
         const logoCenterY = logoRect.top + logoRect.height * 0.5 - currentY;
 
         // Exactly align logo midpoint with bottom of viewport (window.innerHeight)
-        return window.innerHeight - logoCenterY;
+        let targetY = window.innerHeight - logoCenterY;
+
+        // Clamp in short viewports: ensure the top edge of the logo cannot exceed
+        // the bottom boundary of the manifesto container (+ 20px safety buffer)
+        if (manifesto) {
+          const manifestoRect = manifesto.getBoundingClientRect();
+          const logoTopUnconstrained = logoRect.top - currentY;
+          const minSafeY = manifestoRect.bottom + 20 - logoTopUnconstrained;
+          if (targetY < minSafeY) {
+            targetY = minSafeY;
+          }
+        }
+
+        return targetY;
       };
 
       restingY = calculateRestingY();

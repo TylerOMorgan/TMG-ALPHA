@@ -41,3 +41,83 @@ html.lenis body {
 .lenis.lenis-smooth iframe {
   pointer-events: none;
 }
+
+/* --- Short-Viewport / Mobile Landscape Adaptations --- */
+@media (max-height: 540px) {
+  /* Keep navbar compact in short viewports even when width >= 768px */
+  nav .relative.mix-blend-difference {
+    padding-top: 0.6rem !important;
+    padding-bottom: 0.6rem !important;
+  }
+
+  nav .relative.mix-blend-difference svg {
+    height: 28px !important;
+  }
+
+  nav .relative.mix-blend-difference a {
+    font-size: 11px !important;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+
+  #about-hero-stage {
+    min-height: 100vh !important;
+    height: 100vh !important;
+  }
+
+  #about-manifesto {
+    top: 0 !important;
+    padding-top: 3.85rem !important; /* clears 48px navbar cleanly with breathing room */
+    padding-bottom: 0.5rem !important;
+  }
+
+  #about-manifesto .about-label-wrapper {
+    margin-bottom: 0.35rem !important;
+  }
+
+  #about-manifesto .about-label-wrapper span {
+    font-size: 0.85rem !important;
+  }
+
+  #about-manifesto .manifesto-headline {
+    font-size: clamp(15px, 2.8vw, 22px) !important;
+    line-height: 1.22 !important;
+    row-gap: 0.2rem !important;
+    column-gap: 0.4rem !important;
+  }
+
+  #about-manifesto .manifesto-footer {
+    margin-top: 0.5rem !important;
+    font-size: clamp(11px, 2vw, 14px) !important;
+  }
+}
+
+@media (max-height: 400px) {
+  nav .relative.mix-blend-difference {
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.45rem !important;
+  }
+
+  nav .relative.mix-blend-difference svg {
+    height: 24px !important;
+  }
+
+  #about-manifesto {
+    padding-top: 3.25rem !important;
+  }
+
+  #about-manifesto .about-label-wrapper {
+    margin-bottom: 0.2rem !important;
+  }
+
+  #about-manifesto .manifesto-headline {
+    font-size: clamp(13px, 2.5vw, 17px) !important;
+    line-height: 1.18 !important;
+  }
+
+  #about-manifesto .manifesto-footer {
+    margin-top: 0.35rem !important;
+    font-size: clamp(10px, 1.8vw, 12px) !important;
+  }
+}
+
