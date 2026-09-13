@@ -42,6 +42,27 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* --- Laptop & Scaled Desktop Viewports (600px - 820px height) --- */
+@media (max-height: 820px) {
+  #about-manifesto {
+    padding-top: 4.25rem !important; /* reduces from 112px to ~68px */
+  }
+
+  #about-manifesto .about-label-wrapper {
+    margin-bottom: 0.75rem !important; /* reduces from 32px to 12px */
+  }
+
+  #about-manifesto .manifesto-headline {
+    font-size: clamp(20px, 2.5vw, 34px) !important; /* scales down from 48px */
+    line-height: 1.25 !important;
+  }
+
+  #about-manifesto .manifesto-footer {
+    margin-top: 1.25rem !important; /* reduces from 48px to 20px */
+    font-size: clamp(13px, 1.6vw, 17px) !important;
+  }
+}
+
 /* --- Short-Viewport / Mobile Landscape Adaptations --- */
 @media (max-height: 540px) {
   /* Keep navbar compact in short viewports even when width >= 768px */
