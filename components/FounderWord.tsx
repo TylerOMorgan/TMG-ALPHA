@@ -134,22 +134,36 @@ const FounderWord: React.FC = () => {
       // Initialize quickTo setters for high-performance mouse parallax tracking
       if (logoRef.current) {
         gsap.set(logoRef.current, { transformPerspective: 1000 });
-        xTo.current = gsap.quickTo(logoRef.current, "x", {
-          duration: 0.8,
-          ease: "power2.out",
-        });
-        yTo.current = gsap.quickTo(logoRef.current, "y", {
-          duration: 0.8,
-          ease: "power2.out",
-        });
-        rotXTo.current = gsap.quickTo(logoRef.current, "rotationX", {
-          duration: 0.8,
-          ease: "power2.out",
-        });
-        rotYTo.current = gsap.quickTo(logoRef.current, "rotationY", {
-          duration: 0.8,
-          ease: "power2.out",
-        });
+        const isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
+
+        if (isTouch) {
+          // Subtle ambient breathing float on touch devices
+          gsap.to(logoRef.current, {
+            y: "+=8",
+            rotationY: 5,
+            duration: 3.5,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut",
+          });
+        } else {
+          xTo.current = gsap.quickTo(logoRef.current, "x", {
+            duration: 0.8,
+            ease: "power2.out",
+          });
+          yTo.current = gsap.quickTo(logoRef.current, "y", {
+            duration: 0.8,
+            ease: "power2.out",
+          });
+          rotXTo.current = gsap.quickTo(logoRef.current, "rotationX", {
+            duration: 0.8,
+            ease: "power2.out",
+          });
+          rotYTo.current = gsap.quickTo(logoRef.current, "rotationY", {
+            duration: 0.8,
+            ease: "power2.out",
+          });
+        }
       }
     }, sectionRef);
 
@@ -202,25 +216,22 @@ const FounderWord: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full pt-24 md:pt-40 pb-20 bg-trillex-black text-white overflow-hidden"
+      className="relative w-full pt-16 sm:pt-24 md:pt-40 pb-16 sm:pb-20 bg-trillex-black text-white overflow-hidden"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
       {/* Background Parallax Text */}
       <h2
         ref={bgTextRef}
-        className="absolute top-[-22%] right-0 text-[25vw] font-display font-bold text-white/[0.03] pointer-events-none select-none leading-none z-0 whitespace-nowrap will-change-transform"
+        className="absolute top-[-10%] sm:top-[-22%] right-0 text-[25vw] font-display font-bold text-white/[0.03] pointer-events-none select-none leading-none z-0 whitespace-nowrap will-change-transform"
       >
         VISION
       </h2>
 
-      <div className="container mx-auto px-6 md:px-12 relative z-10">
-        {/* Changed layout breakpoint to xl to accommodate tablets better (avoids text squishing) */}
-
-        {/* Changed layout breakpoint to xl to accommodate tablets better (avoids text squishing) */}
-        <div className="flex flex-col xl:flex-row justify-between items-center gap-12 lg:gap-20">
+      <div className="container mx-auto px-4 sm:px-6 md:px-12 relative z-10">
+        <div className="flex flex-col xl:flex-row justify-between items-center gap-10 sm:gap-12 lg:gap-20">
           {/* Left Content */}
-          <div className="relative pl-8 md:pl-16 max-w-3xl">
+          <div className="relative pl-5 sm:pl-8 md:pl-16 max-w-3xl">
             {/* Orange Vertical Line Wrapper */}
             <div
               ref={borderRef}
@@ -233,11 +244,11 @@ const FounderWord: React.FC = () => {
               />
             </div>
 
-            <div ref={contentRef} className="flex flex-col gap-6 md:gap-8">
+            <div ref={contentRef} className="flex flex-col gap-5 sm:gap-6 md:gap-8">
               {/* Gradient Text Quote */}
               <p
                 ref={quoteRef}
-                className="text-xl md:text-3xl lg:text-4xl leading-relaxed font-light italic text-transparent bg-clip-text pb-3 md:pb-4 pr-2"
+                className="text-base xs:text-lg sm:text-2xl md:text-3xl lg:text-4xl leading-relaxed font-light italic text-transparent bg-clip-text pb-2 sm:pb-3 md:pb-4 pr-1 sm:pr-2"
                 style={{
                   backgroundImage:
                     "linear-gradient(90deg, #EAEAEA 0%, #EAEAEA 50%, #333333 100%)",
@@ -253,44 +264,44 @@ const FounderWord: React.FC = () => {
                 confidence."
               </p>
 
-              <div className="w-16 h-1 bg-trillex-orange/50" />
+              <div className="w-12 sm:w-16 h-1 bg-trillex-orange/50" />
 
               <div className="flex flex-col gap-1">
-                <h3 className="text-2xl md:text-3xl text-trillex-orange font-display font-bold">
+                <h3 className="text-xl sm:text-2xl md:text-3xl text-trillex-orange font-display font-bold">
                   Almog Levi
                 </h3>
                 <span className="text-gray-400 font-mono text-xs md:text-sm tracking-wider">
                   Founder & CEO of Trillex Music Group
                 </span>
 
-                <div className="flex items-center gap-4 mt-4">
+                <div className="flex items-center gap-5 mt-4">
                   <a
                     href="https://www.linkedin.com/in/levitmg/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-trillex-orange transition-colors duration-300"
+                    className="p-2.5 -m-2.5 text-white/60 hover:text-trillex-orange transition-colors duration-300"
                     data-hoverable="true"
                     aria-label="LinkedIn"
                   >
-                    <Linkedin size={24} />
+                    <Linkedin size={22} />
                   </a>
                   <a
                     href="https://www.instagram.com/almog_levi753/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-white/60 hover:text-trillex-orange transition-colors duration-300"
+                    className="p-2.5 -m-2.5 text-white/60 hover:text-trillex-orange transition-colors duration-300"
                     data-hoverable="true"
                     aria-label="Instagram"
                   >
-                    <Instagram size={24} />
+                    <Instagram size={22} />
                   </a>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Right Graphic - Replaced with Logo. Adjusted sizing for tablet/desktop */}
-          <div className="relative w-40 h-40 md:w-80 md:h-80 xl:w-96 xl:h-96 flex-shrink-0 perspective-1000 mt-8 xl:mt-0">
+          {/* Right Graphic - Replaced with Logo. Adjusted sizing for mobile/tablet/desktop */}
+          <div className="relative w-36 h-36 sm:w-48 sm:h-48 md:w-80 md:h-80 xl:w-96 xl:h-96 flex-shrink-0 perspective-1000 mt-6 sm:mt-8 xl:mt-0">
             <div ref={logoRef} className="w-full h-full will-change-transform">
               <Logo className="w-full h-full text-white fill-current drop-shadow-2xl opacity-90" />
             </div>

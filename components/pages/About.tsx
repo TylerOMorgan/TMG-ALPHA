@@ -32,7 +32,7 @@ const About: React.FC<AboutProps> = ({ isActive = true }) => {
       <Services isActive={isActive} />
 
       {/* Spacer between Services and FounderWord */}
-      <div className="w-full h-24 md:h-48" />
+      <div className="w-full h-12 md:h-36 lg:h-48" />
 
       <FounderWord />
       <Footer />

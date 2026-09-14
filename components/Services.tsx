@@ -43,19 +43,19 @@ const column3Items = [
   services[5], services[1], services[4], services[3], services[0]
 ];
 
-// Column 4 (Right)
+// Column 4 (Right) - Phase-shifted to prevent duplicate cards with Column 1 on mobile/tablet
 const column4Items = [
-  services[6],
-  services[2], 
-  services[3], 
+  services[1],
   services[4], 
-  services[0], 
-  services[1], 
+  services[6], 
+  services[2], 
   services[5], 
-  services[6],
-  services[2],
-  services[3],
-  services[4]
+  services[0], 
+  services[3], 
+  services[1],
+  services[4], 
+  services[6], 
+  services[2]
 ];
 
 interface ServicesProps {
@@ -187,16 +187,16 @@ const Services: React.FC<ServicesProps> = ({ isActive = true }) => {
       <div className="absolute inset-0 bg-radial-gradient-fade pointer-events-none z-10" />
 
       {/* Foreground Text Layer */}
-      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none px-6">
+      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none px-4 sm:px-6">
         <div ref={textRef} className="text-center mix-blend-difference">
-          <h2 className="text-trillex-orange text-xs md:text-sm lg:text-base font-mono tracking-[0.3em] md:tracking-[0.5em] mb-4 font-bold uppercase">
+          <h2 className="text-trillex-orange text-xs md:text-sm lg:text-base font-mono tracking-[0.3em] md:tracking-[0.5em] mb-3 sm:mb-4 font-bold uppercase">
             What We Do
           </h2>
-          {/* Responsive Text Sizing - Adjusted mobile to 10vw for better fit */}
-          <h3 className="text-[10vw] md:text-[5vw] xl:text-[80px] leading-[1.1] font-display font-bold text-white tracking-tighter drop-shadow-2xl">
+          {/* Responsive Text Sizing */}
+          <h3 className="text-[32px] xs:text-[38px] sm:text-[48px] md:text-[5vw] xl:text-[80px] leading-[1.1] font-display font-bold text-white tracking-tighter drop-shadow-2xl">
             Services We Provide
           </h3>
-          <p className="mt-6 md:mt-8 text-white/80 max-w-xl mx-auto font-sans font-light tracking-wide text-sm md:text-lg">
+          <p className="mt-4 sm:mt-6 md:mt-8 text-white/80 max-w-xl mx-auto font-sans font-light tracking-wide text-xs sm:text-sm md:text-lg">
              Go global effortlessly. Focus on creating; we handle the logistics.
           </p>
         </div>
@@ -227,7 +227,7 @@ const ServiceCard = React.memo(({ item }: { item: { title: string, img: string }
       sizes="(max-width: 768px) 45vw, (max-width: 1024px) 40vw, 25vw"
     />
     <div className="absolute inset-0 flex items-center justify-center p-2 md:p-4 z-10">
-      <span className="text-white font-display font-bold text-2xl md:text-3xl lg:text-5xl uppercase tracking-tighter text-center opacity-70 md:opacity-50 group-hover:opacity-100 transition-all duration-300 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] scale-95 group-hover:scale-100 leading-none">
+      <span className="text-white font-display font-bold text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-5xl uppercase tracking-tighter text-center opacity-70 md:opacity-50 group-hover:opacity-100 transition-all duration-300 drop-shadow-[0_4px_4px_rgba(0,0,0,0.8)] scale-95 group-hover:scale-100 leading-none">
         {item.title}
       </span>
     </div>

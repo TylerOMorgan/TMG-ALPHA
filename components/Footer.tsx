@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
                 href="https://www.instagram.com/trillexmusicgroup/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center gap-1.5 lg:gap-2 text-white hover:text-trillex-orange transition-colors group whitespace-nowrap flex-shrink-0" 
+                className="flex items-center gap-1.5 lg:gap-2 py-2 text-white hover:text-trillex-orange transition-colors group whitespace-nowrap flex-shrink-0" 
                 data-hoverable="true"
             >
                 <Instagram className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-[18px] lg:h-[18px] group-hover:scale-110 transition-transform"/>
@@ -69,7 +69,7 @@ const Footer: React.FC = () => {
             <a 
                 href="https://discord.gg/trillex"
                 target='_blank'
-                className="flex items-center gap-1.5 lg:gap-2 text-white hover:text-trillex-orange transition-colors group whitespace-nowrap flex-shrink-0" 
+                className="flex items-center gap-1.5 lg:gap-2 py-2 text-white hover:text-trillex-orange transition-colors group whitespace-nowrap flex-shrink-0" 
                 data-hoverable="true"
             >
                 <DiscordIcon className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-[18px] lg:h-[18px] group-hover:scale-110 transition-transform"/>
@@ -82,7 +82,7 @@ const Footer: React.FC = () => {
             <a 
                 href="#email-ticker" 
                 onClick={handleEmailClick}
-                className="flex items-center gap-1.5 lg:gap-2 text-white hover:text-trillex-orange transition-colors group whitespace-nowrap flex-shrink-0" 
+                className="flex items-center gap-1.5 lg:gap-2 py-2 text-white hover:text-trillex-orange transition-colors group whitespace-nowrap flex-shrink-0" 
                 data-hoverable="true"
             >
                 <Mail className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-[18px] lg:h-[18px] group-hover:scale-110 transition-transform"/>

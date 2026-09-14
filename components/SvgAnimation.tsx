@@ -271,21 +271,25 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
         const currentY =
           (gsap.getProperty(svgWrapperRef.current, "y") as number) || 0;
         const logoRect = logo.getBoundingClientRect();
-        // Compute un-translated center of logo in viewport coordinates
-        const logoCenterY = logoRect.top + logoRect.height * 0.5 - currentY;
+        const logoTopUnconstrained = logoRect.top - currentY;
+        const isMobile = window.innerWidth < 768;
 
-        // Exactly align logo midpoint with bottom of viewport (window.innerHeight)
-        let targetY = window.innerHeight - logoCenterY;
+        // On desktop, logo midpoint aligns with bottom of viewport (~80px visible).
+        // On mobile, ensure ~45px of the apex logo is visible so it peeks boldly.
+        let targetY = window.innerHeight - (logoRect.top + logoRect.height * 0.5 - currentY);
+        if (isMobile) {
+          targetY = window.innerHeight - (logoTopUnconstrained + 45);
+        }
 
-        // Clamp in short/laptop viewports: ensure the top edge of the logo cannot exceed
-        // the bottom boundary of the manifesto footer (+ 50px safety buffer)
+        // Clamp in short/compact viewports: ensure the top edge of the logo cannot exceed
+        // the bottom boundary of the manifesto footer (+ 40px safety buffer on mobile, 50px on desktop)
         if (manifesto) {
           const footer =
             (manifesto.querySelector(".manifesto-footer") as HTMLElement | null) ||
             manifesto;
           const footerRect = footer.getBoundingClientRect();
-          const logoTopUnconstrained = logoRect.top - currentY;
-          const minSafeY = footerRect.bottom + 50 - logoTopUnconstrained;
+          const buffer = isMobile ? 40 : 50;
+          const minSafeY = footerRect.bottom + buffer - logoTopUnconstrained;
           if (targetY < minSafeY) {
             targetY = minSafeY;
           }
@@ -446,9 +450,9 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
 
       <div
         ref={svgWrapperRef}
-        className="w-full max-w-7xl px-8 md:px-12 h-full flex items-center justify-center relative z-10 will-change-transform"
+        className="w-full max-w-7xl px-2 sm:px-6 md:px-12 h-full flex items-center justify-center relative z-10 will-change-transform"
       >
-        <div className="relative w-full max-h-[90vh] aspect-[16/9] flex items-center justify-center">
+        <div className="relative w-full max-h-[90vh] aspect-[16/9] flex items-center justify-center scale-[1.3] sm:scale-100 origin-center transition-transform duration-300">
           <div
             ref={containerRef}
             className="w-full h-full flex items-center justify-center pointer-events-none select-none [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain relative z-10"
