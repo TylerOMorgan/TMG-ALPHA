@@ -272,14 +272,11 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
           (gsap.getProperty(svgWrapperRef.current, "y") as number) || 0;
         const logoRect = logo.getBoundingClientRect();
         const logoTopUnconstrained = logoRect.top - currentY;
+        const logoCenterY = logoRect.top + logoRect.height * 0.5 - currentY;
         const isMobile = window.innerWidth < 768;
 
-        // On desktop, logo midpoint aligns with bottom of viewport (~80px visible).
-        // On mobile, ensure ~45px of the apex logo is visible so it peeks boldly.
-        let targetY = window.innerHeight - (logoRect.top + logoRect.height * 0.5 - currentY);
-        if (isMobile) {
-          targetY = window.innerHeight - (logoTopUnconstrained + 45);
-        }
+        // Exactly align logo midpoint with bottom of viewport so icon is half visible (resting folded apex state)
+        let targetY = window.innerHeight - logoCenterY;
 
         // Clamp in short/compact viewports: ensure the top edge of the logo cannot exceed
         // the bottom boundary of the manifesto footer (+ 40px safety buffer on mobile, 50px on desktop)
