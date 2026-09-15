@@ -51,15 +51,17 @@ html.lenis body {
 @media (max-width: 767px) and (min-height: 541px) {
   #about-manifesto {
     top: 0 !important;
-    height: 100% !important;
-    padding: 0 !important;
+    height: auto !important;
+    padding-top: 5.25rem !important; /* ~84px, clears 64px navbar with 20px clean breathing space */
+    padding-bottom: 1rem !important;
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: flex-start !important;
   }
 
   #about-manifesto > div {
-    margin-top: -35px !important; /* optical center balancing navbar above and logo apex below */
+    margin-top: 0 !important;
   }
 
   #about-manifesto .about-label-wrapper {

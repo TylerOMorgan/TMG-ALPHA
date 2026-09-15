@@ -24,17 +24,21 @@ const FounderWord: React.FC = () => {
     if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
-      // 1. Background Parallax Text
-      gsap.to(bgTextRef.current, {
-        yPercent: 50,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: window.innerWidth < 768 ? true : 0.5,
+      // 1. Background Parallax Text - subtle centered parallax so VISION frames the quote beautifully at resting height
+      gsap.fromTo(
+        bgTextRef.current,
+        { yPercent: -6 },
+        {
+          yPercent: 6,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: window.innerWidth < 768 ? true : 0.5,
+          },
         },
-      });
+      );
 
       // 2. Quote Text Reveal (Lighting Effect)
       gsap.fromTo(
@@ -223,7 +227,7 @@ const FounderWord: React.FC = () => {
       {/* Background Parallax Text */}
       <h2
         ref={bgTextRef}
-        className="absolute top-[-10%] sm:top-[-22%] right-0 text-[25vw] font-display font-bold text-white/[0.03] pointer-events-none select-none leading-none z-0 whitespace-nowrap will-change-transform"
+        className="absolute top-[-5.5%] sm:top-[-5.5%] right-0 text-[25vw] font-display font-bold text-white/[0.03] pointer-events-none select-none leading-none z-0 whitespace-nowrap will-change-transform"
       >
         VISION
       </h2>
