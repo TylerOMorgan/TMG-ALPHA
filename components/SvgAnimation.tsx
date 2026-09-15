@@ -86,29 +86,7 @@ const getLiveAnimations = (container: HTMLElement): Animation[] => {
     } catch {}
   }
 
-  // Dedupe: keep first handle per (target element, animationName) by reference
-  const deduped: Animation[] = [];
-  for (let i = 0; i < anims.length; i++) {
-    let isDupe = false;
-    try {
-      const t = (anims[i].effect as any)?.target;
-      const n = (anims[i] as any).animationName;
-      for (let j = 0; j < deduped.length; j++) {
-        if (
-          (deduped[j].effect as any)?.target === t &&
-          (deduped[j] as any).animationName === n
-        ) {
-          isDupe = true;
-          break;
-        }
-      }
-    } catch {
-      isDupe = false;
-    }
-    if (!isDupe) deduped.push(anims[i]);
-  }
-
-  return deduped;
+  return anims;
 };
 
 // Filter live animations to only those driving the unfolding/folding diagram
@@ -136,18 +114,6 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
 
     let ctx: gsap.Context | null = null;
 
-    // Pre-cache live unfolding and pulse animation handles (deduped to one per target+name)
-    let liveUnfoldingAnims: Animation[] = [];
-    let livePulseAnims: Animation[] = [];
-
-    const initAnimationHandles = () => {
-      if (!containerRef.current) return;
-      liveUnfoldingAnims = getLiveUnfoldingAnimations(containerRef.current);
-      livePulseAnims = getLivePulseAnimations(containerRef.current);
-    };
-
-    initAnimationHandles();
-
     // Cache pulse group DOM nodes and track opacity to eliminate redundant DOM writes
     let pulseGroups: HTMLElement[] | null = null;
     let lastPulseOpacity = -1;
@@ -172,13 +138,12 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
 
     // Ensure pulse animations are actively playing in real time
     const ensurePulseRunning = () => {
-      if (livePulseAnims.length === 0 && containerRef.current) {
-        livePulseAnims = getLivePulseAnimations(containerRef.current);
-      }
-      for (let i = 0; i < livePulseAnims.length; i++) {
+      if (!containerRef.current) return;
+      const pulseAnims = getLivePulseAnimations(containerRef.current);
+      for (let i = 0; i < pulseAnims.length; i++) {
         try {
-          if (livePulseAnims[i].playState !== "running") {
-            livePulseAnims[i].play();
+          if (pulseAnims[i].playState !== "running") {
+            pulseAnims[i].play();
           }
         } catch {}
       }
@@ -208,20 +173,19 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
       }
       lastScrubTime = time;
 
-      // Lazy handle acquisition if handles were not yet mounted on frame 0
-      if (liveUnfoldingAnims.length === 0 && containerRef.current) {
-        initAnimationHandles();
-      }
-
-      // Scrub ONLY unfolding animations (TMG scale, cards sliding, lines drawing)
-      // Iterating pre-cached handles without traversing the DOM subtree
-      for (let i = 0; i < liveUnfoldingAnims.length; i++) {
-        try {
-          if (liveUnfoldingAnims[i].playState !== "paused") {
-            liveUnfoldingAnims[i].pause();
-          }
-          liveUnfoldingAnims[i].currentTime = time;
-        } catch {}
+      // Query live unfolding animations dynamically on every scrub frame
+      // This prevents newly spawned browser animation instances (e.g. in Brave / mobile
+      // layer re-rasterization) from remaining stuck at currentTime = 0
+      if (containerRef.current) {
+        const unfoldingAnims = getLiveUnfoldingAnimations(containerRef.current);
+        for (let i = 0; i < unfoldingAnims.length; i++) {
+          try {
+            if (unfoldingAnims[i].playState !== "paused") {
+              unfoldingAnims[i].pause();
+            }
+            unfoldingAnims[i].currentTime = time;
+          } catch {}
+        }
       }
 
       // Pulse flow visibility:
@@ -325,6 +289,8 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
             if (tl.time() <= transitionStartTime) {
               gsap.set(svgWrapperRef.current, { y: restingY, force3D: true });
               scrub(0);
+            } else {
+              scrub(scrubProxy.progress);
             }
           },
         },
