@@ -101,7 +101,7 @@ const Services: React.FC<ServicesProps> = ({ isActive = true }) => {
               trigger: containerRef.current,
               start: "top bottom",
               end: "bottom top",
-              scrub: 0.5,
+              scrub: isDesktop ? 0.5 : true,
             },
           });
 

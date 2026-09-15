@@ -160,7 +160,11 @@ const SceneContent = () => {
 };
 
 // --- HERO COMPONENT ---
-const Hero: React.FC = () => {
+interface HeroProps {
+  isActive?: boolean;
+}
+
+const Hero: React.FC<HeroProps> = ({ isActive = true }) => {
   const textRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -187,6 +191,7 @@ const Hero: React.FC = () => {
     >
       <div className="absolute inset-0 z-0 opacity-80">
         <Canvas
+          frameloop={isActive ? "always" : "never"}
           dpr={[1, 1.25]}
           camera={{ position: [0, 0, 2] }}
           gl={{

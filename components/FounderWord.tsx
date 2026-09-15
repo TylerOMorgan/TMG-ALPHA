@@ -32,7 +32,7 @@ const FounderWord: React.FC = () => {
           trigger: sectionRef.current,
           start: "top bottom",
           end: "bottom top",
-          scrub: 0.5,
+          scrub: window.innerWidth < 768 ? true : 0.5,
         },
       });
 
@@ -47,7 +47,7 @@ const FounderWord: React.FC = () => {
             trigger: quoteRef.current,
             start: "top 85%",
             end: "bottom 65%",
-            scrub: 0.5,
+            scrub: window.innerWidth < 768 ? true : 0.5,
           },
         },
       );

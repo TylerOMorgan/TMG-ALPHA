@@ -12,7 +12,7 @@ const Home: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      <Hero />
+      <Hero isActive={isActive} />
       <div className="absolute bottom-0 left-0 w-full z-40">
         <Footer />
       </div>

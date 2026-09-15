@@ -279,7 +279,7 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
           end: () =>
             `+=${window.innerHeight * (window.innerWidth < 768 ? 1.2 : 2.5)}`,
           pin: true,
-          scrub: window.innerWidth < 768 ? 0.25 : 0.4,
+          scrub: window.innerWidth < 768 ? true : 0.4,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onRefreshInit: () => {
@@ -384,7 +384,6 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
     }, stage);
 
     const syncLayout = () => {
-      initAnimationHandles();
       ensurePulseRunning();
       ScrollTrigger.refresh();
       if (typeof window !== "undefined" && (window as any).lenis) {

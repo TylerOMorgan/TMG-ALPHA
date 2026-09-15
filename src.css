@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 /* Trillex Global Stylesheet */
+html {
+  -webkit-overflow-scrolling: touch;
+}
+
 html,
 body {
   background-color: #050505 !important;
@@ -13,6 +17,7 @@ body {
 
 body {
   overflow-x: hidden;
+  overscroll-behavior-y: none;
 }
 
 h1,

@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
+ScrollTrigger.config({ ignoreMobileResize: true });
 
 const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useEffect(() => {
@@ -16,10 +17,7 @@ const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
-      syncTouch: true,
-      syncTouchLerp: 0.08,
-      touchInertiaExponent: 1.7,
-      touchMultiplier: 1.8,
+      syncTouch: false,
       autoResize: true,
     });
 
@@ -40,7 +38,7 @@ const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       lenis.raf(time * 1000);
     };
     gsap.ticker.add(update);
-    gsap.ticker.lagSmoothing(500, 33);
+    gsap.ticker.lagSmoothing(0);
 
     // Custom Event Listener for programmatic scrolling via Lenis
     const handleScrollTo = (e: Event) => {
