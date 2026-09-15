@@ -52,7 +52,7 @@ html.lenis body {
   #about-manifesto {
     top: 0 !important;
     height: auto !important;
-    padding-top: 5.25rem !important; /* ~84px, clears 64px navbar with 20px clean breathing space */
+    padding-top: clamp(6.5rem, 13vh, 8.5rem) !important; /* comfortably spaced down from navbar */
     padding-bottom: 1rem !important;
     display: flex !important;
     flex-direction: column !important;
@@ -65,7 +65,7 @@ html.lenis body {
   }
 
   #about-manifesto .about-label-wrapper {
-    margin-bottom: 0.45rem !important; /* tight spacing below About label per user feedback */
+    margin-bottom: 1.75rem !important; /* spacious, balanced breathing room between About and paragraph */
   }
 
   #about-manifesto .about-label-wrapper span {
@@ -73,15 +73,15 @@ html.lenis body {
   }
 
   #about-manifesto .manifesto-headline {
-    font-size: clamp(18px, 4.8vw, 21.5px) !important;
-    line-height: 1.28 !important;
-    row-gap: 0.25rem !important;
-    column-gap: 0.35rem !important;
+    font-size: clamp(21px, 5.4vw, 25px) !important;
+    line-height: 1.42 !important;
+    row-gap: 0.45rem !important;
+    column-gap: 0.48rem !important;
   }
 
   #about-manifesto .manifesto-footer {
-    margin-top: 1.25rem !important;
-    font-size: clamp(14px, 3.8vw, 17px) !important;
+    margin-top: 2rem !important;
+    font-size: clamp(15px, 4vw, 18px) !important;
   }
 }
 
