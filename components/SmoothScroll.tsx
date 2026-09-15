@@ -16,7 +16,10 @@ const SmoothScroll: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
-      touchMultiplier: 1.0,
+      syncTouch: true,
+      syncTouchLerp: 0.08,
+      touchInertiaExponent: 1.7,
+      touchMultiplier: 1.8,
       autoResize: true,
     });
 

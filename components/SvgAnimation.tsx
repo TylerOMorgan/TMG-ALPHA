@@ -276,9 +276,10 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
           id: "about-hero-timeline",
           trigger: stage,
           start: "top top",
-          end: () => `+=${window.innerHeight * 2.5}`,
+          end: () =>
+            `+=${window.innerHeight * (window.innerWidth < 768 ? 1.2 : 2.5)}`,
           pin: true,
-          scrub: 0.4,
+          scrub: window.innerWidth < 768 ? 0.25 : 0.4,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onRefreshInit: () => {

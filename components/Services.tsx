@@ -145,8 +145,7 @@ const Services: React.FC<ServicesProps> = ({ isActive = true }) => {
   return (
     <section 
       ref={containerRef} 
-      // Increased height on mobile (130vh) to allow for smoother scrolling interaction of the tall columns
-      className="relative w-full h-[130vh] md:h-[110vh] supports-[height:130dvh]:h-[130dvh] bg-trillex-black overflow-hidden perspective-[1000px] z-0"
+      className="relative w-full h-[85vh] sm:h-[100vh] lg:h-[110vh] supports-[height:85dvh]:h-[85dvh] sm:supports-[height:100dvh]:h-[100dvh] lg:supports-[height:110dvh]:h-[110dvh] bg-trillex-black overflow-hidden perspective-[1000px] z-0"
     >
       {/* 3D Skewed Grid Plane */}
       <div 
