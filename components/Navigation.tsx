@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Logo from "./Logo";
 
 interface NavigationProps {
@@ -7,64 +7,6 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
-  const [isLight, setIsLight] = useState(false);
-
-  useEffect(() => {
-    const updateTheme = () => {
-      // Find all sections on the current page
-      const sections = document.querySelectorAll("section");
-      const navCenterY = 45; // Navbar vertical center in viewport
-      let detectedLight = false;
-
-      for (const sec of sections) {
-        const rect = sec.getBoundingClientRect();
-        if (rect.top <= navCenterY && rect.bottom > navCenterY) {
-          const themeAttr = sec.getAttribute("data-nav-theme");
-          if (themeAttr === "light") {
-            detectedLight = true;
-            break;
-          } else if (themeAttr === "dark") {
-            detectedLight = false;
-            break;
-          }
-
-          // Fallback: calculate background luminance
-          const bg = window.getComputedStyle(sec).backgroundColor;
-          const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
-          if (match) {
-            const r = parseInt(match[1], 10);
-            const g = parseInt(match[2], 10);
-            const b = parseInt(match[3], 10);
-            const lum = 0.299 * r + 0.587 * g + 0.114 * b;
-            detectedLight = lum > 130;
-          }
-          break;
-        }
-      }
-
-      setIsLight(detectedLight);
-    };
-
-    updateTheme();
-
-    window.addEventListener("scroll", updateTheme, { passive: true });
-    window.addEventListener("resize", updateTheme, { passive: true });
-
-    let lenisUnsub: (() => void) | undefined;
-    if (typeof window !== "undefined" && (window as any).lenis) {
-      (window as any).lenis.on("scroll", updateTheme);
-      lenisUnsub = () => {
-        (window as any).lenis?.off("scroll", updateTheme);
-      };
-    }
-
-    return () => {
-      window.removeEventListener("scroll", updateTheme);
-      window.removeEventListener("resize", updateTheme);
-      if (lenisUnsub) lenisUnsub();
-    };
-  }, [activePage]);
-
   const handleClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
     page: string,
@@ -94,9 +36,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
 
       {/* Gradient Shadow Background - Desktop & Mobile */}
       <div
-        className={`absolute top-0 left-0 w-full h-28 sm:h-32 md:h-36 bg-gradient-to-b from-black/85 via-black/45 to-transparent z-0 pointer-events-none transition-opacity duration-300 ${
-          isLight ? "opacity-0" : "opacity-100"
-        }`}
+        className="absolute top-0 left-0 w-full h-32 md:h-44 bg-gradient-to-b from-black via-black/75 to-transparent z-0 pointer-events-none"
       />
 
       {/* Navigation Content */}
@@ -105,11 +45,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
         <a
           href="#"
           onClick={(e) => handleClick(e, "home")}
-          className={`pointer-events-auto transition-colors duration-300 ${
-            isLight
-              ? "text-[#0D0D0D] hover:text-trillex-orange"
-              : "text-white hover:text-trillex-orange"
-          }`}
+          className="pointer-events-auto text-white hover:text-trillex-orange transition-colors duration-300"
           data-hoverable="true"
           aria-label="Go to Home"
         >
@@ -129,13 +65,9 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
                 className={`
                   relative group text-[11px] sm:text-xs md:text-[13px] font-mono tracking-[0.14em] md:tracking-[0.16em] uppercase transition-all duration-300 ease-out py-2 px-0.5 sm:px-1
                   ${
-                    isLight
-                      ? isActive
-                        ? "text-[#0D0D0D] font-bold scale-105 md:scale-105"
-                        : "text-[#0D0D0D]/75 hover:text-[#0D0D0D] hover:font-bold hover:scale-105 md:hover:scale-105"
-                      : isActive
-                        ? "text-white font-bold scale-105 md:scale-105 [text-shadow:0_0_12px_rgba(255,255,255,0.6)]"
-                        : "text-white/80 hover:text-white hover:font-bold hover:scale-105 md:hover:scale-105 hover:[text-shadow:0_0_12px_rgba(255,255,255,0.6)]"
+                    isActive
+                      ? "text-white font-bold scale-105 md:scale-105 [text-shadow:0_0_12px_rgba(255,255,255,0.6)]"
+                      : "text-white/80 hover:text-white hover:font-bold hover:scale-105 md:hover:scale-105 hover:[text-shadow:0_0_12px_rgba(255,255,255,0.6)]"
                   }
                 `}
                 data-hoverable="true"
@@ -145,9 +77,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
                   className={`absolute bottom-0 md:-bottom-2 left-0 h-[1px] transition-all duration-300 ease-out ${
                     item.id === "artists" && isActive
                       ? "w-full bg-[#E58A1E]"
-                      : isLight
-                        ? `bg-[#0D0D0D] ${isActive ? "w-full" : "w-0 group-hover:w-full"}`
-                        : `bg-white ${isActive ? "w-full" : "w-0 group-hover:w-full"}`
+                      : `bg-white ${isActive ? "w-full" : "w-0 group-hover:w-full"}`
                   }`}
                 ></span>
               </a>

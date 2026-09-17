@@ -88,7 +88,7 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
     <section
       ref={sectionRef}
       data-nav-theme="light"
-      className="relative w-full overflow-hidden bg-[#EBE7DD] pb-24 pt-16 text-trillex-ink sm:pt-20 md:pb-32 md:pt-32 lg:pt-36"
+      className="relative w-full overflow-hidden bg-[#EBE7DD] pb-24 pt-28 text-trillex-ink sm:pt-32 md:pb-32 md:pt-36 lg:pt-40"
     >
       <div className="relative z-10 mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={LANES_EYEBROW} tone="light" />
