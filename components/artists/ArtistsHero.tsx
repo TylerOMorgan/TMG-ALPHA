@@ -26,17 +26,19 @@ const SpotifyBadge: React.FC = () => (
   </span>
 );
 
-const ArtistCell: React.FC<{ name: string; image: string }> = ({
-  name,
-  image,
-}) => (
+const ArtistCell: React.FC<{
+  name: string;
+  image: string;
+  objectPosition?: string;
+}> = ({ name, image, objectPosition = "center center" }) => (
   <div className="group relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px] shrink-0 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5">
     <img
       src={image}
       alt={name}
       loading="lazy"
       decoding="async"
-      className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+      style={{ objectPosition }}
+      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
     <span className="absolute bottom-3 left-3.5 font-impact text-base tracking-wide text-white md:text-lg">
@@ -185,6 +187,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
                   key={`${a.id}-r1-${idx}`}
                   name={a.name}
                   image={a.image}
+                  objectPosition={a.objectPosition}
                 />
               ))}
             </div>
@@ -197,6 +200,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
                   key={`${a.id}-r2-${idx}`}
                   name={a.name}
                   image={a.image}
+                  objectPosition={a.objectPosition}
                 />
               ))}
             </div>

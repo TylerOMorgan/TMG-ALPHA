@@ -7,6 +7,7 @@ export interface ExploreArtist {
   id: string;
   name: string;
   image: string;
+  objectPosition?: string;
 }
 
 export interface GenreLane {
@@ -63,36 +64,42 @@ export const EXPLORE_ARTISTS: ExploreArtist[] = [
     name: "SAINT RIO",
     image:
       "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 28%",
   },
   {
     id: "maya-sol",
     name: "MAYA SOL",
     image:
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 38%",
   },
   {
     id: "noa-vale",
     name: "NOA VALE",
     image:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 25%",
   },
   {
     id: "lena-mori",
     name: "LENA MORI",
     image:
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "80% 70%",
   },
   {
     id: "juno",
     name: "JUNO",
     image:
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 42%",
   },
   {
     id: "sola",
     name: "SOLA",
     image:
       "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 70%",
   },
 ];
 
@@ -102,36 +109,42 @@ export const EXPLORE_ROW_2: ExploreArtist[] = [
     name: "ASTER",
     image:
       "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center center",
   },
   {
     id: "mira",
     name: "MIRA",
     image:
       "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center center",
   },
   {
     id: "koda",
     name: "KODA",
     image:
       "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 65%",
   },
   {
     id: "elara",
     name: "ELARA",
     image:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 25%",
   },
   {
     id: "lumen",
     name: "LUMEN",
     image:
       "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center center",
   },
   {
     id: "rafa",
     name: "RAFA",
     image:
       "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center center",
   },
 ];
 
