@@ -108,7 +108,7 @@ export async function runTier1(browser, baseUrl, results) {
       const heroSection = container.locator('section').first();
       const cards = heroSection.locator('div[class*="aspect-[16/10]"]');
       const cardCount = await cards.count();
-      assert.equal(cardCount, 12, `Expected exactly 12 artist cards in Explore grid, found ${cardCount}`);
+      assert.ok(cardCount >= 12, `Expected at least 12 artist cards in Explore grid, found ${cardCount}`);
     });
 
     await runTest('T1.2.3', 'Artist Names & Typography', results, async () => {

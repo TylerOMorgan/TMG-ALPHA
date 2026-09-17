@@ -30,7 +30,7 @@ const ArtistCell: React.FC<{ name: string; image: string }> = ({
   name,
   image,
 }) => (
-  <div className="group relative aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5">
+  <div className="group relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px] shrink-0 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5">
     <img
       src={image}
       alt={name}
@@ -49,7 +49,21 @@ const ArtistCell: React.FC<{ name: string; image: string }> = ({
 const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
+  const marqueeRef = useRef<HTMLDivElement>(null);
+  const row1Ref = useRef<HTMLDivElement>(null);
+  const row2Ref = useRef<HTMLDivElement>(null);
+
+  // Triple items for seamless scroll-driven marquee across any screen resolution
+  const row1Items = [
+    ...EXPLORE_ARTISTS,
+    ...EXPLORE_ARTISTS,
+    ...EXPLORE_ARTISTS,
+  ];
+  const row2Items = [
+    ...EXPLORE_ROW_2,
+    ...EXPLORE_ROW_2,
+    ...EXPLORE_ROW_2,
+  ];
 
   useEffect(() => {
     if (!isActive) return;
@@ -65,18 +79,38 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
           scrub: true,
         },
       });
-      if (gridRef.current) {
+
+      // Row 1 marquee scrub (moves left as user scrolls down)
+      if (row1Ref.current) {
         gsap.fromTo(
-          gridRef.current,
-          { y: 30 },
+          row1Ref.current,
+          { x: 0 },
           {
-            y: -20,
+            x: -480,
             ease: "none",
             scrollTrigger: {
-              trigger: gridRef.current,
+              trigger: marqueeRef.current,
               start: "top bottom",
               end: "bottom top",
-              scrub: true,
+              scrub: 1,
+            },
+          },
+        );
+      }
+
+      // Row 2 marquee scrub (starts shifted left, moves right as user scrolls down)
+      if (row2Ref.current) {
+        gsap.fromTo(
+          row2Ref.current,
+          { x: -480 },
+          {
+            x: 0,
+            ease: "none",
+            scrollTrigger: {
+              trigger: marqueeRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1,
             },
           },
         );
@@ -138,15 +172,32 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
             </span>
           </div>
 
-          <div ref={gridRef} className="space-y-2.5 will-change-transform md:space-y-3.5">
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3.5 lg:grid-cols-6">
-              {EXPLORE_ARTISTS.map((a) => (
-                <ArtistCell key={a.id} name={a.name} image={a.image} />
+          <div
+            ref={marqueeRef}
+            className="-mx-5 overflow-hidden space-y-2.5 will-change-transform md:-mx-10 md:space-y-3.5"
+          >
+            <div
+              ref={row1Ref}
+              className="flex gap-2.5 will-change-transform md:gap-3.5"
+            >
+              {row1Items.map((a, idx) => (
+                <ArtistCell
+                  key={`${a.id}-r1-${idx}`}
+                  name={a.name}
+                  image={a.image}
+                />
               ))}
             </div>
-            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:gap-3.5 lg:grid-cols-6">
-              {EXPLORE_ROW_2.map((a) => (
-                <ArtistCell key={a.id} name={a.name} image={a.image} />
+            <div
+              ref={row2Ref}
+              className="flex gap-2.5 will-change-transform md:gap-3.5"
+            >
+              {row2Items.map((a, idx) => (
+                <ArtistCell
+                  key={`${a.id}-r2-${idx}`}
+                  name={a.name}
+                  image={a.image}
+                />
               ))}
             </div>
           </div>
@@ -162,3 +213,4 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
 };
 
 export default React.memo(ArtistsHero);
+
