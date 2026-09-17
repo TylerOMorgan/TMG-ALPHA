@@ -1,6 +1,5 @@
-
-import React from 'react';
-import Logo from './Logo';
+import React from "react";
+import Logo from "./Logo";
 
 interface NavigationProps {
   activePage: string;
@@ -8,23 +7,26 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, page: string) => {
+  const handleClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    page: string,
+  ) => {
     e.preventDefault();
-    if (page === 'home') {
-      window.history.pushState(null, '', window.location.pathname);
-    } else if (page === 'contact') {
-      window.history.pushState(null, '', '#general-inquiry');
+    if (page === "home") {
+      window.history.pushState(null, "", window.location.pathname);
+    } else if (page === "contact") {
+      window.history.pushState(null, "", "#general-inquiry");
     } else {
-      window.history.pushState(null, '', `#${page}`);
+      window.history.pushState(null, "", `#${page}`);
     }
     onNavigate(page);
   };
 
   const navLinks = [
-    { name: 'HOME', id: 'home', href: '#' },
-    { name: 'ABOUT', id: 'about', href: '#about' },
-    { name: 'CONTACT', id: 'contact', href: '#general-inquiry' },
+    { name: "HOME", id: "home", href: "#" },
+    { name: "ABOUT", id: "about", href: "#about" },
+    { name: "ARTISTS", id: "artists", href: "#artists" },
+    { name: "CONTACT", id: "contact", href: "#general-inquiry" },
   ];
 
   return (
@@ -35,9 +37,9 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
       {/* Navigation Content */}
       <div className="relative w-full px-4 md:px-12 py-4 md:py-8 flex justify-between items-center mix-blend-difference z-10">
         {/* Logo - Left */}
-        <a 
+        <a
           href="#"
-          onClick={(e) => handleClick(e, 'home')}
+          onClick={(e) => handleClick(e, "home")}
           className="pointer-events-auto text-white hover:text-trillex-orange transition-colors duration-300"
           data-hoverable="true"
           aria-label="Go to Home"
@@ -45,27 +47,30 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
           {/* Responsive height: Smaller on mobile */}
           <Logo className="h-[32px] md:h-[55px] w-auto fill-current" />
         </a>
-        
+
         {/* Nav Links - Right */}
         <div className="pointer-events-auto flex items-center gap-3 sm:gap-5 md:gap-7 lg:gap-8 whitespace-nowrap">
           {navLinks.map((item) => {
             const isActive = activePage === item.id;
             return (
-              <a 
-                key={item.name} 
+              <a
+                key={item.name}
                 href={`#${item.id}`}
                 onClick={(e) => handleClick(e, item.id)}
                 className={`
                   relative group text-[11px] sm:text-xs md:text-[13px] font-mono tracking-[0.14em] md:tracking-[0.16em] uppercase transition-all duration-300 ease-out py-2 px-0.5 sm:px-1
-                  ${isActive 
-                    ? 'text-white font-bold scale-105 md:scale-105 [text-shadow:0_0_12px_rgba(255,255,255,0.6)]' 
-                    : 'text-white/80 hover:text-white hover:font-bold hover:scale-105 md:hover:scale-105 hover:[text-shadow:0_0_12px_rgba(255,255,255,0.6)]'
+                  ${
+                    isActive
+                      ? "text-white font-bold scale-105 md:scale-105 [text-shadow:0_0_12px_rgba(255,255,255,0.6)]"
+                      : "text-white/80 hover:text-white hover:font-bold hover:scale-105 md:hover:scale-105 hover:[text-shadow:0_0_12px_rgba(255,255,255,0.6)]"
                   }
                 `}
                 data-hoverable="true"
               >
                 {item.name}
-                <span className={`absolute bottom-0 md:-bottom-2 left-0 h-[1px] bg-white transition-all duration-300 ease-out ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
+                <span
+                  className={`absolute bottom-0 md:-bottom-2 left-0 h-[1px] bg-white transition-all duration-300 ease-out ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}
+                ></span>
               </a>
             );
           })}
