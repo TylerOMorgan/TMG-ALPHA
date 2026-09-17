@@ -67,24 +67,24 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
         <div className="mt-9">
           <Eyebrow text={CTA_EYEBROW} tone="light" align="center" />
         </div>
-        <h2 className="mt-7 font-impact text-[12vw] leading-[1.0] text-[#2B2B28] md:text-[7.1vw]">
+        <h2 className="mt-6 font-impact text-[10vw] leading-[1.0] text-[#2B2B28] sm:mt-7 sm:text-[9vw] md:text-[7.1vw]">
           <span className="block">YOUR RECORD</span>
           <span className="block">COULD BE NEXT.</span>
         </h2>
-        <p className="mt-7 max-w-xl text-sm font-light leading-relaxed text-trillex-ink/60 md:text-[15px]">
+        <p className="mt-5 max-w-xl text-sm font-light leading-relaxed text-trillex-ink/70 sm:mt-7 md:text-[15px]">
           {CTA_COPY}
         </p>
         <a
           href="#demo-submission"
           onClick={handleDemo}
           data-hoverable="true"
-          className="mt-10 inline-block bg-[#3C3A36] px-11 py-[18px] font-mono text-[11px] font-bold tracking-[0.25em] text-white transition-all duration-300 hover:bg-black hover:scale-[1.02] shadow-sm"
+          className="mt-8 inline-block w-full sm:w-auto bg-[#3C3A36] px-8 py-4 font-mono text-[11px] font-bold tracking-[0.22em] text-white transition-all duration-300 hover:bg-black hover:scale-[1.02] shadow-sm sm:mt-10 sm:px-11 sm:py-[18px] sm:tracking-[0.25em]"
         >
           {CTA_BUTTON}
         </a>
       </div>
 
-      <div className="mx-auto mt-20 flex max-w-[1840px] items-center justify-between border-t border-trillex-ink/15 px-5 pt-5 font-mono text-[9px] tracking-[0.2em] text-trillex-ink/40 md:px-10">
+      <div className="mx-auto mt-16 flex max-w-[1840px] flex-col gap-3 border-t border-trillex-ink/15 px-4 pt-5 font-mono text-[8.5px] tracking-[0.18em] text-trillex-ink/50 sm:mt-20 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:text-[9px] sm:tracking-[0.2em] md:px-10">
         <span>{CTA_FOOTER_LEFT}</span>
         <span>{CTA_FOOTER_RIGHT}</span>
       </div>

@@ -48,9 +48,9 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
       ref={sectionRef}
       className="relative w-full overflow-hidden bg-[#E58A1E] py-16 text-black md:py-24"
     >
-      <div className="mx-auto max-w-[1840px] px-5 md:px-10">
+      <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={WORK_EYEBROW} tone="onSignal" />
-        <h2 className="mt-8 font-impact text-[10.5vw] leading-[1.0] text-[#2B1704] md:text-[6.15vw]">
+        <h2 className="mt-6 font-impact text-[9.5vw] leading-[1.0] text-[#2B1704] sm:mt-8 sm:text-[8vw] md:text-[6.15vw]">
           <span className="block">MOVE FAST.</span>
           <span className="block">COMMUNICATE</span>
           <span className="block">CLEARLY. BUILD THE</span>
@@ -59,7 +59,7 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
 
         <div
           ref={pillarsRef}
-          className="mt-16 grid grid-cols-1 border-y border-black/25 py-8 sm:grid-cols-3 md:mt-24 md:py-10"
+          className="mt-12 grid grid-cols-1 border-y border-black/25 py-6 sm:mt-16 sm:grid-cols-3 sm:py-8 md:mt-24 md:py-10"
         >
           {WORK_PILLARS.map((pillar, idx) => (
             <div

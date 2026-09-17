@@ -31,7 +31,7 @@ const ArtistCell: React.FC<{
   image: string;
   objectPosition?: string;
 }> = ({ name, image, objectPosition = "center center" }) => (
-  <div className="group relative w-[240px] sm:w-[280px] md:w-[320px] lg:w-[360px] shrink-0 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5">
+  <div className="group relative w-[220px] sm:w-[260px] md:w-[320px] lg:w-[360px] shrink-0 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5">
     <img
       src={image}
       alt={name}
@@ -41,7 +41,7 @@ const ArtistCell: React.FC<{
       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-    <span className="absolute bottom-3 left-3.5 font-impact text-base tracking-wide text-white md:text-lg">
+    <span className="absolute bottom-3 left-3.5 font-impact text-sm tracking-wide text-white sm:text-base md:text-lg">
       {name}
     </span>
     <SpotifyBadge />
@@ -71,8 +71,11 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     if (!isActive) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = gsap.context(() => {
+      const isMobile = window.innerWidth < 768;
+      const travel = isMobile ? -260 : -480;
+
       gsap.to(titleRef.current, {
-        yPercent: 14,
+        yPercent: isMobile ? 8 : 14,
         ease: "none",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -88,7 +91,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
           row1Ref.current,
           { x: 0 },
           {
-            x: -480,
+            x: travel,
             ease: "none",
             scrollTrigger: {
               trigger: marqueeRef.current,
@@ -104,7 +107,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
       if (row2Ref.current) {
         gsap.fromTo(
           row2Ref.current,
-          { x: -480 },
+          { x: travel },
           {
             x: 0,
             ease: "none",
@@ -124,59 +127,57 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-trillex-black pt-24 md:pt-28"
+      className="relative w-full bg-trillex-black pb-12 pt-28 sm:pt-32 md:pb-16 md:pt-36"
     >
-      <div className="mx-auto max-w-[1840px] px-5 md:px-10">
+      <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={HERO_EYEBROW} tone="dark" />
 
-        <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-end">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:mt-5 sm:gap-6 lg:grid-cols-12 lg:items-end">
           <h1
             ref={titleRef}
-            className="font-impact text-[19vw] leading-[0.9] text-trillex-paper will-change-transform lg:col-span-8 lg:text-[11.7vw]"
+            className="font-impact text-[18vw] leading-[0.92] text-trillex-paper will-change-transform lg:col-span-8 lg:text-[11.7vw]"
           >
             {HERO_TITLE}
           </h1>
           <div className="lg:col-span-4 lg:pb-3">
-            <p className="text-base font-bold text-white md:text-lg">
+            <p className="text-sm font-bold leading-snug text-white sm:text-base md:text-lg">
               {HERO_COPY_HEAD}
             </p>
-            <p className="mt-1 text-base font-light text-white/50 md:text-lg">
+            <p className="mt-1 text-sm font-light leading-snug text-white/60 sm:text-base md:text-lg">
               {HERO_COPY_TAIL}
             </p>
           </div>
         </div>
 
-        <div className="mt-10 grid grid-cols-2 gap-y-8 border-y border-white/15 py-7 md:mt-12 md:grid-cols-4">
+        <div className="mt-8 grid grid-cols-2 gap-y-6 border-y border-white/15 py-6 sm:mt-10 sm:py-7 md:mt-12 md:grid-cols-4">
           {HERO_STATS.map((s, idx) => (
             <div
               key={s.label}
               className={`md:border-l md:border-white/15 md:pl-10 md:first:border-l-0 md:first:pl-0 ${
                 idx % 2 === 1
-                  ? "border-l border-white/15 pl-6 md:border-l md:pl-10"
-                  : "pr-4 md:pr-0"
+                  ? "border-l border-white/15 pl-5 sm:pl-6 md:border-l md:pl-10"
+                  : "pr-3 sm:pr-4 md:pr-0"
               }`}
             >
-              <div className="font-impact text-[28px] text-trillex-paper md:text-4xl">
+              <div className="font-impact text-2xl text-trillex-paper sm:text-3xl md:text-4xl">
                 {s.value}
               </div>
-              <div className="mt-2.5 font-mono text-[10px] tracking-[0.22em] text-white/40">
+              <div className="mt-1.5 font-mono text-[9px] tracking-[0.18em] text-white/50 sm:mt-2.5 sm:text-[10px] sm:tracking-[0.22em]">
                 {s.label}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-16 md:mt-24">
-          <div className="mb-4 flex items-center justify-between font-mono text-[10px] tracking-[0.25em] text-white/40">
+        <div className="mt-12 sm:mt-16 md:mt-24">
+          <div className="mb-3.5 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
             <span>EXPLORE ARTISTS</span>
-            <span className="hidden md:inline">
-              TWO WORLDS &bull; ONE GROUP
-            </span>
+            <span>TWO WORLDS &bull; ONE GROUP</span>
           </div>
 
           <div
             ref={marqueeRef}
-            className="-mx-5 overflow-hidden space-y-2.5 will-change-transform md:-mx-10 md:space-y-3.5"
+            className="-mx-4 overflow-hidden space-y-2.5 will-change-transform sm:-mx-6 md:-mx-10 md:space-y-3.5"
           >
             <div
               ref={row1Ref}
@@ -206,7 +207,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
             </div>
           </div>
 
-          <div className="mt-8 flex items-center justify-between border-t border-white/15 pt-4 font-mono text-[10px] tracking-[0.25em] text-white/40">
+          <div className="mt-6 flex flex-col gap-2 border-t border-white/15 pt-3.5 font-mono text-[8.5px] tracking-[0.18em] text-white/45 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:pt-4 sm:text-[10px] sm:tracking-[0.25em]">
             <span>CONCEPT ARTIST IMAGERY</span>
             <span>FINAL ROSTER APPROVAL REQUIRED</span>
           </div>

@@ -13,19 +13,25 @@ const Eyebrow: React.FC<EyebrowProps> = ({
 }) => {
   const textColor =
     tone === "dark"
-      ? "text-white/45"
+      ? "text-white/90"
       : tone === "light"
-        ? "text-[#8F8B7C]"
-        : "text-black/60";
+        ? "text-[#3D3A32]"
+        : "text-black/85";
+
+  const dotBg =
+    tone === "onSignal"
+      ? "bg-black"
+      : "bg-trillex-signal shadow-[0_0_8px_rgba(222,138,30,0.6)]";
+
   return (
     <div
-      className={`flex items-center gap-2.5 ${align === "center" ? "justify-center" : "justify-start"}`}
+      className={`flex items-center gap-2.5 sm:gap-3 ${align === "center" ? "justify-center" : "justify-start"}`}
     >
       <span
-        className={`h-1.5 w-1.5 shrink-0 rounded-full ${tone === "onSignal" ? "bg-black" : "bg-trillex-signal"}`}
+        className={`h-2 w-2 shrink-0 rounded-full ${dotBg}`}
       />
       <span
-        className={`font-mono text-[10px] tracking-[0.28em] md:text-[11px] ${textColor}`}
+        className={`font-mono text-[11px] font-medium tracking-[0.22em] sm:text-xs md:text-[13px] md:tracking-[0.25em] uppercase ${textColor}`}
       >
         {text}
       </span>

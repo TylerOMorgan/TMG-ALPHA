@@ -54,16 +54,16 @@ const RecordsRail: React.FC<SectionProps> = ({ isActive = true }) => {
       className="relative w-full overflow-hidden bg-[#EBE7DD]"
     >
       <div ref={pinRef}>
-        <div className="mx-auto max-w-[1840px] px-5 pb-24 pt-16 md:px-10 md:pb-32 md:pt-24">
+        <div className="mx-auto max-w-[1840px] px-4 pb-20 pt-16 sm:px-6 md:px-10 md:pb-32 md:pt-24">
           <Eyebrow text={RECORDS_EYEBROW} tone="light" />
-          <h2 className="mt-6 max-w-[16ch] font-impact text-[10vw] leading-[1.0] text-trillex-ink md:text-[5.6vw]">
+          <h2 className="mt-5 max-w-[16ch] font-impact text-[9.5vw] leading-[1.0] text-trillex-ink sm:mt-6 sm:text-[8vw] md:text-[5.6vw]">
             {RECORDS_TITLE}
           </h2>
 
-          <div className="mt-12 md:mt-16">
+          <div className="mt-10 sm:mt-12 md:mt-16">
             <div
               ref={trackRef}
-              className="flex snap-x snap-mandatory gap-5 overflow-x-auto px-1 pb-4 will-change-transform md:snap-none md:gap-7 md:overflow-visible"
+              className="flex snap-x snap-mandatory gap-5 overflow-x-auto px-1 pb-4 will-change-transform [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:snap-none md:gap-7 md:overflow-visible"
             >
               {RECORDS.map((record) => (
                 <div

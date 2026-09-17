@@ -99,6 +99,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     const ctx = gsap.context(() => {
       const cards = fanRef.current?.children;
       if (!cards || cards.length < 3) return;
+      const isMobile = window.innerWidth < 768;
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -110,21 +111,21 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
       // cards[0]: Left background card (ARTIST ()
       tl.fromTo(
         cards[0],
-        { y: 220, rotation: -7, x: -40 },
-        { y: 120, rotation: -4, x: -110, ease: "none" },
+        { y: isMobile ? 160 : 220, rotation: -7, x: -20 },
+        { y: isMobile ? 80 : 120, rotation: -4, x: isMobile ? -45 : -110, ease: "none" },
         0,
       );
       // cards[1]: Right background card (GROWTH 02)
       tl.fromTo(
         cards[1],
-        { y: 190, rotation: 5, x: 40 },
-        { y: 60, rotation: 2.5, x: 90, ease: "none" },
+        { y: isMobile ? 140 : 190, rotation: 5, x: 20 },
+        { y: isMobile ? 50 : 60, rotation: 2.5, x: isMobile ? 45 : 90, ease: "none" },
         0,
       );
       // cards[2]: Center foreground card (MIMIMI HARDTEKK)
       tl.fromTo(
         cards[2],
-        { y: 120, scale: 0.96 },
+        { y: isMobile ? 80 : 120, scale: 0.96 },
         { y: 0, scale: 1, ease: "none" },
         0,
       );
@@ -153,38 +154,38 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full overflow-hidden bg-trillex-black pb-28 pt-20 md:pb-40 md:pt-28"
+      className="relative w-full overflow-hidden bg-trillex-black pb-24 pt-16 sm:pb-28 sm:pt-20 md:pb-40 md:pt-28"
     >
-      <div className="relative z-10 mx-auto max-w-[1840px] px-5 md:px-10">
+      <div className="relative z-10 mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={SPOTIFY_EYEBROW} tone="dark" />
-        <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-end">
-          <h2 className="font-impact text-[11vw] leading-[0.98] text-trillex-paper lg:col-span-8 lg:text-[6.15vw]">
+        <div className="mt-5 grid grid-cols-1 gap-6 sm:mt-6 sm:gap-8 lg:grid-cols-12 lg:items-end">
+          <h2 className="font-impact text-[9.5vw] leading-[0.98] text-trillex-paper sm:text-[8.5vw] lg:col-span-8 lg:text-[6.15vw]">
             <span className="block">MOMENTUM</span>
             <span className="block whitespace-nowrap">YOU CAN SEE.</span>
           </h2>
-          <p className="max-w-md text-sm font-light leading-relaxed text-white/50 md:text-base lg:col-span-4">
+          <p className="max-w-md text-sm font-light leading-relaxed text-white/60 sm:text-base lg:col-span-4">
             {SPOTIFY_COPY}
           </p>
         </div>
       </div>
 
-      <div className="relative mx-auto mt-14 max-w-[1600px] px-5 md:mt-20 md:px-10">
+      <div className="relative mx-auto mt-10 max-w-[1600px] px-4 sm:mt-14 sm:px-6 md:mt-20 md:px-10">
         <div
           ref={fanRef}
-          className="relative mx-auto min-h-[440px] w-full max-w-[980px] will-change-transform md:min-h-[540px]"
+          className="relative mx-auto min-h-[420px] w-full max-w-[980px] will-change-transform sm:min-h-[480px] md:min-h-[540px]"
         >
           {/* Back Left Card: ARTIST ( */}
-          <div className="absolute inset-x-[4%] top-0 z-0 rounded-xl border border-white/10 bg-[#0B0D0B]/95 p-5 will-change-transform md:p-6">
-            <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.2em] text-white/40">
+          <div className="absolute inset-x-[2%] top-0 z-0 rounded-xl border border-white/10 bg-[#0B0D0B]/95 p-4 will-change-transform sm:inset-x-[4%] sm:p-5 md:p-6">
+            <div className="flex items-center justify-between font-mono text-[9px] tracking-[0.18em] text-white/50 sm:text-[10px] sm:tracking-[0.2em]">
               <span className="flex items-center gap-2">
                 <SpotifyLogo /> SPOTIFY FOR ARTISTS
               </span>
             </div>
-            <div className="mt-7 font-impact text-2xl text-white/70 md:text-3xl">
+            <div className="mt-5 font-impact text-xl text-white/70 sm:mt-7 sm:text-2xl md:text-3xl">
               ARTIST (
             </div>
             {/* SVG curve for Left background card */}
-            <div className="mt-4 h-24 overflow-hidden md:h-28">
+            <div className="mt-3 h-20 overflow-hidden sm:mt-4 sm:h-24 md:h-28">
               <svg viewBox="0 0 400 120" preserveAspectRatio="none" className="h-full w-full opacity-60">
                 <defs>
                   <linearGradient id="bg-chart-left" x1="0" y1="0" x2="0" y2="1">
@@ -199,18 +200,18 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
           </div>
 
           {/* Back Right Card: GROWTH 02 */}
-          <div className="absolute inset-x-[4%] top-0 z-10 ml-auto w-[86%] rounded-xl border border-white/10 bg-[#0B0D0B]/95 p-5 will-change-transform md:p-6">
-            <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.2em] text-white/40">
+          <div className="absolute inset-x-[2%] top-0 z-10 ml-auto w-[90%] rounded-xl border border-white/10 bg-[#0B0D0B]/95 p-4 will-change-transform sm:inset-x-[4%] sm:w-[86%] sm:p-5 md:p-6">
+            <div className="flex items-center justify-between font-mono text-[9px] tracking-[0.18em] text-white/50 sm:text-[10px] sm:tracking-[0.2em]">
               <span className="flex items-center gap-2">
                 <SpotifyLogo /> SPOTIFY FOR ARTISTS
               </span>
               <span className="hidden md:inline">SVG MOTION STUDY</span>
             </div>
-            <div className="mt-7 text-right font-impact text-2xl text-white/70 md:text-3xl">
+            <div className="mt-5 text-right font-impact text-xl text-white/70 sm:mt-7 sm:text-2xl md:text-3xl">
               GROWTH 02
             </div>
             {/* SVG curve for Right background card */}
-            <div className="mt-4 h-24 overflow-hidden md:h-28">
+            <div className="mt-3 h-20 overflow-hidden sm:mt-4 sm:h-24 md:h-28">
               <svg viewBox="0 0 400 120" preserveAspectRatio="none" className="h-full w-full opacity-60">
                 <defs>
                   <linearGradient id="bg-chart-right" x1="0" y1="0" x2="0" y2="1">
@@ -225,34 +226,34 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
           </div>
 
           {/* Center Foreground Card: MIMIMI HARDTEKK */}
-          <div className="absolute inset-x-0 top-0 z-20 mx-auto w-full max-w-[760px] rounded-xl border border-white/10 bg-[#0B0D0B] p-5 shadow-[0_30px_80px_rgba(0,0,0,0.6)] will-change-transform md:p-7">
-            <div className="flex items-center justify-between font-mono text-[10px] tracking-[0.2em] text-white/60">
+          <div className="absolute inset-x-0 top-0 z-20 mx-auto w-full max-w-[760px] rounded-xl border border-white/10 bg-[#0B0D0B] p-4 shadow-[0_30px_80px_rgba(0,0,0,0.6)] will-change-transform sm:p-5 md:p-7">
+            <div className="flex items-center justify-between font-mono text-[9px] tracking-[0.18em] text-white/60 sm:text-[10px] sm:tracking-[0.2em]">
               <span className="flex items-center gap-2">
                 <SpotifyLogo /> SPOTIFY FOR ARTISTS
               </span>
-              <span className="hidden md:inline">DATED PROOF SNAPSHOT</span>
+              <span className="hidden sm:inline">DATED PROOF SNAPSHOT</span>
             </div>
-            <div className="mt-6 flex items-start justify-between gap-4">
-              <h3 className="font-impact text-2xl tracking-tight text-white md:text-3xl">
+            <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+              <h3 className="font-impact text-xl tracking-tight text-white sm:text-2xl md:text-3xl">
                 MIMIMI HARDTEKK
               </h3>
-              <div className="flex gap-6 text-right">
+              <div className="flex gap-5 sm:gap-6 text-left sm:text-right">
                 <div>
-                  <div className="font-mono text-[9px] tracking-[0.2em] text-white/40">
+                  <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
                     SPOTIFY STREAMS
                   </div>
-                  <div className="font-impact text-xl text-white">6M+</div>
+                  <div className="font-impact text-lg text-white sm:text-xl">6M+</div>
                 </div>
                 <div>
-                  <div className="font-mono text-[9px] tracking-[0.2em] text-white/40">
+                  <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
                     DAILY AT SNAPSHOT
                   </div>
-                  <div className="font-impact text-xl text-white">54K</div>
+                  <div className="font-impact text-lg text-white sm:text-xl">54K</div>
                 </div>
               </div>
             </div>
             <div className="mt-4">
-              <div className="mb-1 text-right font-mono text-[9px] tracking-[0.2em] text-white/40">
+              <div className="mb-1 text-right font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
                 BREAKOUT MOMENT
               </div>
               <GrowthChart lineRef={lineRef} />
@@ -261,13 +262,13 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
         </div>
 
         {/* Proof Callout Block (Bottom-Right) with 180px orange accent bar */}
-        <div className="mt-12 flex justify-end md:mt-16 md:mr-[8%]">
+        <div className="mt-10 flex justify-end sm:mt-12 md:mr-[8%] md:mt-16">
           <div className="w-full max-w-[340px] text-left">
             <div className="h-[2px] w-[180px] bg-trillex-signal" />
-            <h4 className="mt-3 text-base font-bold text-white">
+            <h4 className="mt-3 text-sm sm:text-base font-bold text-white">
               {SPOTIFY_CALLOUT.title}
             </h4>
-            <p className="mt-1 text-xs font-light leading-relaxed text-white/50">
+            <p className="mt-1 text-xs font-light leading-relaxed text-white/60">
               {SPOTIFY_CALLOUT.body}
             </p>
           </div>
