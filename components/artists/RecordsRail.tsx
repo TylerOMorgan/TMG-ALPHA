@@ -51,6 +51,7 @@ const RecordsRail: React.FC<SectionProps> = ({ isActive = true }) => {
   return (
     <section
       ref={sectionRef}
+      data-nav-theme="light"
       className="relative w-full overflow-hidden bg-[#EBE7DD]"
     >
       <div ref={pinRef}>

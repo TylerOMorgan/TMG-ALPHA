@@ -130,6 +130,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
   return (
     <section
       ref={sectionRef}
+      data-nav-theme="dark"
       className="relative w-full bg-trillex-black pb-12 pt-28 sm:pt-32 md:pb-16 md:pt-36"
     >
       <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">

@@ -57,6 +57,7 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
   return (
     <section
       ref={sectionRef}
+      data-nav-theme="light"
       className="relative w-full bg-[#EBE7DD] pb-10 pt-16 text-center text-trillex-ink md:pt-24"
     >
       <div

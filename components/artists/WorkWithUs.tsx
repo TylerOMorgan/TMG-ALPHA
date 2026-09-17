@@ -46,6 +46,7 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
   return (
     <section
       ref={sectionRef}
+      data-nav-theme="light"
       className="relative w-full overflow-hidden bg-[#E58A1E] py-16 text-black md:py-24"
     >
       <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">

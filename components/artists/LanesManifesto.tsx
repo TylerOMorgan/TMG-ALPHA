@@ -87,6 +87,7 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
   return (
     <section
       ref={sectionRef}
+      data-nav-theme="light"
       className="relative w-full overflow-hidden bg-[#EBE7DD] pb-24 pt-16 text-trillex-ink md:pb-32 md:pt-24"
     >
       <div className="relative z-10 mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
