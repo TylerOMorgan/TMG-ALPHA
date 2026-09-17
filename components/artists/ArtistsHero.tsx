@@ -72,7 +72,10 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = gsap.context(() => {
       const isMobile = window.innerWidth < 768;
-      const travel = isMobile ? -260 : -480;
+      const r1Travel = isMobile ? -180 : -320;
+      const r2Travel = isMobile ? 180 : 320;
+      const r1Start = isMobile ? 0 : -30;
+      const r2Start = isMobile ? -60 : -120;
 
       gsap.to(titleRef.current, {
         yPercent: isMobile ? 8 : 14,
@@ -89,13 +92,13 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
       if (row1Ref.current) {
         gsap.fromTo(
           row1Ref.current,
-          { x: 0 },
+          { x: r1Start },
           {
-            x: travel,
+            x: r1Start + r1Travel,
             ease: "none",
             scrollTrigger: {
-              trigger: marqueeRef.current,
-              start: "top bottom",
+              trigger: sectionRef.current,
+              start: "top top",
               end: "bottom top",
               scrub: 1,
             },
@@ -103,17 +106,17 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
         );
       }
 
-      // Row 2 marquee scrub (starts shifted left, moves right as user scrolls down)
+      // Row 2 marquee scrub (starts slightly offset left, moves right as user scrolls down)
       if (row2Ref.current) {
         gsap.fromTo(
           row2Ref.current,
-          { x: travel },
+          { x: r2Start },
           {
-            x: 0,
+            x: r2Start + r2Travel,
             ease: "none",
             scrollTrigger: {
-              trigger: marqueeRef.current,
-              start: "top bottom",
+              trigger: sectionRef.current,
+              start: "top top",
               end: "bottom top",
               scrub: 1,
             },
@@ -132,14 +135,14 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
       <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={HERO_EYEBROW} tone="dark" />
 
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:mt-5 sm:gap-6 lg:grid-cols-12 lg:items-end">
+        <div className="mt-4 flex flex-col gap-6 lg:mt-6 lg:flex-row lg:items-end lg:justify-between">
           <h1
             ref={titleRef}
-            className="font-impact text-[18vw] leading-[0.92] text-trillex-paper will-change-transform lg:col-span-8 lg:text-[11.7vw]"
+            className="font-impact text-[18vw] leading-[0.88] tracking-tight text-trillex-paper will-change-transform sm:text-[14vw] md:text-[11vw] lg:text-[104px] xl:text-[124px] 2xl:text-[140px]"
           >
             {HERO_TITLE}
           </h1>
-          <div className="lg:col-span-4 lg:pb-3">
+          <div className="max-w-md pb-1 text-left lg:max-w-[340px] lg:pb-3 lg:shrink-0 xl:max-w-[380px]">
             <p className="text-sm font-bold leading-snug text-white sm:text-base md:text-lg">
               {HERO_COPY_HEAD}
             </p>

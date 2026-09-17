@@ -63,8 +63,8 @@ export const EXPLORE_ARTISTS: ExploreArtist[] = [
     id: "saint-rio",
     name: "SAINT RIO",
     image:
-      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 28%",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 25%",
   },
   {
     id: "maya-sol",
@@ -77,8 +77,8 @@ export const EXPLORE_ARTISTS: ExploreArtist[] = [
     id: "noa-vale",
     name: "NOA VALE",
     image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 25%",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 28%",
   },
   {
     id: "lena-mori",
@@ -129,8 +129,8 @@ export const EXPLORE_ROW_2: ExploreArtist[] = [
     id: "elara",
     name: "ELARA",
     image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 25%",
+      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=600&q=70",
+    objectPosition: "center 28%",
   },
   {
     id: "lumen",
