@@ -6,7 +6,6 @@ import SoundIdProof from "../artists/SoundIdProof";
 import RecordsRail from "../artists/RecordsRail";
 import WorkWithUs from "../artists/WorkWithUs";
 import DemoCTA from "../artists/DemoCTA";
-import { FLOATING_BADGE } from "../../utils/artistsExperienceData";
 
 const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -71,16 +70,6 @@ const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
       <RecordsRail isActive={isActive} />
       <WorkWithUs isActive={isActive} />
       <DemoCTA isActive={isActive} />
-
-      {/* Fixed bottom-right translucent concept pill badge */}
-      {isActive && (
-        <div className="fixed bottom-6 right-6 md:bottom-7 md:right-8 z-50 pointer-events-none flex items-center gap-2 rounded-sm border border-white/20 bg-[#0A0A0A]/90 px-3.5 py-1.5 backdrop-blur-md shadow-lg">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#E58A1E] shrink-0" />
-          <span className="font-mono text-[9px] uppercase tracking-[0.20em] text-white/70 whitespace-nowrap">
-            {FLOATING_BADGE}
-          </span>
-        </div>
-      )}
     </div>
   );
 };

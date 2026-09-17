@@ -171,9 +171,9 @@ async function runChallenger2Suite() {
         const approvedBadges = await page.locator('text="APPROVED PROOF CANDIDATE"').count();
         assert.equal(approvedBadges, 5, `Expected 5 Approved Proof Candidate badges, found ${approvedBadges}`);
 
-        // Floating concept badge
-        const floatingBadge = await page.locator('text="MOTION CONCEPT"').count();
-        assert.ok(floatingBadge >= 1, 'Floating badge is visible');
+        // Right edge scroll progress indicator
+        const progressBar = await page.locator('div[class*="fixed top-0 right-0"]').count();
+        assert.ok(progressBar >= 1, 'Scroll progress indicator is present');
       });
 
       await test('NFI-05', 'Vector curves and SVG graphics render cleanly with non-zero dimensions', async () => {
