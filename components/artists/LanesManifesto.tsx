@@ -33,24 +33,53 @@ const WaveformLine: React.FC<{ className?: string }> = ({ className = "" }) => (
 const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const rowsRef = useRef<HTMLDivElement>(null);
+  const lane1Ref = useRef<HTMLDivElement>(null);
+  const lane2Ref = useRef<HTMLDivElement>(null);
+  const lane3Ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isActive) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = gsap.context(() => {
-      const rows = rowsRef.current?.children;
-      if (!rows || rows.length < 3) return;
+      const isMobile = window.innerWidth < 768;
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: "top bottom",
           end: "bottom top",
-          scrub: true,
+          scrub: 1,
         },
       });
-      tl.fromTo(rows[0], { xPercent: 2 }, { xPercent: -3, ease: "none" }, 0);
-      tl.fromTo(rows[1], { xPercent: 7 }, { xPercent: -7, ease: "none" }, 0);
-      tl.fromTo(rows[2], { xPercent: 2 }, { xPercent: -3, ease: "none" }, 0);
+
+      // Lane 01 & 03: Enter from left (start shifted left, move right)
+      if (lane1Ref.current) {
+        tl.fromTo(
+          lane1Ref.current,
+          { xPercent: isMobile ? -8 : -14 },
+          { xPercent: isMobile ? 2 : 4, ease: "none" },
+          0
+        );
+      }
+
+      // Lane 02: Enter from right (starts shifted right, moves left)
+      if (lane2Ref.current) {
+        tl.fromTo(
+          lane2Ref.current,
+          { xPercent: isMobile ? 8 : 14 },
+          { xPercent: isMobile ? -2 : -4, ease: "none" },
+          0
+        );
+      }
+
+      // Lane 03: Enter from left (starts shifted left, moves right)
+      if (lane3Ref.current) {
+        tl.fromTo(
+          lane3Ref.current,
+          { xPercent: isMobile ? -8 : -14 },
+          { xPercent: isMobile ? 2 : 4, ease: "none" },
+          0
+        );
+      }
     }, sectionRef);
     return () => ctx.revert();
   }, [isActive]);
@@ -76,9 +105,12 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
       <div className="relative z-10 mx-auto mt-12 max-w-[1840px] px-4 sm:mt-16 sm:px-6 md:mt-24 md:px-10">
         <div ref={rowsRef} className="relative">
           {/* Lane 01: Left-aligned HARDTEKK with Waveform on top divider */}
-          <div className="group relative border-t border-trillex-ink/15 will-change-transform">
+          <div className="group relative border-t border-trillex-ink/15">
             <WaveformLine className="pointer-events-none absolute -top-[26px] right-[4%] hidden w-[340px] text-trillex-signal/60 md:block" />
-            <div className="flex cursor-pointer items-center gap-4 py-3.5 transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9">
+            <div
+              ref={lane1Ref}
+              className="flex cursor-pointer items-center gap-4 py-3.5 will-change-transform transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9"
+            >
               <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-signal sm:text-xs">
                 01
               </span>
@@ -89,8 +121,11 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
           </div>
 
           {/* Lane 02: Right-aligned BRAZILIAN FUNK */}
-          <div className="group relative border-t border-trillex-ink/15 will-change-transform">
-            <div className="flex cursor-pointer items-center justify-end gap-4 py-3.5 transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9">
+          <div className="group relative border-t border-trillex-ink/15">
+            <div
+              ref={lane2Ref}
+              className="flex cursor-pointer items-center justify-end gap-4 py-3.5 will-change-transform transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9"
+            >
               <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-signal sm:text-xs">
                 02
               </span>
@@ -101,8 +136,11 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
           </div>
 
           {/* Lane 03: Left-aligned HOODTRAP */}
-          <div className="group relative border-b border-t border-trillex-ink/15 will-change-transform">
-            <div className="flex cursor-pointer items-center gap-4 py-3.5 transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9">
+          <div className="group relative border-b border-t border-trillex-ink/15">
+            <div
+              ref={lane3Ref}
+              className="flex cursor-pointer items-center gap-4 py-3.5 will-change-transform transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9"
+            >
               <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-signal sm:text-xs">
                 03
               </span>
