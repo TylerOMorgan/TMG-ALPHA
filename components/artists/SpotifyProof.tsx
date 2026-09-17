@@ -155,7 +155,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     <section
       ref={sectionRef}
       data-nav-theme="dark"
-      className="relative w-full overflow-hidden bg-trillex-black pb-24 pt-16 sm:pb-28 sm:pt-20 md:pb-40 md:pt-28"
+      className="relative w-full overflow-hidden bg-trillex-black pb-24 pt-24 sm:pb-28 sm:pt-28 md:pb-40 md:pt-36 lg:pt-40"
     >
       <div className="relative z-10 mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={SPOTIFY_EYEBROW} tone="dark" />

@@ -13,7 +13,7 @@ const Eyebrow: React.FC<EyebrowProps> = ({
 }) => {
   const textColor =
     tone === "dark"
-      ? "text-white/90"
+      ? "text-white font-semibold"
       : tone === "light"
         ? "text-[#3D3A32]"
         : "text-black/85";
@@ -21,7 +21,7 @@ const Eyebrow: React.FC<EyebrowProps> = ({
   const dotBg =
     tone === "onSignal"
       ? "bg-black"
-      : "bg-trillex-signal shadow-[0_0_8px_rgba(222,138,30,0.6)]";
+      : "bg-trillex-signal shadow-[0_0_10px_rgba(229,138,30,0.8)]";
 
   return (
     <div

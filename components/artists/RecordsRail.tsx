@@ -55,7 +55,7 @@ const RecordsRail: React.FC<SectionProps> = ({ isActive = true }) => {
       className="relative w-full overflow-hidden bg-[#EBE7DD]"
     >
       <div ref={pinRef}>
-        <div className="mx-auto max-w-[1840px] px-4 pb-20 pt-16 sm:px-6 md:px-10 md:pb-32 md:pt-24">
+        <div className="mx-auto max-w-[1840px] px-4 pb-20 pt-16 sm:px-6 sm:pt-20 md:px-10 md:pb-32 md:pt-32 lg:pt-36">
           <Eyebrow text={RECORDS_EYEBROW} tone="light" />
           <h2 className="mt-5 max-w-[16ch] font-impact text-[9.5vw] leading-[1.0] text-trillex-ink sm:mt-6 sm:text-[8vw] md:text-[5.6vw]">
             {RECORDS_TITLE}

@@ -47,7 +47,7 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
     <section
       ref={sectionRef}
       data-nav-theme="light"
-      className="relative w-full overflow-hidden bg-[#E58A1E] py-16 text-black md:py-24"
+      className="relative w-full overflow-hidden bg-[#E58A1E] pb-16 pt-24 text-black sm:pb-20 sm:pt-28 md:pb-28 md:pt-36 lg:pb-32 lg:pt-40"
     >
       <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={WORK_EYEBROW} tone="onSignal" />

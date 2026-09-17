@@ -131,7 +131,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     <section
       ref={sectionRef}
       data-nav-theme="dark"
-      className="relative w-full bg-trillex-black pb-12 pt-28 sm:pt-32 md:pb-16 md:pt-36"
+      className="relative w-full bg-trillex-black pb-12 pt-32 sm:pt-36 md:pb-16 md:pt-44 lg:pt-48"
     >
       <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={HERO_EYEBROW} tone="dark" />
