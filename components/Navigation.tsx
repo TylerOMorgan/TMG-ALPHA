@@ -92,6 +92,9 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
       {/* Hidden helper element ensuring tier2 E2E test T2.2.5 passes */}
       <div className="hidden mix-blend-difference" aria-hidden="true" />
 
+      {/* Gradient Shadow Background - Mobile only */}
+      <div className="md:hidden absolute top-0 left-0 w-full h-28 sm:h-32 bg-gradient-to-b from-black via-black/75 to-transparent z-0 pointer-events-none" />
+
       {/* Navigation Content */}
       <div className="relative w-full px-4 md:px-12 py-4 md:py-8 flex justify-between items-center z-10 transition-colors duration-300">
         {/* Logo - Left */}
@@ -100,7 +103,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
           onClick={(e) => handleClick(e, "home")}
           className={`pointer-events-auto transition-colors duration-300 ${
             isLight
-              ? "text-[#0D0D0D] hover:text-trillex-orange"
+              ? "text-white md:text-[#0D0D0D] hover:text-trillex-orange"
               : "text-white hover:text-trillex-orange"
           }`}
           data-hoverable="true"
@@ -124,8 +127,8 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
                   ${
                     isLight
                       ? isActive
-                        ? "text-[#0D0D0D] font-bold scale-105 md:scale-105"
-                        : "text-[#0D0D0D]/75 hover:text-[#0D0D0D] hover:font-bold hover:scale-105 md:hover:scale-105"
+                        ? "text-white md:text-[#0D0D0D] font-bold scale-105 md:scale-105"
+                        : "text-white/80 md:text-[#0D0D0D]/75 hover:text-white md:hover:text-[#0D0D0D] hover:font-bold hover:scale-105 md:hover:scale-105"
                       : isActive
                         ? "text-white font-bold scale-105 md:scale-105 [text-shadow:0_0_12px_rgba(255,255,255,0.6)]"
                         : "text-white/80 hover:text-white hover:font-bold hover:scale-105 md:hover:scale-105 hover:[text-shadow:0_0_12px_rgba(255,255,255,0.6)]"
@@ -139,7 +142,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
                     item.id === "artists" && isActive
                       ? "w-full bg-[#E58A1E]"
                       : isLight
-                        ? `bg-[#0D0D0D] ${isActive ? "w-full" : "w-0 group-hover:w-full"}`
+                        ? `bg-white md:bg-[#0D0D0D] ${isActive ? "w-full" : "w-0 group-hover:w-full"}`
                         : `bg-white ${isActive ? "w-full" : "w-0 group-hover:w-full"}`
                   }`}
                 ></span>
