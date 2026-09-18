@@ -30,14 +30,12 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 pointer-events-none transition-colors duration-300">
-      {/* Navbar Background: Retaining Shadow 1 behind navbar, removing downward gradient bleed (Shadow 2) */}
-      <div
-        className="absolute inset-0 bg-black/90 backdrop-blur-md shadow-md z-0 pointer-events-none"
-      />
+    <nav className="fixed top-0 left-0 w-full z-50 pointer-events-none">
+      {/* Gradient Shadow Background */}
+      <div className="absolute top-0 left-0 w-full h-32 md:h-48 bg-gradient-to-b from-black via-black/85 to-transparent z-0 pointer-events-none" />
 
       {/* Navigation Content */}
-      <div className="relative w-full px-4 md:px-12 py-4 md:py-8 flex justify-between items-center z-10 transition-colors duration-300">
+      <div className="relative w-full px-4 md:px-12 py-4 md:py-8 flex justify-between items-center mix-blend-difference z-10">
         {/* Logo - Left */}
         <a
           href="#"
