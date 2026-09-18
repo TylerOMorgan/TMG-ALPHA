@@ -25,17 +25,17 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
       if (!items || !items.length) return;
       gsap.fromTo(
         items,
-        { y: 50, opacity: 0 },
+        { y: 30, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          ease: "none",
-          stagger: 0.15,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: "power2.out",
           scrollTrigger: {
-            trigger: pillarsRef.current,
-            start: "top 85%",
-            end: "top 45%",
-            scrub: true,
+            trigger: sectionRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
           },
         },
       );
