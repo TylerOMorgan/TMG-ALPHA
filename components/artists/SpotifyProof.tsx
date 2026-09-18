@@ -159,12 +159,12 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     >
       <div className="relative z-10 mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={SPOTIFY_EYEBROW} tone="dark" />
-        <div className="mt-5 grid grid-cols-1 gap-6 sm:mt-6 sm:gap-8 lg:grid-cols-12 lg:items-end">
-          <h2 className="font-impact text-[9.5vw] leading-[0.98] text-trillex-paper sm:text-[8.5vw] lg:col-span-8 lg:text-[6.15vw]">
+        <div className="mt-5 flex flex-col gap-6 sm:mt-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
+          <h2 className="font-impact text-[7.5vw] leading-[0.96] tracking-tight text-trillex-paper sm:text-[6.2vw] md:text-[5vw] lg:text-[3.8vw] xl:text-[54px] 2xl:text-[68px]">
             <span className="block">MOMENTUM</span>
             <span className="block whitespace-nowrap">YOU CAN SEE.</span>
           </h2>
-          <p className="max-w-md text-sm font-light leading-relaxed text-white/60 sm:text-base lg:col-span-4">
+          <p className="max-w-md text-sm font-light leading-relaxed text-white/60 sm:text-base lg:max-w-[340px] lg:shrink-0 xl:max-w-[400px]">
             {SPOTIFY_COPY}
           </p>
         </div>
