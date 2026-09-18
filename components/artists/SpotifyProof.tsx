@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
@@ -22,71 +22,223 @@ const SpotifyLogo = () => (
   </span>
 );
 
+interface HoverPoint {
+  x: number;
+  y: number;
+  date: string;
+  streams: string;
+  total: string;
+}
+
 const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }> = ({
   lineRef,
-}) => (
-  <svg
-    viewBox="0 0 600 220"
-    preserveAspectRatio="none"
-    className="block h-32 w-full md:h-44"
-    aria-hidden="true"
-  >
-    <defs>
-      <linearGradient id="axp-chart-fill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#1DB954" stopOpacity="0.35" />
-        <stop offset="100%" stopColor="#1DB954" stopOpacity="0" />
-      </linearGradient>
-      <filter id="glow-dot" x="-50%" y="-50%" width="200%" height="200%">
-        <feGaussianBlur stdDeviation="3" result="blur" />
-        <feMerge>
-          <feMergeNode in="blur" />
-          <feMergeNode in="SourceGraphic" />
-        </feMerge>
-      </filter>
-    </defs>
-    {/* Grid lines: 4 horizontal */}
-    {[40, 85, 130, 175].map((y) => (
-      <line
-        key={y}
-        x1="0"
-        y1={y}
-        x2="600"
-        y2={y}
-        stroke="rgba(255,255,255,0.07)"
-        strokeWidth="1"
-      />
-    ))}
-    {/* Grid lines: 5 vertical */}
-    {[100, 200, 300, 400, 500].map((x) => (
-      <line
-        key={x}
-        x1={x}
-        y1="0"
-        x2={x}
-        y2="220"
-        stroke="rgba(255,255,255,0.05)"
-        strokeWidth="1"
-      />
-    ))}
-    {/* Area fill beneath curve */}
-    <path
-      d="M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25 L600,220 L0,220 Z"
-      fill="url(#axp-chart-fill)"
-    />
-    {/* Dynamic green stroke curve */}
-    <path
-      ref={lineRef}
-      id="axp-chart-line"
-      d="M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25"
-      fill="none"
-      stroke="#19D057"
-      strokeWidth="2.5"
-    />
-    {/* Glowing apex dot */}
-    <circle cx="598" cy="25" r="5" fill="#19D057" filter="url(#glow-dot)" />
-    <circle cx="598" cy="25" r="9" fill="none" stroke="#19D057" strokeWidth="1" opacity="0.6" />
-  </svg>
-);
+}) => {
+  const [hover, setHover] = useState<HoverPoint | null>(null);
+
+  const calculateHoverData = (
+    clientX: number,
+    rect: DOMRect,
+    path: SVGPathElement | null
+  ): HoverPoint => {
+    const relX = Math.max(0, Math.min(600, ((clientX - rect.left) / rect.width) * 600));
+
+    let targetY = 205;
+    if (
+      path &&
+      typeof path.getTotalLength === "function" &&
+      typeof path.getPointAtLength === "function"
+    ) {
+      try {
+        const totalLen = path.getTotalLength();
+        let low = 0;
+        let high = totalLen;
+        for (let i = 0; i < 16; i++) {
+          const mid = (low + high) / 2;
+          const pt = path.getPointAtLength(mid);
+          if (pt.x < relX) {
+            low = mid;
+          } else {
+            high = mid;
+          }
+        }
+        targetY = path.getPointAtLength((low + high) / 2).y;
+      } catch {
+        const t = relX / 600;
+        targetY = 205 - 180 * Math.pow(t, 2.2);
+      }
+    } else {
+      const t = relX / 600;
+      targetY = 205 - 180 * Math.pow(t, 2.2);
+    }
+
+    const t = Math.max(0, Math.min(1, relX / 600));
+    const dayIdx = Math.floor(t * 53);
+    const date = dayIdx < 30 ? `${dayIdx + 1} SEP` : `${dayIdx - 29} OCT`;
+    const dailyStreams = Math.round(1200 + Math.pow(t, 2.6) * 53010);
+    const streamsStr = `${dailyStreams.toLocaleString()} STREAMS/DAY`;
+    const totalStreams = (0.12 + Math.pow(t, 2.1) * 6.02).toFixed(2) + "M";
+
+    return {
+      x: relX,
+      y: targetY,
+      date,
+      streams: streamsStr,
+      total: `${totalStreams} STREAMS`,
+    };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const point = calculateHoverData(e.clientX, rect, lineRef.current);
+    setHover(point);
+  };
+
+  const handleMouseLeave = () => {
+    setHover(null);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const point = calculateHoverData(e.touches[0].clientX, rect, lineRef.current);
+    setHover(point);
+  };
+
+  return (
+    <div
+      className="relative w-full cursor-crosshair select-none"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleMouseLeave}
+      role="region"
+      aria-label="Interactive Spotify growth chart"
+    >
+      <svg
+        viewBox="0 0 600 220"
+        preserveAspectRatio="none"
+        className="block h-32 w-full md:h-44"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="axp-chart-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1DB954" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#1DB954" stopOpacity="0" />
+          </linearGradient>
+          <filter id="glow-dot" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+        {/* Grid lines: 4 horizontal */}
+        {[40, 85, 130, 175].map((y) => (
+          <line
+            key={y}
+            x1="0"
+            y1={y}
+            x2="600"
+            y2={y}
+            stroke="rgba(255,255,255,0.07)"
+            strokeWidth="1"
+          />
+        ))}
+        {/* Grid lines: 5 vertical */}
+        {[100, 200, 300, 400, 500].map((x) => (
+          <line
+            key={x}
+            x1={x}
+            y1="0"
+            x2={x}
+            y2="220"
+            stroke="rgba(255,255,255,0.05)"
+            strokeWidth="1"
+          />
+        ))}
+        {/* Area fill beneath curve */}
+        <path
+          d="M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25 L600,220 L0,220 Z"
+          fill="url(#axp-chart-fill)"
+        />
+        {/* Dynamic green stroke curve */}
+        <path
+          ref={lineRef}
+          id="axp-chart-line"
+          d="M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25"
+          fill="none"
+          stroke="#19D057"
+          strokeWidth="2.5"
+        />
+        {/* Glowing apex dot */}
+        <circle cx="598" cy="25" r="5" fill="#19D057" filter="url(#glow-dot)" />
+        <circle cx="598" cy="25" r="9" fill="none" stroke="#19D057" strokeWidth="1" opacity="0.6" />
+
+        {/* Interactive hover tracking guidelines and dot */}
+        {hover && (
+          <g className="pointer-events-none">
+            <line
+              x1={hover.x}
+              y1={0}
+              x2={hover.x}
+              y2={220}
+              stroke="#19D057"
+              strokeOpacity="0.4"
+              strokeDasharray="3 3"
+              strokeWidth="1"
+            />
+            <circle
+              cx={hover.x}
+              cy={hover.y}
+              r="5.5"
+              fill="#19D057"
+              filter="url(#glow-dot)"
+            />
+            <circle
+              cx={hover.x}
+              cy={hover.y}
+              r="10"
+              fill="none"
+              stroke="#19D057"
+              strokeWidth="1.5"
+              opacity="0.75"
+            />
+          </g>
+        )}
+      </svg>
+
+      {/* Floating Readout Tooltip */}
+      {hover && (
+        <div
+          className="pointer-events-none absolute z-30 flex flex-col gap-0.5 rounded border border-[#19D057]/40 bg-[#0B0D0B]/95 px-2.5 py-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.8)] backdrop-blur-md transition-all duration-75"
+          style={{
+            left: `${(hover.x / 600) * 100}%`,
+            top: `${(hover.y / 220) * 100}%`,
+            transform: `translate(${
+              hover.x < 90 ? "8px" : hover.x > 510 ? "calc(-100% - 8px)" : "-50%"
+            }, ${hover.y < 65 ? "16px" : "calc(-100% - 14px)"})`,
+          }}
+          role="tooltip"
+          aria-hidden="false"
+        >
+          <div className="flex items-center gap-1.5 font-mono text-[9px] font-bold tracking-[0.15em] text-[#19D057]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#19D057] shadow-[0_0_6px_#19D057]" />
+            <span>{hover.date}</span>
+          </div>
+          <div className="font-mono text-[10px] font-bold tracking-wide text-white">
+            {hover.streams}
+          </div>
+          <div className="font-mono text-[8px] tracking-[0.18em] text-white/50">
+            CUMULATIVE: {hover.total}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -160,9 +312,15 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
       <div className="relative z-10 mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={SPOTIFY_EYEBROW} tone="dark" />
         <div className="mt-5 flex flex-col gap-6 sm:mt-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
-          <h2 className="font-impact text-[7.5vw] leading-[0.96] tracking-tight text-trillex-paper sm:text-[6.2vw] md:text-[5vw] lg:text-[3.8vw] xl:text-[54px] 2xl:text-[68px]">
-            <span className="block">MOMENTUM</span>
-            <span className="block whitespace-nowrap">YOU CAN SEE.</span>
+          <h2
+            aria-label="MOMENTUM YOU CAN SEE."
+            className="font-impact text-[7.5vw] leading-[0.96] tracking-tight text-trillex-paper sm:text-[6.2vw] md:text-[5vw] lg:text-[3.8vw] xl:text-[54px] 2xl:text-[68px]"
+          >
+            <span className="sr-only">MOMENTUM YOU CAN SEE.</span>
+            <span aria-hidden="true">
+              <span className="block">MOMENTUM</span>
+              <span className="block whitespace-nowrap">YOU CAN SEE.</span>
+            </span>
           </h2>
           <p className="max-w-md text-sm font-light leading-relaxed text-white/60 sm:text-base lg:max-w-[340px] lg:shrink-0 xl:max-w-[400px]">
             {SPOTIFY_COPY}

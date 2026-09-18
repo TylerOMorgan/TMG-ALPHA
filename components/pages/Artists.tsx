@@ -6,6 +6,7 @@ import SoundIdProof from "../artists/SoundIdProof";
 import RecordsRail from "../artists/RecordsRail";
 import WorkWithUs from "../artists/WorkWithUs";
 import DemoCTA from "../artists/DemoCTA";
+import { FLOATING_BADGE } from "../../utils/artistsExperienceData";
 
 const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -60,6 +61,20 @@ const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
           style={{ height: `${scrollProgress * 100}%` }}
           aria-hidden="true"
         />
+      )}
+
+      {/* Fixed Bottom-Right Motion Concept Pill */}
+      {isActive && (
+        <div
+          className="fixed bottom-4 right-4 z-40 hidden items-center gap-2 rounded border border-white/20 bg-black/85 px-3 py-1.5 backdrop-blur-sm pointer-events-none select-none md:flex"
+          role="status"
+          aria-label={FLOATING_BADGE}
+        >
+          <span className="h-1.5 w-1.5 rounded-full bg-trillex-signal" />
+          <span className="font-mono text-[9px] tracking-[0.2em] text-white/70 uppercase">
+            {FLOATING_BADGE}
+          </span>
+        </div>
       )}
 
       {/* Main Page Sections */}

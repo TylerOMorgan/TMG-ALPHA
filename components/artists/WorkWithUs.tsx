@@ -51,11 +51,17 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
     >
       <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={WORK_EYEBROW} tone="onSignal" />
-        <h2 className="mt-6 font-impact text-[9.5vw] leading-[1.0] text-[#2B1704] sm:mt-8 sm:text-[8vw] md:text-[6.15vw] lg:text-[4.8vw] xl:text-[76px] 2xl:text-[90px]">
-          <span className="block">MOVE FAST.</span>
-          <span className="block">COMMUNICATE</span>
-          <span className="block">CLEARLY. BUILD THE</span>
-          <span className="block">RECORD TOGETHER.</span>
+        <h2
+          aria-label="MOVE FAST. COMMUNICATE CLEARLY. BUILD THE RECORD TOGETHER."
+          className="mt-6 font-impact text-[9.5vw] leading-[1.0] text-[#2B1704] sm:mt-8 sm:text-[8vw] md:text-[6.15vw] lg:text-[4.8vw] xl:text-[76px] 2xl:text-[90px]"
+        >
+          <span className="sr-only">MOVE FAST. COMMUNICATE CLEARLY. BUILD THE RECORD TOGETHER.</span>
+          <span aria-hidden="true">
+            <span className="block">MOVE FAST.</span>
+            <span className="block">COMMUNICATE</span>
+            <span className="block">CLEARLY. BUILD THE</span>
+            <span className="block">RECORD TOGETHER.</span>
+          </span>
         </h2>
 
         <div
