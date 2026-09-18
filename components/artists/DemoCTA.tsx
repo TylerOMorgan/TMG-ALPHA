@@ -68,7 +68,7 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
         <div className="mt-9">
           <Eyebrow text={CTA_EYEBROW} tone="light" align="center" />
         </div>
-        <h2 className="mt-6 font-impact text-[10vw] leading-[1.0] text-[#2B2B28] sm:mt-7 sm:text-[9vw] md:text-[7.1vw]">
+        <h2 className="mt-6 font-impact text-[10vw] leading-[1.0] text-[#2B2B28] sm:mt-7 sm:text-[9vw] md:text-[7.1vw] lg:text-[5.5vw] xl:text-[84px] 2xl:text-[100px]">
           <span className="block">YOUR RECORD</span>
           <span className="block">COULD BE NEXT.</span>
         </h2>

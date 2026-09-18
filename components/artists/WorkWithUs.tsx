@@ -25,17 +25,17 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
       if (!items || !items.length) return;
       gsap.fromTo(
         items,
-        { y: 30, opacity: 0 },
+        { y: 35, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          duration: 0.5,
+          ease: "none",
           stagger: 0.08,
-          ease: "power2.out",
           scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-            toggleActions: "play none none reverse",
+            trigger: pillarsRef.current,
+            start: "top bottom",
+            end: "top 76%",
+            scrub: true,
           },
         },
       );
@@ -51,7 +51,7 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
     >
       <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={WORK_EYEBROW} tone="onSignal" />
-        <h2 className="mt-6 font-impact text-[9.5vw] leading-[1.0] text-[#2B1704] sm:mt-8 sm:text-[8vw] md:text-[6.15vw]">
+        <h2 className="mt-6 font-impact text-[9.5vw] leading-[1.0] text-[#2B1704] sm:mt-8 sm:text-[8vw] md:text-[6.15vw] lg:text-[4.8vw] xl:text-[76px] 2xl:text-[90px]">
           <span className="block">MOVE FAST.</span>
           <span className="block">COMMUNICATE</span>
           <span className="block">CLEARLY. BUILD THE</span>
