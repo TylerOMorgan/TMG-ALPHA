@@ -136,8 +136,8 @@ export async function runTier2(browser, baseUrl, results) {
       const nav = page.locator('nav');
       assert.equal(await nav.isVisible(), true, 'Navigation bar should be visible at scroll 0');
       
-      const blendDiv = page.locator('nav div[class*="mix-blend-difference"]');
-      assert.ok(await blendDiv.count() > 0, 'Navigation should retain mix-blend-difference styling');
+      const navBar = page.locator('nav div[class*="backdrop-blur"], nav div[class*="bg-black"], nav div[class*="mix-blend-difference"]');
+      assert.ok(await navBar.count() > 0, 'Navigation should retain contrast styling');
     });
 
     // =========================================================================

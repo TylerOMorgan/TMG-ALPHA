@@ -31,9 +31,6 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 pointer-events-none transition-colors duration-300">
-      {/* Hidden helper element ensuring tier2 E2E test T2.2.5 passes */}
-      <div className="hidden mix-blend-difference" aria-hidden="true" />
-
       {/* Navbar Background: Retaining Shadow 1 behind navbar, removing downward gradient bleed (Shadow 2) */}
       <div
         className="absolute inset-0 bg-black/90 backdrop-blur-md shadow-md z-0 pointer-events-none"
