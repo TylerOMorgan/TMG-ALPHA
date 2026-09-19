@@ -51,7 +51,9 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
         {/* Nav Links - Right */}
         <div className="pointer-events-auto flex items-center gap-3 sm:gap-5 md:gap-7 lg:gap-8 whitespace-nowrap">
           {navLinks.map((item) => {
-            const isActive = activePage === item.id;
+            const isActive =
+              activePage === item.id ||
+              (item.id === "artists" && activePage === "artist2");
             return (
               <a
                 key={item.name}

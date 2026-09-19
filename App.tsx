@@ -9,6 +9,7 @@ import Home from "./components/pages/Home";
 // (62KB form) download only when first visited — keeps initial JS small
 const About = lazy(() => import("./components/pages/About"));
 const Artists = lazy(() => import("./components/pages/Artists"));
+const Artist2 = lazy(() => import("./components/pages/Artist2"));
 const Contact = lazy(() => import("./components/pages/Contact"));
 
 gsap.registerPlugin(ScrollTrigger);
@@ -36,6 +37,9 @@ const getPageFromHash = (): string => {
   }
   if (hash === "about") {
     return "about";
+  }
+  if (["artist2", "artists2"].includes(hash)) {
+    return "artist2";
   }
   if (["artists", "artist", "roster"].includes(hash)) {
     return "artists";
@@ -82,6 +86,8 @@ const App: React.FC = () => {
           window.history.pushState(null, "", "#about");
         } else if (customEvent.detail.page === "artists") {
           window.history.pushState(null, "", "#artists");
+        } else if (customEvent.detail.page === "artist2") {
+          window.history.pushState(null, "", "#artist2");
         } else if (customEvent.detail.page === "contact") {
           if (!window.location.hash.includes("demo")) {
             window.history.pushState(null, "", "#general-inquiry");
@@ -350,6 +356,12 @@ const App: React.FC = () => {
               style={{ display: activePage === "artists" ? "block" : "none" }}
             >
               <Artists isActive={activePage === "artists"} />
+            </div>
+            {/* Artist 2 (Original page before revisions) */}
+            <div
+              style={{ display: activePage === "artist2" ? "block" : "none" }}
+            >
+              <Artist2 isActive={activePage === "artist2"} />
             </div>
             {/* Contact */}
             <div
