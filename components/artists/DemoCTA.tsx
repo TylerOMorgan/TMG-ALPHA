@@ -21,6 +21,7 @@ interface SectionProps {
 const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isActive) return;
@@ -28,19 +29,37 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
         contentRef.current,
-        { y: 60, opacity: 0 },
+        { y: 50, opacity: 0 },
         {
           y: 0,
           opacity: 1,
-          ease: "none",
+          ease: "power2.out",
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top 75%",
             end: "top 35%",
-            scrub: true,
+            scrub: 1,
           },
         },
       );
+
+      if (glowRef.current) {
+        gsap.fromTo(
+          glowRef.current,
+          { scale: 0.8, opacity: 0.3 },
+          {
+            scale: 1.15,
+            opacity: 0.7,
+            ease: "none",
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1,
+            },
+          },
+        );
+      }
     }, sectionRef);
     return () => ctx.revert();
   }, [isActive]);
@@ -57,43 +76,73 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
   return (
     <section
       ref={sectionRef}
-      data-nav-theme="light"
-      className="relative flex min-h-screen w-full flex-col justify-between bg-[#EBE7DD] pt-20 pb-4 text-center text-trillex-ink sm:pt-24 sm:pb-5 md:pt-28 md:pb-6"
+      data-nav-theme="dark"
+      className="relative flex min-h-[90vh] w-full flex-col justify-between overflow-hidden bg-gradient-to-b from-[#050505] via-[#090A09] to-[#040404] pt-24 pb-8 text-center text-white sm:pt-28 sm:pb-10 md:pt-36 md:pb-12"
     >
+      {/* Soft atmospheric ambient glow transitioning seamlessly into dark */}
+      <div
+        ref={glowRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] sm:h-[700px] sm:w-[700px] rounded-full bg-gradient-to-tr from-[#E58A1E]/12 via-[#FF7F50]/10 to-transparent blur-[120px] will-change-transform"
+      />
+
+      {/* Decorative subtle grid background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-40"
+      />
+
       <div
         ref={contentRef}
-        className="mx-auto my-auto flex w-full max-w-[1300px] flex-1 flex-col items-center justify-center px-5 py-2 will-change-transform sm:py-4 md:px-10"
+        className="relative z-10 mx-auto my-auto flex w-full max-w-[1300px] flex-1 flex-col items-center justify-center px-5 py-6 will-change-transform sm:py-8 md:px-10"
       >
-        <Logo className="h-8 w-auto text-[#333330] sm:h-9 md:h-11" />
-        <div className="mt-4 sm:mt-5 md:mt-6">
-          <Eyebrow text={CTA_EYEBROW} tone="light" align="center" />
+        <div className="flex items-center justify-center">
+          <Logo className="h-9 w-auto text-white sm:h-11 md:h-13 transition-transform duration-500 hover:scale-105" />
         </div>
+
+        <div className="mt-6 sm:mt-8">
+          <Eyebrow text={CTA_EYEBROW} tone="dark" align="center" />
+        </div>
+
         <h2
           aria-label="YOUR RECORD COULD BE NEXT."
-          className="mt-4 font-impact text-[10vw] leading-[1.0] text-[#2B2B28] sm:mt-5 sm:text-[8.5vw] md:text-[6.5vw] lg:text-[5.2vw] xl:text-[82px] 2xl:text-[98px]"
+          className="mt-5 font-impact text-[11vw] leading-[0.95] tracking-tight text-trillex-paper sm:mt-6 sm:text-[9vw] md:text-[7vw] lg:text-[5.5vw] xl:text-[88px] 2xl:text-[104px]"
         >
-          <span className="sr-only">YOUR RECORD COULD BE NEXT.</span>
+          <span className="sr-only">{CTA_TITLE}</span>
           <span aria-hidden="true">
             <span className="block">YOUR RECORD</span>
-            <span className="block">COULD BE NEXT.</span>
+            <span className="block text-white">COULD BE NEXT.</span>
           </span>
         </h2>
-        <p className="mt-3.5 max-w-xl text-xs font-light leading-relaxed text-trillex-ink/70 sm:mt-5 sm:text-sm md:text-[15px]">
+
+        <p className="mt-4 max-w-xl text-sm font-light leading-relaxed text-white/70 sm:mt-6 sm:text-base md:text-lg">
           {CTA_COPY}
         </p>
-        <a
-          href="#demo-submission"
-          onClick={handleDemo}
-          data-hoverable="true"
-          className="mt-6 inline-block w-full max-w-xs sm:max-w-none sm:w-auto bg-[#3C3A36] px-8 py-3.5 font-mono text-[11px] font-bold tracking-[0.22em] text-white transition-all duration-300 hover:bg-black hover:scale-[1.02] shadow-sm sm:mt-8 sm:px-11 sm:py-[17px] sm:tracking-[0.25em]"
-        >
-          {CTA_BUTTON}
-        </a>
+
+        {/* Clear, high-contrast prominent Call to Action Button */}
+        <div className="mt-8 sm:mt-10 md:mt-12 flex flex-col items-center gap-3">
+          <a
+            href="#demo-submission"
+            onClick={handleDemo}
+            data-hoverable="true"
+            className="group relative inline-flex w-full max-w-xs sm:max-w-none sm:w-auto items-center justify-center gap-3 bg-[#E58A1E] px-8 py-4 font-mono text-[12px] font-bold uppercase tracking-[0.22em] text-black shadow-[0_0_30px_rgba(229,138,30,0.4)] transition-all duration-300 hover:bg-[#FF9626] hover:shadow-[0_0_50px_rgba(229,138,30,0.7)] hover:scale-105 active:scale-98 sm:px-14 sm:py-5 sm:text-[13px] sm:tracking-[0.24em]"
+          >
+            <span>{CTA_BUTTON}</span>
+            <span className="transition-transform duration-300 group-hover:translate-x-1">
+              &rarr;
+            </span>
+          </a>
+          <span className="font-mono text-[8.5px] uppercase tracking-[0.2em] text-white/40">
+            A&amp;R TEAM REVIEWS EVERY SUBMISSION
+          </span>
+        </div>
       </div>
 
-      <div className="mx-auto w-full max-w-[1840px] border-t border-trillex-ink/15 px-4 py-4 font-mono text-[8.5px] tracking-[0.18em] text-trillex-ink/50 sm:flex sm:items-center sm:justify-between sm:px-6 sm:text-[9px] sm:tracking-[0.2em] md:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-[1840px] border-t border-white/10 px-4 py-6 font-mono text-[8.5px] tracking-[0.18em] text-white/45 sm:flex sm:items-center sm:justify-between sm:px-6 sm:text-[9.5px] sm:tracking-[0.2em] md:px-10">
         <span className="block text-center sm:text-left">{CTA_FOOTER_LEFT}</span>
-        <span className="mt-2 block text-center sm:mt-0 sm:text-right">{CTA_FOOTER_RIGHT}</span>
+        <span className="mt-2 block text-center sm:mt-0 sm:text-right">
+          {CTA_FOOTER_RIGHT}
+        </span>
       </div>
     </section>
   );

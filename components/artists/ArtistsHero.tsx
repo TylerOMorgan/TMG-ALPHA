@@ -5,8 +5,6 @@ import Eyebrow from "./Eyebrow";
 import {
   HERO_EYEBROW,
   HERO_TITLE,
-  HERO_COPY_HEAD,
-  HERO_COPY_TAIL,
   HERO_STATS,
   EXPLORE_ARTISTS,
   EXPLORE_ROW_2,
@@ -18,20 +16,35 @@ interface SectionProps {
   isActive?: boolean;
 }
 
-const SpotifyBadge: React.FC = () => (
-  <span className="absolute bottom-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/25 bg-black/45 backdrop-blur-sm">
-    <svg viewBox="0 0 24 24" fill="white" className="h-3 w-3 opacity-90">
+const SpotifyButton: React.FC<{ url?: string; name: string }> = ({
+  url,
+  name,
+}) => (
+  <a
+    href={url || "https://open.spotify.com"}
+    target="_blank"
+    rel="noopener noreferrer"
+    onClick={(e) => e.stopPropagation()}
+    aria-label={`Listen to ${name} on Spotify`}
+    className="absolute bottom-2.5 right-2.5 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/20 bg-black/60 shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#1DB954] hover:bg-[#1DB954]/25 hover:shadow-[0_0_16px_rgba(29,185,84,0.6)] active:scale-95 group/btn z-10"
+  >
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white transition-colors duration-300 group-hover/btn:text-[#1DB954]"
+    >
       <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.306c-.216.353-.674.467-1.027.25-2.822-1.724-6.376-2.115-10.562-1.158-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.588-1.047 8.528-.601 11.678 1.34.353.216.467.674.25 1.027zm1.472-3.273c-.272.443-.853.582-1.296.31-3.23-1.986-8.156-2.56-11.977-1.4-.35.105-.72-.09-.825-.44-.105-.35.09-.72.44-.825 4.38-1.33 9.805-.688 13.511 1.588.443.272.582.853.31 1.296zm.129-3.41c-3.874-2.3-10.274-2.513-13.99-1.385-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 4.267-1.295 11.328-1.047 15.795 1.604.372.221.493.704.272 1.076-.221.372-.704.493-1.076.272z" />
     </svg>
-  </span>
+  </a>
 );
 
 const ArtistCell: React.FC<{
   name: string;
   image: string;
+  spotifyUrl?: string;
   objectPosition?: string;
-}> = ({ name, image, objectPosition = "center center" }) => (
-  <div className="group relative w-[220px] sm:w-[260px] md:w-[320px] lg:w-[360px] shrink-0 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30">
+}> = ({ name, image, spotifyUrl, objectPosition = "center center" }) => (
+  <div className="group relative w-[220px] sm:w-[260px] md:w-[320px] lg:w-[360px] shrink-0 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30 select-none">
     <img
       src={image}
       alt={name}
@@ -40,11 +53,11 @@ const ArtistCell: React.FC<{
       style={{ objectPosition }}
       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
     />
-    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-    <span className="absolute bottom-3 left-3.5 font-impact text-sm tracking-wide text-white sm:text-base md:text-lg">
+    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+    <span className="absolute bottom-2.5 left-3 sm:bottom-3 sm:left-3.5 font-impact text-sm tracking-wide text-white sm:text-base md:text-lg pointer-events-none pr-11 sm:pr-12 truncate max-w-[85%]">
       {name}
     </span>
-    <SpotifyBadge />
+    <SpotifyButton url={spotifyUrl} name={name} />
   </div>
 );
 
@@ -55,8 +68,9 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
   const row1Ref = useRef<HTMLDivElement>(null);
   const row2Ref = useRef<HTMLDivElement>(null);
 
-  // Triple items for seamless scroll-driven marquee across any screen resolution
+  // Quadruple items to ensure seamless infinite auto-scroll across any resolution
   const row1Items = [
+    ...EXPLORE_ARTISTS,
     ...EXPLORE_ARTISTS,
     ...EXPLORE_ARTISTS,
     ...EXPLORE_ARTISTS,
@@ -65,18 +79,16 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     ...EXPLORE_ROW_2,
     ...EXPLORE_ROW_2,
     ...EXPLORE_ROW_2,
+    ...EXPLORE_ROW_2,
   ];
 
   useEffect(() => {
     if (!isActive) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const ctx = gsap.context(() => {
       const isMobile = window.innerWidth < 768;
-      const r1Travel = isMobile ? -180 : -320;
-      const r2Travel = isMobile ? 180 : 320;
-      const r1Start = isMobile ? 0 : -30;
-      const r2Start = isMobile ? -60 : -120;
 
+      // Subtle parallax on the ARTISTS title
       gsap.to(titleRef.current, {
         yPercent: isMobile ? 8 : 14,
         ease: "none",
@@ -88,42 +100,49 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
         },
       });
 
-      // Row 1 marquee scrub (moves left as user scrolls down)
-      if (row1Ref.current) {
-        gsap.fromTo(
-          row1Ref.current,
-          { x: r1Start },
-          {
-            x: r1Start + r1Travel,
-            ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: "bottom top",
-              scrub: 1,
-            },
-          },
-        );
-      }
+      // Continuous bidirectional marquee animations
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        // Row 1 moves smoothly right-to-left
+        const tween1 = gsap.to(row1Ref.current, {
+          xPercent: -50,
+          duration: isMobile ? 26 : 38,
+          ease: "none",
+          repeat: -1,
+        });
 
-      // Row 2 marquee scrub (starts slightly offset left, moves right as user scrolls down)
-      if (row2Ref.current) {
-        gsap.fromTo(
+        // Row 2 moves smoothly left-to-right (opposite direction)
+        const tween2 = gsap.fromTo(
           row2Ref.current,
-          { x: r2Start },
+          { xPercent: -50 },
           {
-            x: r2Start + r2Travel,
+            xPercent: 0,
+            duration: isMobile ? 28 : 40,
             ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top top",
-              end: "bottom top",
-              scrub: 1,
-            },
+            repeat: -1,
           },
         );
+
+        // Pause on hover with smooth deceleration
+        const container = marqueeRef.current;
+        if (container) {
+          const onEnter = () => {
+            gsap.to([tween1, tween2], { timeScale: 0, duration: 0.35 });
+          };
+          const onLeave = () => {
+            gsap.to([tween1, tween2], { timeScale: 1, duration: 0.35 });
+          };
+
+          container.addEventListener("mouseenter", onEnter);
+          container.addEventListener("mouseleave", onLeave);
+
+          return () => {
+            container.removeEventListener("mouseenter", onEnter);
+            container.removeEventListener("mouseleave", onLeave);
+          };
+        }
       }
     }, sectionRef);
+
     return () => ctx.revert();
   }, [isActive]);
 
@@ -143,14 +162,6 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
           >
             {HERO_TITLE}
           </h1>
-          <div className="max-w-md pb-1 text-left lg:max-w-[340px] lg:pb-3 lg:shrink-0 xl:max-w-[380px]">
-            <p className="text-sm font-bold leading-snug text-white sm:text-base md:text-lg">
-              {HERO_COPY_HEAD}
-            </p>
-            <p className="mt-1 text-sm font-light leading-snug text-white/60 sm:text-base md:text-lg">
-              {HERO_COPY_TAIL}
-            </p>
-          </div>
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-y-6 border-y border-white/15 py-6 sm:mt-10 sm:py-7 md:mt-12 md:grid-cols-4">
@@ -176,35 +187,36 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
         <div className="mt-12 sm:mt-16 md:mt-24">
           <div className="mb-3.5 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
             <span>EXPLORE ARTISTS</span>
-            <span>TWO WORLDS &bull; ONE GROUP</span>
           </div>
 
           <div
             ref={marqueeRef}
-            className="-mx-4 overflow-hidden space-y-2.5 will-change-transform sm:-mx-6 md:-mx-10 md:space-y-3.5"
+            className="-mx-4 overflow-hidden space-y-2.5 will-change-transform sm:-mx-6 md:-mx-10 md:space-y-3.5 cursor-grab active:cursor-grabbing"
           >
             <div
               ref={row1Ref}
-              className="flex gap-2.5 will-change-transform md:gap-3.5"
+              className="flex w-fit gap-2.5 will-change-transform md:gap-3.5"
             >
               {row1Items.map((a, idx) => (
                 <ArtistCell
                   key={`${a.id}-r1-${idx}`}
                   name={a.name}
                   image={a.image}
+                  spotifyUrl={a.spotifyUrl}
                   objectPosition={a.objectPosition}
                 />
               ))}
             </div>
             <div
               ref={row2Ref}
-              className="flex gap-2.5 will-change-transform md:gap-3.5"
+              className="flex w-fit gap-2.5 will-change-transform md:gap-3.5"
             >
               {row2Items.map((a, idx) => (
                 <ArtistCell
                   key={`${a.id}-r2-${idx}`}
                   name={a.name}
                   image={a.image}
+                  spotifyUrl={a.spotifyUrl}
                   objectPosition={a.objectPosition}
                 />
               ))}

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ArtistsHero from "../artists/ArtistsHero";
-import LanesManifesto from "../artists/LanesManifesto";
 import SpotifyProof from "../artists/SpotifyProof";
 import SoundIdProof from "../artists/SoundIdProof";
-import RecordsRail from "../artists/RecordsRail";
-import WorkWithUs from "../artists/WorkWithUs";
 import DemoCTA from "../artists/DemoCTA";
 
 const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
@@ -42,7 +39,7 @@ const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   }, [isActive]);
 
   return (
-    <div className="relative min-h-screen bg-trillex-black">
+    <div className="relative min-h-screen bg-trillex-black overflow-x-hidden">
       {/* Active orange underline style for ARTISTS nav link */}
       {isActive && (
         <style>{`
@@ -62,14 +59,10 @@ const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
         />
       )}
 
-
       {/* Main Page Sections */}
       <ArtistsHero isActive={isActive} />
-      <LanesManifesto isActive={isActive} />
       <SpotifyProof isActive={isActive} />
       <SoundIdProof isActive={isActive} />
-      <RecordsRail isActive={isActive} />
-      <WorkWithUs isActive={isActive} />
       <DemoCTA isActive={isActive} />
     </div>
   );

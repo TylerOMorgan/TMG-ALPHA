@@ -5,7 +5,8 @@ import Eyebrow from "./Eyebrow";
 import {
   SPOTIFY_EYEBROW,
   SPOTIFY_COPY,
-  SPOTIFY_CALLOUT,
+  SPOTIFY_PROOF_RECORDS,
+  SelectableProofRecord,
 } from "../../utils/artistsExperienceData";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -30,19 +31,23 @@ interface HoverPoint {
   total: string;
 }
 
-const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }> = ({
-  lineRef,
-}) => {
+const DynamicGrowthChart: React.FC<{
+  record: SelectableProofRecord;
+  lineRef: React.RefObject<SVGPathElement | null>;
+}> = ({ record, lineRef }) => {
   const [hover, setHover] = useState<HoverPoint | null>(null);
 
   const calculateHoverData = (
     clientX: number,
     rect: DOMRect,
-    path: SVGPathElement | null
+    path: SVGPathElement | null,
   ): HoverPoint => {
-    const relX = Math.max(0, Math.min(600, ((clientX - rect.left) / rect.width) * 600));
+    const relX = Math.max(
+      0,
+      Math.min(600, ((clientX - rect.left) / rect.width) * 600),
+    );
 
-    let targetY = 205;
+    let targetY = 190;
     if (
       path &&
       typeof path.getTotalLength === "function" &&
@@ -64,24 +69,31 @@ const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }>
         targetY = path.getPointAtLength((low + high) / 2).y;
       } catch {
         const t = relX / 600;
-        targetY = 205 - 180 * Math.pow(t, 2.2);
+        targetY = 205 - (205 - record.apexY) * Math.pow(t, 2.2);
       }
     } else {
       const t = relX / 600;
-      targetY = 205 - 180 * Math.pow(t, 2.2);
+      targetY = 205 - (205 - record.apexY) * Math.pow(t, 2.2);
     }
 
     const t = Math.max(0, Math.min(1, relX / 600));
-    const dayIdx = Math.floor(t * 53);
-    const date = dayIdx < 30 ? `${dayIdx + 1} SEP` : `${dayIdx - 29} OCT`;
-    const dailyStreams = Math.round(1200 + Math.pow(t, 2.6) * 53010);
+    const dayIdx = Math.floor(t * 50);
+    const dateLabel =
+      dayIdx < 25 ? `${record.startDate} +${dayIdx}D` : `${record.endDate}`;
+    const dailyStreams = Math.round(
+      1500 + Math.pow(t, 2.4) * (record.peakDaily - 1500),
+    );
     const streamsStr = `${dailyStreams.toLocaleString()} STREAMS/DAY`;
-    const totalStreams = (0.12 + Math.pow(t, 2.1) * 6.02).toFixed(2) + "M";
+    const totalStreams =
+      (
+        record.cumulativeBase +
+        Math.pow(t, 2.1) * (record.cumulativePeak - record.cumulativeBase)
+      ).toFixed(2) + "M";
 
     return {
       x: relX,
       y: targetY,
-      date,
+      date: dateLabel,
       streams: streamsStr,
       total: `${totalStreams} STREAMS`,
     };
@@ -102,15 +114,20 @@ const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }>
     if (e.touches.length === 0) return;
     const rect = e.currentTarget.getBoundingClientRect();
     if (rect.width <= 0) return;
-    const point = calculateHoverData(e.touches[0].clientX, rect, lineRef.current);
+    const point = calculateHoverData(
+      e.touches[0].clientX,
+      rect,
+      lineRef.current,
+    );
     setHover(point);
   };
 
   return (
     <div
-      className="relative w-full cursor-crosshair select-none"
+      className="relative w-full cursor-crosshair select-none touch-pan-x"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchMove}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleMouseLeave}
       role="region"
@@ -119,13 +136,13 @@ const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }>
       <svg
         viewBox="0 0 600 220"
         preserveAspectRatio="none"
-        className="block h-32 w-full md:h-44"
+        className="block h-32 w-full sm:h-44 md:h-52"
         aria-hidden="true"
       >
         <defs>
           <linearGradient id="axp-chart-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1DB954" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#1DB954" stopOpacity="0" />
+            <stop offset="0%" stopColor="#1DB954" stopOpacity="0.38" />
+            <stop offset="100%" stopColor="#1DB954" stopOpacity="0.01" />
           </linearGradient>
           <filter id="glow-dot" x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="3" result="blur" />
@@ -135,7 +152,8 @@ const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }>
             </feMerge>
           </filter>
         </defs>
-        {/* Grid lines: 4 horizontal */}
+
+        {/* Horizontal grid lines */}
         {[40, 85, 130, 175].map((y) => (
           <line
             key={y}
@@ -147,7 +165,8 @@ const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }>
             strokeWidth="1"
           />
         ))}
-        {/* Grid lines: 5 vertical */}
+
+        {/* Vertical grid lines */}
         {[100, 200, 300, 400, 500].map((x) => (
           <line
             key={x}
@@ -159,23 +178,44 @@ const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }>
             strokeWidth="1"
           />
         ))}
+
         {/* Area fill beneath curve */}
         <path
-          d="M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25 L600,220 L0,220 Z"
+          d={record.fillData}
           fill="url(#axp-chart-fill)"
+          className="transition-all duration-500 ease-out"
         />
-        {/* Dynamic green stroke curve */}
+
+        {/* Green stroke curve */}
         <path
           ref={lineRef}
           id="axp-chart-line"
-          d="M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25"
+          d={record.pathData}
           fill="none"
           stroke="#19D057"
           strokeWidth="2.5"
+          className="transition-all duration-500 ease-out"
         />
-        {/* Glowing apex dot */}
-        <circle cx="598" cy="25" r="5" fill="#19D057" filter="url(#glow-dot)" />
-        <circle cx="598" cy="25" r="9" fill="none" stroke="#19D057" strokeWidth="1" opacity="0.6" />
+
+        {/* Apex glowing dot */}
+        <circle
+          cx={record.apexX}
+          cy={record.apexY}
+          r="5"
+          fill="#19D057"
+          filter="url(#glow-dot)"
+          className="transition-all duration-500 ease-out"
+        />
+        <circle
+          cx={record.apexX}
+          cy={record.apexY}
+          r="9"
+          fill="none"
+          stroke="#19D057"
+          strokeWidth="1"
+          opacity="0.6"
+          className="transition-all duration-500 ease-out"
+        />
 
         {/* Interactive hover tracking guidelines and dot */}
         {hover && (
@@ -218,7 +258,11 @@ const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }>
             left: `${(hover.x / 600) * 100}%`,
             top: `${(hover.y / 220) * 100}%`,
             transform: `translate(${
-              hover.x < 90 ? "8px" : hover.x > 510 ? "calc(-100% - 8px)" : "-50%"
+              hover.x < 90
+                ? "8px"
+                : hover.x > 510
+                  ? "calc(-100% - 8px)"
+                  : "-50%"
             }, ${hover.y < 65 ? "16px" : "calc(-100% - 14px)"})`,
           }}
           role="tooltip"
@@ -242,46 +286,20 @@ const GrowthChart: React.FC<{ lineRef: React.RefObject<SVGPathElement | null> }>
 
 const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
-  const fanRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<SVGPathElement>(null);
+  const [selectedId, setSelectedId] = useState<string>(
+    SPOTIFY_PROOF_RECORDS[0].id,
+  );
+
+  const activeRecord =
+    SPOTIFY_PROOF_RECORDS.find((r) => r.id === selectedId) ||
+    SPOTIFY_PROOF_RECORDS[0];
 
   useEffect(() => {
     if (!isActive) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const ctx = gsap.context(() => {
-      const cards = fanRef.current?.children;
-      if (!cards || cards.length < 3) return;
-      const isMobile = window.innerWidth < 768;
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 80%",
-          end: "center 35%",
-          scrub: true,
-        },
-      });
-      // cards[0]: Left background card (ARTIST ()
-      tl.fromTo(
-        cards[0],
-        { y: isMobile ? 160 : 220, rotation: -7, x: -20 },
-        { y: isMobile ? 80 : 120, rotation: -4, x: isMobile ? -45 : -110, ease: "none" },
-        0,
-      );
-      // cards[1]: Right background card (GROWTH 02)
-      tl.fromTo(
-        cards[1],
-        { y: isMobile ? 140 : 190, rotation: 5, x: 20 },
-        { y: isMobile ? 50 : 60, rotation: 2.5, x: isMobile ? 45 : 90, ease: "none" },
-        0,
-      );
-      // cards[2]: Center foreground card (MIMIMI HARDTEKK)
-      tl.fromTo(
-        cards[2],
-        { y: isMobile ? 80 : 120, scale: 0.96 },
-        { y: 0, scale: 1, ease: "none" },
-        0,
-      );
 
+    const ctx = gsap.context(() => {
       if (lineRef.current) {
         const len = lineRef.current.getTotalLength();
         gsap.fromTo(
@@ -289,25 +307,27 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
           { strokeDasharray: len, strokeDashoffset: len },
           {
             strokeDashoffset: 0,
-            ease: "none",
+            duration: 1.2,
+            ease: "power2.out",
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top 70%",
               end: "center 40%",
-              scrub: true,
+              scrub: 1,
             },
           },
         );
       }
     }, sectionRef);
+
     return () => ctx.revert();
-  }, [isActive]);
+  }, [isActive, selectedId]);
 
   return (
     <section
       ref={sectionRef}
       data-nav-theme="dark"
-      className="relative w-full overflow-hidden bg-trillex-black pb-24 pt-24 sm:pb-28 sm:pt-28 md:pb-40 md:pt-36 lg:pt-40"
+      className="relative w-full overflow-hidden bg-trillex-black pb-20 pt-20 sm:pb-24 sm:pt-24 md:pb-32 md:pt-28 lg:pt-32"
     >
       <div className="relative z-10 mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={SPOTIFY_EYEBROW} tone="dark" />
@@ -326,110 +346,183 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
             {SPOTIFY_COPY}
           </p>
         </div>
-      </div>
 
-      <div className="relative mx-auto mt-10 max-w-[1600px] px-4 sm:mt-14 sm:px-6 md:mt-20 md:px-10">
-        <div
-          ref={fanRef}
-          className="relative mx-auto min-h-[420px] w-full max-w-[980px] will-change-transform sm:min-h-[480px] md:min-h-[540px]"
-        >
-          {/* Back Left Card: ARTIST ( */}
-          <div className="absolute inset-x-[2%] top-0 z-0 rounded-xl border border-white/10 bg-[#0B0D0B]/95 p-4 will-change-transform sm:inset-x-[4%] sm:p-5 md:p-6">
-            <div className="flex items-center justify-between font-mono text-[9px] tracking-[0.18em] text-white/50 sm:text-[10px] sm:tracking-[0.2em]">
-              <span className="flex items-center gap-2">
-                <SpotifyLogo /> SPOTIFY FOR ARTISTS
-              </span>
-            </div>
-            <div className="mt-5 font-impact text-xl text-white/70 sm:mt-7 sm:text-2xl md:text-3xl">
-              ARTIST (
-            </div>
-            {/* SVG curve for Left background card */}
-            <div className="mt-3 h-20 overflow-hidden sm:mt-4 sm:h-24 md:h-28">
-              <svg viewBox="0 0 400 120" preserveAspectRatio="none" className="h-full w-full opacity-60">
-                <defs>
-                  <linearGradient id="bg-chart-left" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1DB954" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#1DB954" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path d="M0,110 C80,105 140,95 200,80 C260,60 320,30 400,15 L400,120 L0,120 Z" fill="url(#bg-chart-left)" />
-                <path d="M0,110 C80,105 140,95 200,80 C260,60 320,30 400,15" fill="none" stroke="#1DB954" strokeWidth="2" />
-              </svg>
-            </div>
+        {/* Selectable Records / Artists Navigation Strip */}
+        <div className="mt-10 sm:mt-12 md:mt-14">
+          <div className="mb-3 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
+            <span>SELECT RECORD FOR PROOF VERIFICATION</span>
+            <span className="hidden sm:inline">SPOTIFY ANALYTICS API</span>
           </div>
 
-          {/* Back Right Card: GROWTH 02 */}
-          <div className="absolute inset-x-[2%] top-0 z-10 ml-auto w-[90%] rounded-xl border border-white/10 bg-[#0B0D0B]/95 p-4 will-change-transform sm:inset-x-[4%] sm:w-[86%] sm:p-5 md:p-6">
-            <div className="flex items-center justify-between font-mono text-[9px] tracking-[0.18em] text-white/50 sm:text-[10px] sm:tracking-[0.2em]">
-              <span className="flex items-center gap-2">
-                <SpotifyLogo /> SPOTIFY FOR ARTISTS
-              </span>
-              <span className="hidden md:inline">SVG MOTION STUDY</span>
-            </div>
-            <div className="mt-5 text-right font-impact text-xl text-white/70 sm:mt-7 sm:text-2xl md:text-3xl">
-              GROWTH 02
-            </div>
-            {/* SVG curve for Right background card */}
-            <div className="mt-3 h-20 overflow-hidden sm:mt-4 sm:h-24 md:h-28">
-              <svg viewBox="0 0 400 120" preserveAspectRatio="none" className="h-full w-full opacity-60">
-                <defs>
-                  <linearGradient id="bg-chart-right" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1DB954" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#1DB954" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path d="M0,115 C100,110 180,100 240,65 C300,30 350,15 400,10 L400,120 L0,120 Z" fill="url(#bg-chart-right)" />
-                <path d="M0,115 C100,110 180,100 240,65 C300,30 350,15 400,10" fill="none" stroke="#1DB954" strokeWidth="2" />
-              </svg>
-            </div>
-          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            {SPOTIFY_PROOF_RECORDS.map((record) => {
+              const isSelected = record.id === selectedId;
+              return (
+                <button
+                  key={record.id}
+                  onClick={() => setSelectedId(record.id)}
+                  aria-pressed={isSelected}
+                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl border p-3 text-left transition-all duration-300 sm:p-4 ${
+                    isSelected
+                      ? "border-[#1DB954] bg-[#0E150F] shadow-[0_0_25px_rgba(29,185,84,0.3)] ring-1 ring-[#1DB954]"
+                      : "border-white/10 bg-[#0B0D0B]/80 hover:border-white/30 hover:bg-[#121412]"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-black sm:h-12 sm:w-12">
+                      <img
+                        src={record.image}
+                        alt={record.title}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      {isSelected && (
+                        <div className="absolute inset-0 bg-[#1DB954]/20 mix-blend-overlay" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full ${
+                            isSelected
+                              ? "bg-[#1DB954] shadow-[0_0_8px_#1DB954]"
+                              : "bg-white/30"
+                          }`}
+                        />
+                        <span className="truncate font-mono text-[8px] uppercase tracking-[0.16em] text-white/50 sm:text-[9px]">
+                          {record.tag}
+                        </span>
+                      </div>
+                      <div
+                        className={`truncate font-impact text-xs sm:text-sm md:text-base mt-0.5 ${
+                          isSelected ? "text-white" : "text-white/80"
+                        }`}
+                      >
+                        {record.title}
+                      </div>
+                    </div>
+                  </div>
 
-          {/* Center Foreground Card: MIMIMI HARDTEKK */}
-          <div className="absolute inset-x-0 top-0 z-20 mx-auto w-full max-w-[760px] rounded-xl border border-white/10 bg-[#0B0D0B] p-4 shadow-[0_30px_80px_rgba(0,0,0,0.6)] will-change-transform sm:p-5 md:p-7">
-            <div className="flex items-center justify-between font-mono text-[9px] tracking-[0.18em] text-white/60 sm:text-[10px] sm:tracking-[0.2em]">
-              <span className="flex items-center gap-2">
-                <SpotifyLogo /> SPOTIFY FOR ARTISTS
-              </span>
-              <span className="hidden sm:inline">DATED PROOF SNAPSHOT</span>
-            </div>
-            <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-              <h3 className="font-impact text-xl tracking-tight text-white sm:text-2xl md:text-3xl">
-                MIMIMI HARDTEKK
-              </h3>
-              <div className="flex gap-5 sm:gap-6 text-left sm:text-right">
-                <div>
-                  <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
-                    SPOTIFY STREAMS
+                  <div className="mt-3 flex items-baseline justify-between border-t border-white/10 pt-2 font-mono text-[8.5px] sm:text-[9px]">
+                    <span className="text-white/40">STREAMS</span>
+                    <span
+                      className={`font-bold ${
+                        isSelected ? "text-[#19D057]" : "text-white/70"
+                      }`}
+                    >
+                      {record.streams}
+                    </span>
                   </div>
-                  <div className="font-impact text-lg text-white sm:text-xl">6M+</div>
-                </div>
-                <div>
-                  <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
-                    DAILY AT SNAPSHOT
-                  </div>
-                  <div className="font-impact text-lg text-white sm:text-xl">54K</div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="mb-1 text-right font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
-                BREAKOUT MOMENT
-              </div>
-              <GrowthChart lineRef={lineRef} />
-            </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Proof Callout Block (Bottom-Right) with 180px orange accent bar */}
-        <div className="mt-10 flex justify-end sm:mt-12 md:mr-[8%] md:mt-16">
-          <div className="w-full max-w-[340px] text-left">
-            <div className="h-[2px] w-[180px] bg-trillex-signal" />
-            <h4 className="mt-3 text-sm sm:text-base font-bold text-white">
-              {SPOTIFY_CALLOUT.title}
-            </h4>
-            <p className="mt-1 text-xs font-light leading-relaxed text-white/60">
-              {SPOTIFY_CALLOUT.body}
-            </p>
+        {/* Selected Card Deep-Dive Showcase */}
+        <div className="mt-6 sm:mt-8">
+          <div className="relative mx-auto w-full rounded-2xl border border-white/15 bg-[#0B0D0B] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.8)] sm:p-7 md:p-8">
+            {/* Header row */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 font-mono text-[9px] tracking-[0.18em] text-white/60 sm:text-[10px] sm:tracking-[0.2em]">
+              <div className="flex items-center gap-2">
+                <SpotifyLogo />
+                <span className="text-white font-semibold">
+                  SPOTIFY FOR ARTISTS
+                </span>
+                <span className="text-white/40">&bull;</span>
+                <span className="text-[#19D057]">VERIFIED METRIC</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="hidden sm:inline text-white/50">
+                  {activeRecord.dateRange}
+                </span>
+                <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-white/75">
+                  {activeRecord.breakoutPeriod}
+                </span>
+              </div>
+            </div>
+
+            {/* Content row: Artwork + Details */}
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8 items-center">
+              {/* Artwork */}
+              <div className="relative aspect-square w-full max-w-[220px] mx-auto overflow-hidden rounded-xl border border-white/15 bg-black shadow-2xl lg:max-w-none lg:col-span-3">
+                <img
+                  src={activeRecord.image}
+                  alt={activeRecord.title}
+                  className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <span className="absolute bottom-2.5 left-2.5 font-mono text-[9px] tracking-[0.15em] text-white/70">
+                  {activeRecord.tag}
+                </span>
+              </div>
+
+              {/* Title, Artist and Key Metrics */}
+              <div className="flex flex-col justify-between gap-4 lg:col-span-9">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div>
+                    <h3 className="font-impact text-2xl tracking-tight text-white sm:text-3xl md:text-4xl">
+                      {activeRecord.title}
+                    </h3>
+                    <p className="mt-1 font-mono text-[10px] tracking-[0.18em] text-white/60 sm:text-xs">
+                      {activeRecord.artist}
+                    </p>
+                  </div>
+
+                  {activeRecord.spotifyUrl && (
+                    <a
+                      href={activeRecord.spotifyUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 self-start rounded-full border border-white/20 bg-white/5 px-3.5 py-1.5 font-mono text-[9px] tracking-[0.18em] text-white hover:border-[#1DB954] hover:text-[#1DB954] transition-colors"
+                    >
+                      <SpotifyLogo />
+                      <span>OPEN IN SPOTIFY ↗</span>
+                    </a>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 border-y border-white/10 py-3.5 sm:grid-cols-3">
+                  <div>
+                    <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
+                      TOTAL SPOTIFY STREAMS
+                    </div>
+                    <div className="mt-0.5 font-impact text-2xl text-white sm:text-3xl">
+                      {activeRecord.streams}
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
+                      DAILY AT PEAK
+                    </div>
+                    <div className="mt-0.5 font-impact text-2xl text-[#19D057] sm:text-3xl">
+                      {activeRecord.dailyAtPeak}
+                    </div>
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-1">
+                    <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
+                      VERIFICATION WINDOW
+                    </div>
+                    <div className="mt-0.5 font-impact text-xl text-white/90 sm:text-2xl">
+                      {activeRecord.dateRange}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Growth Chart */}
+                <div className="mt-1">
+                  <div className="mb-1 flex items-center justify-between font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
+                    <span>STREAM VELOCITY OVER TIME</span>
+                    <span className="text-[#19D057]">
+                      HOVER CHART FOR DAILY POINT DATA
+                    </span>
+                  </div>
+                  <DynamicGrowthChart record={activeRecord} lineRef={lineRef} />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
