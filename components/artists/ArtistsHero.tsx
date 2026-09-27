@@ -44,7 +44,7 @@ const ArtistCell: React.FC<{
   spotifyUrl?: string;
   objectPosition?: string;
 }> = ({ name, image, spotifyUrl, objectPosition = "center center" }) => (
-  <div className="group relative w-[220px] sm:w-[260px] md:w-[320px] lg:w-[360px] shrink-0 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30 select-none">
+  <div className="group relative w-[220px] sm:w-[260px] md:w-[320px] lg:w-[360px] shrink-0 aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30 select-none">
     <img
       src={image}
       alt={name}
@@ -222,11 +222,6 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
               ))}
             </div>
           </div>
-
-          <div className="mt-6 flex flex-col gap-2 border-t border-white/15 pt-3.5 font-mono text-[8.5px] tracking-[0.18em] text-white/45 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:pt-4 sm:text-[10px] sm:tracking-[0.25em]">
-            <span>CONCEPT ARTIST IMAGERY</span>
-            <span>FINAL ROSTER APPROVAL REQUIRED</span>
-          </div>
         </div>
       </div>
     </section>
@@ -234,4 +229,3 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
 };
 
 export default React.memo(ArtistsHero);
-

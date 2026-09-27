@@ -67,7 +67,7 @@ export const LANES_TITLE = "INTERNET CULTURE DOES NOT WAIT.";
 export const LANES_COPY =
   "The next sound starts before the charts. TRILLEX is built to recognize it, move with it, and build beside the artist shaping it.";
 
-export const HERO_EYEBROW = "ARTISTS \u2022 WHY WORK WITH US";
+export const HERO_EYEBROW = "THE TRILLEX ROSTER";
 export const HERO_TITLE = "ARTISTS";
 
 export const HERO_STATS: HeroStat[] = [
@@ -179,7 +179,7 @@ export const EXPLORE_ROW_2: ExploreArtist[] = [
   },
 ];
 
-export const SPOTIFY_EYEBROW = "SPOTIFY FOR ARTISTS \u2022 GROWTH PROOF";
+export const SPOTIFY_EYEBROW = "SPOTIFY FOR ARTISTS";
 export const SPOTIFY_COPY =
   "Real growth belongs beside the record that created it. Select a record to inspect breakout curves, verified streams, and daily momentum.";
 
@@ -219,8 +219,7 @@ export const SPOTIFY_PROOF_RECORDS: SelectableProofRecord[] = [
     breakoutPeriod: "VIRAL VELOCITY",
     dateRange: "OCT \u2014 NOV",
     tag: "BRAZILIAN FUNK",
-    pathData:
-      "M0,210 C100,205 180,198 250,160 C320,122 390,80 470,48 L600,18",
+    pathData: "M0,210 C100,205 180,198 250,160 C320,122 390,80 470,48 L600,18",
     fillData:
       "M0,210 C100,205 180,198 250,160 C320,122 390,80 470,48 L600,18 L600,220 L0,220 Z",
     apexX: 598,
@@ -243,8 +242,7 @@ export const SPOTIFY_PROOF_RECORDS: SelectableProofRecord[] = [
     breakoutPeriod: "GLOBAL SPIKE",
     dateRange: "JUL \u2014 SEP",
     tag: "BRAZILIAN FUNK",
-    pathData:
-      "M0,200 C80,195 160,188 230,175 C300,150 360,110 440,55 L600,12",
+    pathData: "M0,200 C80,195 160,188 230,175 C300,150 360,110 440,55 L600,12",
     fillData:
       "M0,200 C80,195 160,188 230,175 C300,150 360,110 440,55 L600,12 L600,220 L0,220 Z",
     apexX: 598,
@@ -267,8 +265,7 @@ export const SPOTIFY_PROOF_RECORDS: SelectableProofRecord[] = [
     breakoutPeriod: "SUSTAINED RUN",
     dateRange: "AUG \u2014 OCT",
     tag: "HARDTEKK",
-    pathData:
-      "M0,212 C110,210 200,195 280,165 C360,135 440,95 520,50 L600,22",
+    pathData: "M0,212 C110,210 200,195 280,165 C360,135 440,95 520,50 L600,22",
     fillData:
       "M0,212 C110,210 200,195 280,165 C360,135 440,95 520,50 L600,22 L600,220 L0,220 Z",
     apexX: 598,
@@ -282,7 +279,7 @@ export const SPOTIFY_PROOF_RECORDS: SelectableProofRecord[] = [
   },
 ];
 
-export const SOUND_EYEBROW = "TIKTOK SOUND IDS \u2022 CULTURAL REACH";
+export const SOUND_EYEBROW = "TIKTOK SOUND IDS";
 export const SOUND_TITLE = "ONE SOUND. MILLIONS OF VIDEOS.";
 export const SOUND_COPY =
   "The number belongs outside the screenshot. Click any record to inspect the verified TikTok Sound ID and live UGC volume.";

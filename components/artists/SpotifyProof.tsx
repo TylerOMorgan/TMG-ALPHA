@@ -4,7 +4,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
 import {
   SPOTIFY_EYEBROW,
-  SPOTIFY_COPY,
   SPOTIFY_PROOF_RECORDS,
   SelectableProofRecord,
 } from "../../utils/artistsExperienceData";
@@ -16,11 +15,11 @@ interface SectionProps {
 }
 
 const SpotifyLogo = () => (
-  <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#1DB954]">
-    <svg viewBox="0 0 24 24" fill="black" className="h-2.5 w-2.5">
-      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.306c-.216.353-.674.467-1.027.25-2.822-1.724-6.376-2.115-10.562-1.158-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.588-1.047 8.528-.601 11.678 1.34.353.216.467.674.25 1.027zm1.472-3.273c-.272.443-.853.582-1.296.31-3.23-1.986-8.156-2.56-11.977-1.4-.35.105-.72-.09-.825-.44-.105-.35.09-.72.44-.825 4.38-1.33 9.805-.688 13.511 1.588.443.272.582.853.31 1.296zm.129-3.41c-3.874-2.3-10.274-2.513-13.99-1.385-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 4.267-1.295 11.328-1.047 15.795 1.604.372.221.493.704.272 1.076-.221.372-.704.493-1.076.272z" />
-    </svg>
-  </span>
+  <img
+    src="/spotify-for-artists.png"
+    alt="Spotify for Artists"
+    className="h-4 w-4 rounded-full object-cover"
+  />
 );
 
 interface HoverPoint {
@@ -342,16 +341,12 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
               <span className="block whitespace-nowrap">YOU CAN SEE.</span>
             </span>
           </h2>
-          <p className="max-w-md text-sm font-light leading-relaxed text-white/60 sm:text-base lg:max-w-[340px] lg:shrink-0 xl:max-w-[400px]">
-            {SPOTIFY_COPY}
-          </p>
         </div>
 
         {/* Selectable Records / Artists Navigation Strip */}
         <div className="mt-10 sm:mt-12 md:mt-14">
           <div className="mb-3 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
-            <span>SELECT RECORD FOR PROOF VERIFICATION</span>
-            <span className="hidden sm:inline">SPOTIFY ANALYTICS API</span>
+            <span>SELECT RECORD</span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
@@ -436,9 +431,6 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 <span className="hidden sm:inline text-white/50">
                   {activeRecord.dateRange}
                 </span>
-                <span className="rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-white/75">
-                  {activeRecord.breakoutPeriod}
-                </span>
               </div>
             </div>
 
@@ -452,9 +444,23 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                   className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <span className="absolute bottom-2.5 left-2.5 font-mono text-[9px] tracking-[0.15em] text-white/70">
-                  {activeRecord.tag}
-                </span>
+                {activeRecord.spotifyUrl && (
+                  <a
+                    href={activeRecord.spotifyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Listen to ${activeRecord.title} on Spotify`}
+                    className="absolute bottom-2.5 right-2.5 z-10 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/20 bg-black/60 shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#1DB954] hover:bg-[#1DB954]/25 hover:shadow-[0_0_16px_rgba(29,185,84,0.6)] active:scale-95"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-4 w-4 text-white"
+                    >
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.306c-.216.353-.674.467-1.027.25-2.822-1.724-6.376-2.115-10.562-1.158-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.588-1.047 8.528-.601 11.678 1.34.353.216.467.674.25 1.027zm1.472-3.273c-.272.443-.853.582-1.296.31-3.23-1.986-8.156-2.56-11.977-1.4-.35.105-.72-.09-.825-.44-.105-.35.09-.72.44-.825 4.38-1.33 9.805-.688 13.511 1.588.443.272.582.853.31 1.296zm.129-3.41c-3.874-2.3-10.274-2.513-13.99-1.385-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 4.267-1.295 11.328-1.047 15.795 1.604.372.221.493.704.272 1.076-.221.372-.704.493-1.076.272z" />
+                    </svg>
+                  </a>
+                )}
               </div>
 
               {/* Title, Artist and Key Metrics */}

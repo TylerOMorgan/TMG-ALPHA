@@ -5,7 +5,6 @@ import Eyebrow from "./Eyebrow";
 import {
   SOUND_EYEBROW,
   SOUND_TITLE,
-  SOUND_COPY,
   SOUND_GHOST,
   TIKTOK_VERIFIED_HITS,
 } from "../../utils/artistsExperienceData";
@@ -106,9 +105,6 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
             <span className="block">MILLIONS OF</span>
             <span className="block">VIDEOS.</span>
           </h2>
-          <p className="max-w-md text-xs sm:text-sm font-light leading-relaxed text-white/60 sm:text-base lg:max-w-[340px] lg:shrink-0 xl:max-w-[400px]">
-            {SOUND_COPY}
-          </p>
         </div>
       </div>
 
@@ -117,85 +113,68 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
         ref={cardsRef}
         className="relative z-10 mx-auto mt-20 sm:mt-24 md:mt-36 lg:mt-44 xl:mt-48 max-w-[1840px] px-4 sm:px-6 md:px-10 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 lg:grid-cols-4"
       >
-          {TIKTOK_VERIFIED_HITS.map((card, idx) => (
-            <a
-              key={card.id}
-              href={card.soundUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Open ${card.title} on TikTok`}
-              className="group relative block overflow-hidden rounded-xl border border-white/10 bg-[#0C0C0C] will-change-transform transition-all duration-300 hover:-translate-y-2 hover:border-[#00F2FE]/70 hover:shadow-[0_12px_35px_rgba(0,242,254,0.25)] focus:outline-none focus:ring-2 focus:ring-[#00F2FE]"
-            >
-              <div className="relative aspect-[16/10] overflow-hidden">
-                <img
-                  src={card.image}
-                  alt={card.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
+        {TIKTOK_VERIFIED_HITS.map((card, idx) => (
+          <a
+            key={card.id}
+            href={card.soundUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Open ${card.title} on TikTok`}
+            className="group relative block overflow-hidden rounded-xl border border-white/10 bg-[#0C0C0C] will-change-transform transition-all duration-300 hover:-translate-y-2 hover:border-[#00F2FE]/70 hover:shadow-[0_12px_35px_rgba(0,242,254,0.25)] focus:outline-none focus:ring-2 focus:ring-[#00F2FE]"
+          >
+            <div className="relative aspect-[16/10] overflow-hidden">
+              <img
+                src={card.image}
+                alt={card.title}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
 
-                {/* Top Left: Clear TikTok Branding Badge with dual-glow accents */}
-                <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/70 px-2.5 py-1 font-mono text-[8.5px] tracking-[0.14em] text-white backdrop-blur-md transition-colors group-hover:border-[#00F2FE]/60">
-                  <span className="flex items-center -space-x-1">
-                    <span className="h-2 w-2 rounded-full bg-[#00F2FE]" />
-                    <span className="h-2 w-2 rounded-full bg-[#FE2C55] opacity-90" />
-                  </span>
-                  <span className="font-semibold text-white/90">
-                    TIKTOK SOUND
-                  </span>
+              {/* Top Left: Clear TikTok Branding Badge with dual-glow accents */}
+              <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/70 px-2.5 py-1 font-mono text-[8.5px] tracking-[0.14em] text-white backdrop-blur-md transition-colors group-hover:border-[#00F2FE]/60">
+                <span className="flex items-center -space-x-1">
+                  <span className="h-2 w-2 rounded-full bg-[#00F2FE]" />
+                  <span className="h-2 w-2 rounded-full bg-[#FE2C55] opacity-90" />
                 </span>
-
-                {/* Top Right: External link indicator icon */}
-                <span className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 border border-white/15 text-white/70 backdrop-blur-md transition-all group-hover:scale-110 group-hover:text-[#00F2FE] group-hover:border-[#00F2FE]/60">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-3 w-3"
-                  >
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
+                <span className="font-semibold text-white/90">
+                  TIKTOK SOUND
                 </span>
+              </span>
 
-                <div className="absolute inset-x-0 bottom-0 p-3.5">
-                  <div className="font-mono text-[9px] tracking-[0.2em] text-white/60">
-                    {card.artist}
-                  </div>
-                  <div className="mt-1 font-impact text-base leading-tight text-white md:text-lg group-hover:text-white transition-colors">
-                    {card.title}
-                  </div>
+              <div className="absolute inset-x-0 bottom-0 p-3.5">
+                <div className="font-mono text-[9px] tracking-[0.2em] text-white/60">
+                  {card.artist}
+                </div>
+                <div className="mt-1 font-impact text-base leading-tight text-white md:text-lg group-hover:text-white transition-colors">
+                  {card.title}
+                </div>
+              </div>
+            </div>
+
+            {/* Display Metrics & Click Prompt */}
+            <div className="border-t border-white/10 p-3.5 bg-[#0C0C0C]">
+              <div className="flex items-baseline justify-between gap-2">
+                <div className="font-impact text-2xl text-white group-hover:text-[#00F2FE] transition-colors md:text-3xl">
+                  {card.metric}
+                </div>
+                <div className="text-right font-mono text-[8px] leading-relaxed tracking-[0.14em] text-white/50 uppercase">
+                  {card.caption}
                 </div>
               </div>
 
-              {/* Display Metrics & Click Prompt */}
-              <div className="border-t border-white/10 p-3.5 bg-[#0C0C0C]">
-                <div className="flex items-baseline justify-between gap-2">
-                  <div className="font-impact text-2xl text-white group-hover:text-[#00F2FE] transition-colors md:text-3xl">
-                    {card.metric}
-                  </div>
-                  <div className="text-right font-mono text-[8px] leading-relaxed tracking-[0.14em] text-white/50 uppercase">
-                    {card.caption}
-                  </div>
-                </div>
-
-                <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2 font-mono text-[8px] tracking-[0.15em] text-[#00F2FE]/80 group-hover:text-[#00F2FE] uppercase transition-colors">
-                  <span>{card.tag}</span>
-                  <span className="flex items-center gap-1 font-bold">
-                    <span>{card.subtext || "OPEN SOUND"}</span>
-                    <span>&rarr;</span>
-                  </span>
-                </div>
+              <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2 font-mono text-[8px] tracking-[0.15em] text-[#00F2FE]/80 group-hover:text-[#00F2FE] uppercase transition-colors">
+                <span>{card.tag}</span>
+                <span className="flex items-center gap-1 font-bold">
+                  <span>{card.subtext || "OPEN SOUND"}</span>
+                  <span>&rarr;</span>
+                </span>
               </div>
-            </a>
-          ))}
-        </div>
+            </div>
+          </a>
+        ))}
+      </div>
     </section>
   );
 };

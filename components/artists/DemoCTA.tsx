@@ -3,13 +3,12 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
 import Logo from "../Logo";
+import Footer from "../Footer";
 import {
   CTA_EYEBROW,
   CTA_TITLE,
   CTA_COPY,
   CTA_BUTTON,
-  CTA_FOOTER_LEFT,
-  CTA_FOOTER_RIGHT,
 } from "../../utils/artistsExperienceData";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -93,14 +92,17 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
       />
 
       {/* Top spacer balancing the footer and fixed navbar */}
-      <div className="h-16 md:h-20 w-full shrink-0 pointer-events-none" aria-hidden="true" />
+      <div
+        className="h-16 md:h-20 w-full shrink-0 pointer-events-none"
+        aria-hidden="true"
+      />
 
       <div
         ref={contentRef}
         className="relative z-10 mx-auto my-auto flex w-full max-w-[1300px] flex-col items-center justify-center px-5 py-4 will-change-transform sm:py-6 md:px-10"
       >
         <div className="flex items-center justify-center">
-          <Logo className="h-9 w-auto text-white sm:h-11 md:h-13 transition-transform duration-500 hover:scale-105" />
+          <Logo className="h-[64px] w-auto text-white md:h-[110px] transition-transform duration-500 hover:scale-105" />
         </div>
 
         <div className="mt-5 sm:mt-6">
@@ -141,11 +143,8 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-[1840px] shrink-0 border-t border-white/10 px-4 py-5 font-mono text-[8.5px] tracking-[0.18em] text-white/45 sm:flex sm:items-center sm:justify-between sm:px-6 sm:text-[9.5px] sm:tracking-[0.2em] md:px-10">
-        <span className="block text-center sm:text-left">{CTA_FOOTER_LEFT}</span>
-        <span className="mt-2 block text-center sm:mt-0 sm:text-right">
-          {CTA_FOOTER_RIGHT}
-        </span>
+      <div className="relative z-10 w-full shrink-0">
+        <Footer />
       </div>
     </section>
   );
