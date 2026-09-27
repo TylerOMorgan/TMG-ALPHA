@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Music2, Users } from "lucide-react";
 import Eyebrow from "./Eyebrow";
 import {
   HERO_EYEBROW,
@@ -11,6 +12,74 @@ import {
 } from "../../utils/artistsExperienceData";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const TikTokGlyph: React.FC<{ className?: string }> = ({
+  className = "h-4 w-4",
+}) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-.88-.06 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.71a8.21 8.21 0 0 0 4.77 1.52V6.78a4.85 4.85 0 0 1-1-.09z" />
+  </svg>
+);
+
+const SpotifyGlyph: React.FC<{ className?: string }> = ({
+  className = "h-4 w-4",
+}) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.306c-.216.353-.674.467-1.027.25-2.822-1.724-6.376-2.115-10.562-1.158-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.588-1.047 8.528-.601 11.678 1.34.353.216.467.674.25 1.027zm1.472-3.273c-.272.443-.853.582-1.296.31-3.23-1.986-8.156-2.56-11.977-1.4-.35.105-.72-.09-.825-.44-.105-.35.09-.72.44-.825 4.38-1.33 9.805-.688 13.511 1.588.443.272.582.853.31 1.296zm.129-3.41c-3.874-2.3-10.274-2.513-13.99-1.385-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 4.267-1.295 11.328-1.047 15.795 1.604.372.221.493.704.272 1.076-.221.372-.704.493-1.076.272z" />
+  </svg>
+);
+
+const STAT_ICONS = [
+  <Music2 key="songs" className="h-5 w-5" aria-hidden="true" />,
+  <TikTokGlyph key="tiktok" />,
+  <Users key="ugc" className="h-5 w-5" aria-hidden="true" />,
+  <SpotifyGlyph key="spotify" />,
+];
+
+const CARD_ACCENTS = ["#E58A1E", "#00F2FE", "#EAEAEA", "#1DB954"];
+
+const parseStat = (
+  value: string,
+): { target: number; decimals: number; suffix: string } => {
+  const match = value.match(/^([\d.]+)(.*)$/);
+  if (!match) return { target: 0, decimals: 0, suffix: value };
+  const target = parseFloat(match[1]);
+  const decimals = (match[1].split(".")[1] || "").length;
+  return { target: isNaN(target) ? 0 : target, decimals, suffix: match[2] };
+};
+
+const useCountUp = (duration = 1400): string[] => {
+  const [frame, setFrame] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setFrame(1);
+      return;
+    }
+    let raf = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      setFrame(1 - Math.pow(1 - t, 3));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [duration]);
+  return HERO_STATS.map((s) => {
+    const { target, decimals, suffix } = parseStat(s.value);
+    return `${(target * frame).toFixed(decimals)}${suffix}`;
+  });
+};
 
 interface SectionProps {
   isActive?: boolean;
@@ -44,7 +113,7 @@ const ArtistCell: React.FC<{
   spotifyUrl?: string;
   objectPosition?: string;
 }> = ({ name, image, spotifyUrl, objectPosition = "center center" }) => (
-  <div className="group relative w-[220px] sm:w-[260px] md:w-[320px] lg:w-[360px] shrink-0 aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30 select-none">
+  <div className="group relative w-[198px] sm:w-[234px] md:w-[288px] lg:w-[324px] shrink-0 aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30 select-none">
     <img
       src={image}
       alt={name}
@@ -81,6 +150,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     ...EXPLORE_ROW_2,
     ...EXPLORE_ROW_2,
   ];
+  const values = useCountUp();
 
   useEffect(() => {
     if (!isActive) return;
@@ -150,41 +220,63 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     <section
       ref={sectionRef}
       data-nav-theme="dark"
-      className="relative w-full bg-trillex-black pb-12 pt-32 sm:pt-36 md:pb-16 md:pt-44 lg:pt-48"
+      className="relative w-full overflow-hidden bg-trillex-black pb-12 pt-32 sm:pt-36 md:pb-16 md:pt-44 lg:pt-48"
+      style={{
+        backgroundImage:
+          "linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px)",
+        backgroundSize: "4rem 4rem",
+      }}
     >
-      <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
-        <Eyebrow text={HERO_EYEBROW} tone="dark" />
-
-        <div className="mt-4 flex flex-col gap-6 lg:mt-6 lg:flex-row lg:items-end lg:justify-between">
-          <h1
-            ref={titleRef}
-            className="font-impact text-[18vw] leading-[0.88] tracking-tight text-trillex-paper will-change-transform sm:text-[14vw] md:text-[11vw] lg:text-[104px] xl:text-[124px] 2xl:text-[140px]"
-          >
-            {HERO_TITLE}
-          </h1>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#E58A1E]/10 blur-[140px]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-10 select-none text-center font-impact text-[24vw] leading-none text-transparent md:text-[19vw] [-webkit-text-stroke:1px_rgba(229,138,30,0.16)]"
+      >
+        ROSTER
+      </div>
+      <div className="relative mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
+            <Eyebrow text={HERO_EYEBROW} tone="dark" />
+            <h1
+              ref={titleRef}
+              className="mt-4 font-impact text-[18vw] leading-[0.88] tracking-tight text-trillex-paper will-change-transform sm:text-[14vw] md:text-[11vw] lg:text-[104px] xl:text-[124px] 2xl:text-[140px]"
+            >
+              {HERO_TITLE}
+            </h1>
+          </div>
+          <div className="mb-2 flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] tracking-[0.25em] text-white/70">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-[#1DB954]" />
+            ROSTER LIVE
+          </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-2 gap-y-6 border-y border-white/15 py-6 sm:mt-10 sm:py-7 md:mt-12 md:grid-cols-4">
+        <div className="mt-8 grid grid-cols-1 gap-3 sm:mt-10 sm:grid-cols-2 md:mt-12 lg:grid-cols-4 md:gap-4">
           {HERO_STATS.map((s, idx) => (
             <div
               key={s.label}
-              className={`md:border-l md:border-white/15 md:pl-10 md:first:border-l-0 md:first:pl-0 ${
-                idx % 2 === 1
-                  ? "border-l border-white/15 pl-5 sm:pl-6 md:border-l md:pl-10"
-                  : "pr-3 sm:pr-4 md:pr-0"
-              }`}
+              className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#0B0D0B]/90 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.7)] sm:p-5"
+              style={{ borderTop: `2px solid ${CARD_ACCENTS[idx]}` }}
             >
-              <div className="font-impact text-2xl text-trillex-paper sm:text-3xl md:text-4xl">
-                {s.value}
+              <div className="flex items-center justify-between">
+                <span style={{ color: CARD_ACCENTS[idx] }}>
+                  {STAT_ICONS[idx]}
+                </span>
               </div>
-              <div className="mt-1.5 font-mono text-[9px] tracking-[0.18em] text-white/50 sm:mt-2.5 sm:text-[10px] sm:tracking-[0.22em]">
+              <div className="mt-4 font-impact text-3xl text-white sm:text-4xl">
+                {values[idx]}
+              </div>
+              <div className="mt-2 font-mono text-[9px] tracking-[0.22em] text-white/50 sm:text-[10px]">
                 {s.label}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-12 sm:mt-16 md:mt-24">
+        <div className="mt-8 sm:mt-10 md:mt-12">
           <div className="mb-3.5 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
             <span>EXPLORE ARTISTS</span>
           </div>

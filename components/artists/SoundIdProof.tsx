@@ -15,20 +15,6 @@ interface SectionProps {
   isActive?: boolean;
 }
 
-// Authentic TikTok SVG Logo Icon with dual-color offset effect
-const TikTokIcon: React.FC<{ className?: string }> = ({
-  className = "h-4 w-4",
-}) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
-    aria-hidden="true"
-  >
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-.88-.06 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.71a8.21 8.21 0 0 0 4.77 1.52V6.78a4.85 4.85 0 0 1-1-.09z" />
-  </svg>
-);
-
 const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const ghostRef = useRef<HTMLDivElement>(null);
@@ -93,10 +79,6 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
       <div className="relative z-10 mx-auto max-w-[1840px] px-4 pt-1 sm:px-6 sm:pt-2 md:px-10 md:pt-2">
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
           <Eyebrow text={SOUND_EYEBROW} tone="dark" />
-          <span className="flex items-center gap-1.5 rounded-full border border-[#00F2FE]/40 bg-black/60 px-3 py-1 font-mono text-[9px] font-bold tracking-[0.16em] text-[#00F2FE] shadow-[0_0_12px_rgba(0,242,254,0.25)]">
-            <TikTokIcon className="h-3 w-3 fill-[#00F2FE]" />
-            <span>TIKTOK VERIFIED</span>
-          </span>
         </div>
 
         <div className="mt-4 flex flex-col gap-4 sm:mt-5 sm:gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
@@ -159,17 +141,6 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 <div className="font-impact text-2xl text-white group-hover:text-[#00F2FE] transition-colors md:text-3xl">
                   {card.metric}
                 </div>
-                <div className="text-right font-mono text-[8px] leading-relaxed tracking-[0.14em] text-white/50 uppercase">
-                  {card.caption}
-                </div>
-              </div>
-
-              <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-2 font-mono text-[8px] tracking-[0.15em] text-[#00F2FE]/80 group-hover:text-[#00F2FE] uppercase transition-colors">
-                <span>{card.tag}</span>
-                <span className="flex items-center gap-1 font-bold">
-                  <span>{card.subtext || "OPEN SOUND"}</span>
-                  <span>&rarr;</span>
-                </span>
               </div>
             </div>
           </a>

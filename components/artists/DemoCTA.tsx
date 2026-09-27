@@ -76,7 +76,7 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
     <section
       ref={sectionRef}
       data-nav-theme="dark"
-      className="relative flex min-h-screen w-full flex-col justify-between overflow-hidden bg-gradient-to-b from-[#050505] via-[#090A09] to-[#040404] text-center text-white"
+      className="relative flex w-full flex-col justify-between overflow-hidden bg-gradient-to-b from-[#050505] via-[#090A09] to-[#040404] text-center text-white"
     >
       {/* Soft atmospheric ambient glow transitioning seamlessly into dark */}
       <div
@@ -99,7 +99,7 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
 
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto my-auto flex w-full max-w-[1300px] flex-col items-center justify-center px-5 py-4 will-change-transform sm:py-6 md:px-10"
+        className="relative z-10 mx-auto my-auto flex w-full max-w-[1300px] flex-col items-center justify-center px-5 pt-4 pb-[160px] will-change-transform sm:pt-6 sm:pb-[184px] md:px-10 md:pb-[216px]"
       >
         <div className="flex items-center justify-center">
           <Logo className="h-[64px] w-auto text-white md:h-[110px] transition-transform duration-500 hover:scale-105" />
