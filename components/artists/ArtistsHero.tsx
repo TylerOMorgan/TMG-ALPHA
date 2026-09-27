@@ -58,23 +58,24 @@ const parseStat = (
   return { target: isNaN(target) ? 0 : target, decimals, suffix: match[2] };
 };
 
-const useCountUp = (duration = 1400): string[] => {
+const useCountUp = (start: boolean, duration = 1400): string[] => {
   const [frame, setFrame] = useState(0);
   useEffect(() => {
+    if (!start) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setFrame(1);
       return;
     }
     let raf = 0;
-    const start = performance.now();
+    const t0 = performance.now();
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
+      const t = Math.min(1, (now - t0) / duration);
       setFrame(1 - Math.pow(1 - t, 3));
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [duration]);
+  }, [start, duration]);
   return HERO_STATS.map((s) => {
     const { target, decimals, suffix } = parseStat(s.value);
     return `${(target * frame).toFixed(decimals)}${suffix}`;
@@ -150,7 +151,46 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     ...EXPLORE_ROW_2,
     ...EXPLORE_ROW_2,
   ];
-  const values = useCountUp();
+  const [countVisible, setCountVisible] = useState(false);
+
+  // Start the count-up only after the global preloader has finished and the
+  // stats are actually visible on screen.
+  useEffect(() => {
+    if (!isActive || !sectionRef.current) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setCountVisible(true);
+      return;
+    }
+    let observer: IntersectionObserver | null = null;
+    const startObserving = () => {
+      if (!sectionRef.current || observer) return;
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            setCountVisible(true);
+            observer?.disconnect();
+            observer = null;
+          }
+        },
+        { threshold: 0.3 },
+      );
+      observer.observe(sectionRef.current);
+    };
+    if ((window as any).__trillexPreloaderDone) {
+      startObserving();
+      return () => observer?.disconnect();
+    }
+    const handlePreloaderDone = () => startObserving();
+    window.addEventListener("trillex-preloader-done", handlePreloaderDone, {
+      once: true,
+    });
+    return () => {
+      window.removeEventListener("trillex-preloader-done", handlePreloaderDone);
+      observer?.disconnect();
+    };
+  }, [isActive]);
+
+  const values = useCountUp(countVisible);
 
   useEffect(() => {
     if (!isActive) return;

@@ -175,6 +175,10 @@ const App: React.FC = () => {
         onComplete: () => {
           setLoading(false);
           isInitialLoad.current = false; // Subsequent loads will be faster
+          if (typeof window !== "undefined") {
+            (window as any).__trillexPreloaderDone = true;
+            window.dispatchEvent(new CustomEvent("trillex-preloader-done"));
+          }
           requestAnimationFrame(() => {
             ScrollTrigger.refresh();
             if (typeof window !== "undefined" && (window as any).lenis) {
