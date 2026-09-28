@@ -396,7 +396,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                         </span>
                       </div>
                       <div
-                        className={`truncate font-impact text-xs sm:text-sm md:text-base mt-0.5 ${
+                        className={`font-impact text-xs sm:text-sm md:text-base mt-0.5 leading-snug line-clamp-2 ${
                           isSelected ? "text-white" : "text-white/80"
                         }`}
                       >

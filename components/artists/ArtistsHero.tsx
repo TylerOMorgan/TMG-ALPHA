@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Music2, Users } from "lucide-react";
+import { Disc3, Users } from "lucide-react";
 import Eyebrow from "./Eyebrow";
 import {
   HERO_EYEBROW,
@@ -40,10 +40,10 @@ const SpotifyGlyph: React.FC<{ className?: string }> = ({
 );
 
 const STAT_ICONS = [
-  <Music2 key="songs" className="h-5 w-5" aria-hidden="true" />,
-  <TikTokGlyph key="tiktok" />,
-  <Users key="ugc" className="h-5 w-5" aria-hidden="true" />,
-  <SpotifyGlyph key="spotify" />,
+  <Disc3 key="songs" className="h-7 w-7" aria-hidden="true" />,
+  <TikTokGlyph key="tiktok" className="h-7 w-7" />,
+  <Users key="ugc" className="h-7 w-7" aria-hidden="true" />,
+  <SpotifyGlyph key="spotify" className="h-7 w-7" />,
 ];
 
 const CARD_ACCENTS = ["#E58A1E", "#00F2FE", "#EAEAEA", "#1DB954"];
@@ -96,12 +96,12 @@ const SpotifyButton: React.FC<{ url?: string; name: string }> = ({
     rel="noopener noreferrer"
     onClick={(e) => e.stopPropagation()}
     aria-label={`Listen to ${name} on Spotify`}
-    className="absolute bottom-2.5 right-2.5 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/20 bg-black/60 shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#1DB954] hover:bg-[#1DB954]/25 hover:shadow-[0_0_16px_rgba(29,185,84,0.6)] active:scale-95 group/btn z-10"
+    className="absolute bottom-2.5 right-2.5 flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/20 bg-black/60 shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#1DB954] hover:bg-[#1DB954]/25 hover:shadow-[0_0_16px_rgba(29,185,84,0.6)] active:scale-95 group/btn z-10"
   >
     <svg
       viewBox="0 0 24 24"
       fill="currentColor"
-      className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white transition-colors duration-300 group-hover/btn:text-[#1DB954]"
+      className="h-5 w-5 sm:h-4.5 sm:w-4.5 text-white transition-colors duration-300 group-hover/btn:text-[#1DB954]"
     >
       <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.306c-.216.353-.674.467-1.027.25-2.822-1.724-6.376-2.115-10.562-1.158-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.588-1.047 8.528-.601 11.678 1.34.353.216.467.674.25 1.027zm1.472-3.273c-.272.443-.853.582-1.296.31-3.23-1.986-8.156-2.56-11.977-1.4-.35.105-.72-.09-.825-.44-.105-.35.09-.72.44-.825 4.38-1.33 9.805-.688 13.511 1.588.443.272.582.853.31 1.296zm.129-3.41c-3.874-2.3-10.274-2.513-13.99-1.385-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 4.267-1.295 11.328-1.047 15.795 1.604.372.221.493.704.272 1.076-.221.372-.704.493-1.076.272z" />
     </svg>
@@ -294,14 +294,14 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
           </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-3 sm:mt-10 sm:grid-cols-2 md:mt-12 lg:grid-cols-4 md:gap-4">
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-2 md:mt-12 lg:grid-cols-4 md:gap-4">
           {HERO_STATS.map((s, idx) => (
             <div
               key={s.label}
-              className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#0B0D0B]/90 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.7)] sm:p-5"
+              className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#0B0D0B]/90 p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.7)] sm:p-5"
               style={{ borderTop: `2px solid ${CARD_ACCENTS[idx]}` }}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-center">
                 <span style={{ color: CARD_ACCENTS[idx] }}>
                   {STAT_ICONS[idx]}
                 </span>
