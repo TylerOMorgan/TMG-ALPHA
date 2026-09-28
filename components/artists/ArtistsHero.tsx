@@ -309,7 +309,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
               <div className="mt-4 font-impact text-3xl text-white sm:text-4xl">
                 {values[idx]}
               </div>
-              <div className="mt-2 font-mono text-[9px] tracking-[0.22em] text-white/50 sm:text-[10px]">
+              <div className="mt-2 font-mono text-[10px] font-bold tracking-[0.22em] text-white/70 sm:text-xs">
                 {s.label}
               </div>
             </div>
