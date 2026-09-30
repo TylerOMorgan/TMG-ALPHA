@@ -2,10 +2,7 @@ import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
-import {
-  WORK_EYEBROW,
-  WORK_PILLARS,
-} from "../../utils/artistsExperienceData";
+import { WORK_EYEBROW, WORK_PILLARS } from "../../utils/artistsExperienceData";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -47,7 +44,7 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
     <section
       ref={sectionRef}
       data-nav-theme="light"
-      className="relative w-full overflow-hidden bg-[#E58A1E] pb-16 pt-24 text-black sm:pb-20 sm:pt-28 md:pb-28 md:pt-36 lg:pb-32 lg:pt-40"
+      className="relative w-full overflow-hidden bg-[#FF7F50] pb-16 pt-24 text-black sm:pb-20 sm:pt-28 md:pb-28 md:pt-36 lg:pb-32 lg:pt-40"
     >
       <div className="mx-auto max-w-[1840px] px-4 sm:px-6 md:px-10">
         <Eyebrow text={WORK_EYEBROW} tone="onSignal" />
@@ -55,7 +52,9 @@ const WorkWithUs: React.FC<SectionProps> = ({ isActive = true }) => {
           aria-label="MOVE FAST. COMMUNICATE CLEARLY. BUILD THE RECORD TOGETHER."
           className="mt-6 font-impact text-[9.5vw] leading-[1.0] text-[#2B1704] sm:mt-8 sm:text-[8vw] md:text-[6.15vw] lg:text-[4.8vw] xl:text-[76px] 2xl:text-[90px]"
         >
-          <span className="sr-only">MOVE FAST. COMMUNICATE CLEARLY. BUILD THE RECORD TOGETHER.</span>
+          <span className="sr-only">
+            MOVE FAST. COMMUNICATE CLEARLY. BUILD THE RECORD TOGETHER.
+          </span>
           <span aria-hidden="true">
             <span className="block">MOVE FAST.</span>
             <span className="block">COMMUNICATE</span>
