@@ -47,7 +47,7 @@ const STAT_ICONS = [
   <SpotifyGlyph key="spotify" className="h-7 w-7" />,
 ];
 
-const CARD_ACCENTS = ["#E58A1E", "#00F2FE", "#EAEAEA", "#1DB954"];
+const CARD_ACCENTS = ["#FF7F50", "#00F2FE", "#EAEAEA", "#1DB954"];
 
 const parseStat = (
   value: string,
@@ -270,11 +270,11 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#E58A1E]/10 blur-[140px]"
+        className="pointer-events-none absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-[#FF7F50]/10 blur-[140px]"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-10 select-none text-center font-impact text-[24vw] leading-none text-transparent md:text-[19vw] [-webkit-text-stroke:1px_rgba(229,138,30,0.16)]"
+        className="pointer-events-none absolute inset-x-0 top-10 select-none text-center font-impact text-[24vw] leading-none text-transparent md:text-[19vw] [-webkit-text-stroke:1px_rgba(255,127,80,0.16)]"
       >
         ROSTER
       </div>
@@ -288,10 +288,6 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
             >
               {HERO_TITLE}
             </h1>
-          </div>
-          <div className="mb-2 flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 font-mono text-[10px] tracking-[0.25em] text-white/70">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-[#1DB954]" />
-            ROSTER LIVE
           </div>
         </div>
 

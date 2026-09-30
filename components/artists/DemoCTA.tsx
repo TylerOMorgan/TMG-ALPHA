@@ -82,7 +82,7 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
       <div
         ref={glowRef}
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] sm:h-[700px] sm:w-[700px] rounded-full bg-gradient-to-tr from-[#E58A1E]/12 via-[#FF7F50]/10 to-transparent blur-[120px] will-change-transform"
+        className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] sm:h-[700px] sm:w-[700px] rounded-full bg-gradient-to-tr from-[#FF7F50]/12 via-[#FF7F50]/10 to-transparent blur-[120px] will-change-transform"
       />
 
       {/* Decorative subtle grid background */}
@@ -130,7 +130,7 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
             href="#demo-submission"
             onClick={handleDemo}
             data-hoverable="true"
-            className="group relative inline-flex w-full max-w-xs sm:max-w-none sm:w-auto items-center justify-center gap-3 bg-[#E58A1E] px-8 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.22em] text-black shadow-[0_0_30px_rgba(229,138,30,0.4)] transition-all duration-300 hover:bg-[#FF9626] hover:shadow-[0_0_50px_rgba(229,138,30,0.7)] hover:scale-105 active:scale-98 sm:px-14 sm:py-4.5 sm:text-[13px] sm:tracking-[0.24em]"
+            className="group relative inline-flex w-full max-w-xs sm:max-w-none sm:w-auto items-center justify-center gap-3 rounded-xl bg-[#FF7F50] px-8 py-3.5 font-mono text-[12px] font-bold uppercase tracking-[0.22em] text-black shadow-[0_0_30px_rgba(255,127,80,0.4)] transition-all duration-300 hover:bg-[#FF7F50] hover:shadow-[0_0_50px_rgba(255,127,80,0.7)] hover:scale-105 active:scale-98 sm:px-14 sm:py-4.5 sm:text-[13px] sm:tracking-[0.24em]"
           >
             <span>{CTA_BUTTON}</span>
             <span className="transition-transform duration-300 group-hover:translate-x-1">

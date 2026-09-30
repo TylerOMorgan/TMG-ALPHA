@@ -114,14 +114,22 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
 
-              {/* Top Right: TikTok loading animation */}
+              {/* Top Right: static TikTok dots; full loader animation plays only on this card's hover */}
+              <img
+                src="/tiktok-loading-static.svg"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+                className="absolute right-3 top-3 h-11 w-11 group-hover:hidden"
+              />
               <img
                 src="/tiktok-loading.svg"
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
                 decoding="async"
-                className="absolute right-3 top-3 h-11 w-11"
+                className="absolute right-3 top-3 hidden h-11 w-11 group-hover:block"
               />
             </div>
 

@@ -45,6 +45,18 @@ const Footer: React.FC<FooterProps> = ({ showScrollTop = false }) => {
     }
   };
 
+  // Freeze any in-flight glide on press so the tap lands on a stationary
+  // target mid-scroll; resume on release (click's scrollTo uses force anyway)
+  const freezeGlide = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    const lenis = (window as any).lenis;
+    if (lenis && typeof lenis.stop === "function") lenis.stop();
+  };
+  const resumeGlide = () => {
+    const lenis = (window as any).lenis;
+    if (lenis && typeof lenis.start === "function") lenis.start();
+  };
+
   return (
     <footer
       id="footer"
@@ -120,11 +132,15 @@ const Footer: React.FC<FooterProps> = ({ showScrollTop = false }) => {
         <button
           type="button"
           onClick={handleScrollTop}
+          onPointerDown={freezeGlide}
+          onPointerUp={resumeGlide}
+          onPointerCancel={resumeGlide}
+          onPointerLeave={resumeGlide}
           aria-label="Scroll to top"
           data-hoverable="true"
-          className="order-3 lg:order-3 lg:absolute lg:right-6 flex items-center justify-center w-9 h-9 rounded-full border border-white/20 text-white hover:text-trillex-orange hover:border-trillex-orange transition-colors"
+          className="order-3 lg:order-3 lg:absolute lg:right-6 flex items-center justify-center w-11 h-11 rounded-full border border-white/20 text-white hover:text-trillex-orange hover:border-trillex-orange active:scale-95 transition-all"
         >
-          <ArrowUp className="w-4 h-4" />
+          <ArrowUp className="w-5 h-5" />
         </button>
       )}
     </footer>

@@ -82,7 +82,7 @@ const RecordsRail: React.FC<SectionProps> = ({ isActive = true }) => {
                     <span className="absolute left-3 top-2.5 font-mono text-[10px] tracking-[0.2em] text-white/85">
                       {record.index}
                     </span>
-                    <span className="absolute bottom-3 left-3 font-mono text-[10px] tracking-[0.2em] text-trillex-signal">
+                    <span className="absolute bottom-3 left-3 font-mono text-[10px] tracking-[0.2em] text-trillex-orange">
                       {record.lane}
                     </span>
                   </div>

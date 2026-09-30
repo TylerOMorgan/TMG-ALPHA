@@ -57,7 +57,7 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
           lane1Ref.current,
           { xPercent: isMobile ? -8 : -14 },
           { xPercent: isMobile ? 2 : 4, ease: "none" },
-          0
+          0,
         );
       }
 
@@ -67,7 +67,7 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
           lane2Ref.current,
           { xPercent: isMobile ? 8 : 14 },
           { xPercent: isMobile ? -2 : -4, ease: "none" },
-          0
+          0,
         );
       }
 
@@ -77,7 +77,7 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
           lane3Ref.current,
           { xPercent: isMobile ? -8 : -14 },
           { xPercent: isMobile ? 2 : 4, ease: "none" },
-          0
+          0,
         );
       }
     }, sectionRef);
@@ -107,15 +107,15 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
         <div ref={rowsRef} className="relative">
           {/* Lane 01: Left-aligned HARDTEKK with Waveform on top divider */}
           <div className="group relative border-t border-trillex-ink/15">
-            <WaveformLine className="pointer-events-none absolute -top-[26px] right-[4%] hidden w-[340px] text-trillex-signal/60 md:block" />
+            <WaveformLine className="pointer-events-none absolute -top-[26px] right-[4%] hidden w-[340px] text-trillex-orange/60 md:block" />
             <div
               ref={lane1Ref}
               className="flex cursor-pointer items-center gap-4 py-3.5 will-change-transform transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9"
             >
-              <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-signal sm:text-xs">
+              <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-orange sm:text-xs">
                 01
               </span>
-              <span className="whitespace-nowrap font-impact text-[8.5vw] leading-none text-trillex-signal transition-colors duration-300 sm:text-[9.5vw] md:text-[6.2vw]">
+              <span className="whitespace-nowrap font-impact text-[8.5vw] leading-none text-trillex-orange transition-colors duration-300 sm:text-[9.5vw] md:text-[6.2vw]">
                 HARDTEKK
               </span>
             </div>
@@ -127,10 +127,10 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
               ref={lane2Ref}
               className="flex cursor-pointer items-center justify-end gap-4 py-3.5 will-change-transform transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9"
             >
-              <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-signal sm:text-xs">
+              <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-orange sm:text-xs">
                 02
               </span>
-              <span className="whitespace-nowrap font-impact text-[8.5vw] leading-none text-trillex-ink transition-colors duration-300 group-hover:text-trillex-signal sm:text-[9.5vw] md:text-[6.2vw]">
+              <span className="whitespace-nowrap font-impact text-[8.5vw] leading-none text-trillex-ink transition-colors duration-300 group-hover:text-trillex-orange sm:text-[9.5vw] md:text-[6.2vw]">
                 BRAZILIAN FUNK
               </span>
             </div>
@@ -142,10 +142,10 @@ const LanesManifesto: React.FC<SectionProps> = ({ isActive = true }) => {
               ref={lane3Ref}
               className="flex cursor-pointer items-center gap-4 py-3.5 will-change-transform transition-all duration-300 ease-out group-hover:py-6 sm:gap-6 sm:py-4 md:gap-10 md:py-6 md:group-hover:py-9"
             >
-              <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-signal sm:text-xs">
+              <span className="shrink-0 font-mono text-[10px] tracking-[0.2em] text-trillex-ink/40 transition-colors group-hover:text-trillex-orange sm:text-xs">
                 03
               </span>
-              <span className="whitespace-nowrap font-impact text-[8.5vw] leading-none text-trillex-ink transition-colors duration-300 group-hover:text-trillex-signal sm:text-[9.5vw] md:text-[6.2vw]">
+              <span className="whitespace-nowrap font-impact text-[8.5vw] leading-none text-trillex-ink transition-colors duration-300 group-hover:text-trillex-orange sm:text-[9.5vw] md:text-[6.2vw]">
                 HOODTRAP
               </span>
             </div>

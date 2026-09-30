@@ -59,10 +59,12 @@ export async function runTier1(browser, baseUrl, results) {
       assert.ok(fontSize >= 100, `h1 font-size should be display scale (>=100px on desktop), got ${fontSize}px`);
     });
 
-    await runTest('T1.1.3', 'Hero Live Badge & Backdrop', results, async () => {
-      const live = container.locator('text=ROSTER LIVE').first();
-      assert.ok(await live.count() > 0, 'ROSTER LIVE badge should be present');
-      assert.equal(await live.isVisible(), true, 'ROSTER LIVE badge should be visible');
+    await runTest('T1.1.3', 'Hero Title Block & Backdrop', results, async () => {
+      const headerRow = container.locator('div.flex.flex-wrap.items-end').first();
+      assert.ok(await headerRow.count() > 0, 'Hero title header row should be present');
+
+      const live = container.locator('text=ROSTER LIVE');
+      assert.equal(await live.count(), 0, 'ROSTER LIVE badge should be gone');
 
       const backdrop = container.locator('text=ROSTER').first();
       assert.ok(await backdrop.count() > 0, 'Giant ROSTER backdrop should be present');
@@ -194,6 +196,27 @@ export async function runTier1(browser, baseUrl, results) {
       await page.waitForTimeout(400);
       const restored = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
       assert.ok(await restored.count() > 0, 'Deep-dive should restore MIMIMI HARDTEKK');
+
+      // Drag-to-reorder: drag the first middle-copy card two slots right
+      const midTitles = () => container.locator('button[aria-pressed]').evaluateAll(
+        els => els.slice(8, 16).map(e => e.textContent.replace(/\s+/g, ' ').trim())
+      );
+      const beforeDrag = await midTitles();
+      const grip = container.locator('button[aria-pressed]').nth(8).locator('span[title="Drag to reorder"]');
+      const gbox = await grip.boundingBox();
+      await page.mouse.move(gbox.x + gbox.width / 2, gbox.y + gbox.height / 2);
+      await page.mouse.down();
+      for (let i = 1; i <= 20; i++) {
+        await page.mouse.move(gbox.x + gbox.width / 2 + (i * 1000) / 20, gbox.y + gbox.height / 2);
+        await page.waitForTimeout(15);
+      }
+      await page.mouse.up();
+      await page.waitForTimeout(400);
+      const afterDrag = await midTitles();
+      assert.ok(JSON.stringify(afterDrag) !== JSON.stringify(beforeDrag), 'Drag should reorder the strip');
+      assert.deepEqual([...afterDrag].sort(), [...beforeDrag].sort(), 'Reorder preserves all 8 records');
+      const keptSelection = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
+      assert.ok(await keptSelection.count() > 0, 'Selection survives reorder');
     });
 
     // =========================================================================
@@ -254,8 +277,8 @@ export async function runTier1(browser, baseUrl, results) {
       const chartLine = chart.locator('path[stroke*="#1D"], path[stroke*="#19"], #axp-chart-line');
       assert.ok(await chartLine.count() > 0, 'Green growth curve path should exist');
 
-      const chartDot = chart.locator('circle[fill*="#1D"], circle[fill*="#19"], circle[filter*="glow"]');
-      assert.ok(await chartDot.count() > 0, 'Green breakout moment dot indicator should exist');
+      const apexDot = container.locator('div.cursor-crosshair [class*="bg-[#19D057]"]');
+      assert.ok(await apexDot.count() > 0, 'Round green apex dot indicator should exist');
     });
 
     // =========================================================================
@@ -291,9 +314,24 @@ export async function runTier1(browser, baseUrl, results) {
       }
     });
 
-    await runTest('T1.5.4', 'TikTok Loading Indicators Replace Legacy Pills', results, async () => {
-      const loaders = container.locator('img[src*="tiktok-loading"]');
-      assert.equal(await loaders.count(), 4, 'All 4 proof cards should show the TikTok loading animation');
+    await runTest('T1.5.4', 'TikTok Loaders Idle Until Card Hover', results, async () => {
+      const staticDots = container.locator('img[src*="tiktok-loading-static"]');
+      assert.equal(await staticDots.count(), 4, 'All 4 proof cards should show idle TikTok dots');
+
+      const animated = container.locator('img[src="/tiktok-loading.svg"]');
+      assert.equal(await animated.count(), 4, 'All 4 proof cards should have the hover loader ready');
+
+      // Animation starts only on the hovered card
+      // (park the cursor clear first: prior scrollToY calls can leave it resting on a card)
+      await page.mouse.move(5, 5);
+      await page.waitForTimeout(150);
+      const cards = container.locator('a[aria-label^="Open"]');
+      assert.equal(await animated.nth(0).isVisible(), false, 'Animated loader hidden before hover');
+      await cards.nth(0).hover({ force: true });
+      await page.waitForTimeout(200);
+      assert.equal(await animated.nth(0).isVisible(), true, 'Animated loader plays on hovered card');
+      assert.equal(await animated.nth(1).isVisible(), false, 'Other cards stay idle');
+      await page.mouse.move(5, 5);
 
       const legacy = container.locator('text="TIKTOK SOUND"');
       assert.equal(await legacy.count(), 0, 'Legacy TIKTOK SOUND pill should be gone');
@@ -382,6 +420,14 @@ export async function runTier1(browser, baseUrl, results) {
       await page.waitForFunction(() => window.scrollY < 30, { timeout: 6000 });
       const y = await page.evaluate(() => window.scrollY);
       assert.ok(y < 30, `Page should be back at top after click, got scrollY=${y}`);
+
+      // Mid-glide tap: start a downward glide, tap the button mid-flight
+      await page.evaluate(() => { window.lenis.scrollTo(3000, { immediate: false }); });
+      await page.waitForTimeout(150);
+      await container.locator('button[aria-label="Scroll to top"]').first().click();
+      await page.waitForFunction(() => window.scrollY < 30, { timeout: 6000 });
+      const y2 = await page.evaluate(() => window.scrollY);
+      assert.ok(y2 < 30, `Mid-glide tap should still reach top, got scrollY=${y2}`);
     });
 
     await runTest('T1.7.4', 'No Scroll-To-Top Button On Home', results, async () => {

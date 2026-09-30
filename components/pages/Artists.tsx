@@ -23,7 +23,8 @@ const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
         setScrollProgress(0);
         return;
       }
-      const currentScroll = window.scrollY || document.documentElement.scrollTop;
+      const currentScroll =
+        window.scrollY || document.documentElement.scrollTop;
       const progress = Math.min(1, Math.max(0, currentScroll / totalHeight));
       setScrollProgress(progress);
     };
@@ -44,7 +45,7 @@ const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
       {isActive && (
         <style>{`
           nav a[href="#artists"] span {
-            background-color: #E58A1E !important;
+            background-color: #FF7F50 !important;
             height: 2px !important;
           }
         `}</style>
@@ -53,7 +54,7 @@ const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
       {/* 2px right-edge orange scroll progress indicator */}
       {isActive && (
         <div
-          className="fixed top-0 right-0 z-50 w-[2px] pointer-events-none bg-[#E58A1E] transition-all duration-75 ease-out"
+          className="fixed top-0 right-0 z-50 w-[2px] pointer-events-none bg-[#FF7F50] transition-all duration-75 ease-out"
           style={{ height: `${scrollProgress * 100}%` }}
           aria-hidden="true"
         />

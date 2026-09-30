@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, GripVertical } from "lucide-react";
 import Eyebrow from "./Eyebrow";
 import {
   SPOTIFY_EYEBROW,
@@ -261,27 +261,7 @@ const DynamicGrowthChart: React.FC<{
           className="transition-all duration-500 ease-out"
         />
 
-        {/* Apex glowing dot */}
-        <circle
-          cx={record.apexX}
-          cy={record.apexY}
-          r="5"
-          fill="#19D057"
-          filter="url(#glow-dot)"
-          className="transition-all duration-500 ease-out"
-        />
-        <circle
-          cx={record.apexX}
-          cy={record.apexY}
-          r="9"
-          fill="none"
-          stroke="#19D057"
-          strokeWidth="1"
-          opacity="0.6"
-          className="transition-all duration-500 ease-out"
-        />
-
-        {/* Interactive hover tracking guidelines and dot */}
+        {/* Interactive hover tracking guideline (dots render as HTML overlay below so they stay round) */}
         {hover && (
           <g className="pointer-events-none">
             <line
@@ -294,25 +274,37 @@ const DynamicGrowthChart: React.FC<{
               strokeDasharray="3 3"
               strokeWidth="1"
             />
-            <circle
-              cx={hover.x}
-              cy={hover.y}
-              r="5.5"
-              fill="#19D057"
-              filter="url(#glow-dot)"
-            />
-            <circle
-              cx={hover.x}
-              cy={hover.y}
-              r="10"
-              fill="none"
-              stroke="#19D057"
-              strokeWidth="1.5"
-              opacity="0.75"
-            />
           </g>
         )}
       </svg>
+
+      {/* Apex marker: HTML overlay stays perfectly round (SVG stretches) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
+        style={{
+          left: `${(record.apexX / 600) * 100}%`,
+          top: `${(record.apexY / 220) * 100}%`,
+        }}
+      >
+        <span className="block h-2.5 w-2.5 rounded-full bg-[#19D057] shadow-[0_0_10px_#19D057]" />
+        <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#19D057]/60" />
+      </div>
+
+      {/* Hover marker: HTML overlay stays perfectly round */}
+      {hover && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            left: `${(hover.x / 600) * 100}%`,
+            top: `${(hover.y / 220) * 100}%`,
+          }}
+        >
+          <span className="block h-2.5 w-2.5 rounded-full bg-[#19D057] shadow-[0_0_10px_#19D057]" />
+          <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#19D057]/75" />
+        </div>
+      )}
 
       {/* Floating Readout Tooltip */}
       {hover && (
@@ -362,12 +354,80 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const copyCount = SPOTIFY_PROOF_RECORDS.length;
 
+  const byId = useMemo(
+    () => Object.fromEntries(SPOTIFY_PROOF_RECORDS.map((r) => [r.id, r])),
+    [],
+  );
+  // User-reorderable record sequence (drag the grip handle to rearrange)
+  const [order, setOrder] = useState<string[]>(() =>
+    SPOTIFY_PROOF_RECORDS.map((r) => r.id),
+  );
+  const ordered = order.map((id) => byId[id]).filter(Boolean);
+
   // Tripled track for a seamless infinite loop; we rest in the middle copy
-  const loopRecords = [
-    ...SPOTIFY_PROOF_RECORDS,
-    ...SPOTIFY_PROOF_RECORDS,
-    ...SPOTIFY_PROOF_RECORDS,
-  ];
+  const loopRecords = [...ordered, ...ordered, ...ordered];
+
+  // Drag-to-reorder state (grip handle; mouse + touch via pointer events)
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropPos, setDropPos] = useState<{ at: number; px: number } | null>(
+    null,
+  );
+  const dragRef = useRef<{
+    id: string;
+    startX: number;
+    moved: boolean;
+  } | null>(null);
+  const suppressClickRef = useRef(false);
+
+  const onGripPointerDown = (e: React.PointerEvent, id: string) => {
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    dragRef.current = { id, startX: e.clientX, moved: false };
+    setDraggingId(id);
+  };
+
+  const onStripPointerMove = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    const el = scrollerRef.current;
+    if (!d || !el) return;
+    if (Math.abs(e.clientX - d.startX) > 6) d.moved = true;
+    if (!d.moved) return;
+    const kids = Array.from(el.children).filter(
+      (k) => k.tagName === "BUTTON",
+    ) as HTMLElement[];
+    const mid = kids.slice(copyCount, copyCount * 2);
+    if (mid.length === 0) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left + el.scrollLeft;
+    let at = 0;
+    for (let i = 0; i < mid.length; i++) {
+      if (x >= mid[i].offsetLeft + mid[i].offsetWidth / 2) at = i + 1;
+      else break;
+    }
+    const last = mid[mid.length - 1];
+    const px =
+      at < mid.length ? mid[at].offsetLeft : last.offsetLeft + last.offsetWidth;
+    setDropPos({ at, px });
+  };
+
+  const endStripDrag = () => {
+    const d = dragRef.current;
+    dragRef.current = null;
+    if (d?.moved) {
+      suppressClickRef.current = true;
+      const id = d.id;
+      setOrder((prev) => {
+        const without = prev.filter((x) => x !== id);
+        const at = Math.max(
+          0,
+          Math.min(dropPos?.at ?? without.length, without.length),
+        );
+        without.splice(at, 0, id);
+        return without;
+      });
+    }
+    setDraggingId(null);
+    setDropPos(null);
+  };
 
   const oneCopyWidth = () => {
     const el = scrollerRef.current;
@@ -477,31 +537,69 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
         <div className="mt-10 sm:mt-12 md:mt-14">
           <div className="mb-3 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
             <span>SELECT RECORD</span>
+            <span className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollRecords(-1)}
+                aria-label="Scroll records left"
+                data-hoverable="true"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition-all hover:border-[#1DB954] hover:text-[#1DB954]"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollRecords(1)}
+                aria-label="Scroll records right"
+                data-hoverable="true"
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition-all hover:border-[#1DB954] hover:text-[#1DB954]"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </span>
           </div>
 
           <div className="relative">
             <div
               ref={scrollerRef}
               onScroll={handleLoopScroll}
-              className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+              onPointerMove={onStripPointerMove}
+              onPointerUp={endStripDrag}
+              onPointerCancel={endStripDrag}
+              className={`relative flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden ${draggingId ? "select-none" : ""}`}
             >
               {loopRecords.map((record, copyIdx) => {
                 const isSelected = record.id === selectedId;
                 const inMainCopy =
                   copyIdx >= copyCount && copyIdx < copyCount * 2;
+                const cardKey = `${record.id}-${copyIdx}`;
                 return (
                   <button
-                    key={`${record.id}-${copyIdx}`}
-                    onClick={() => setSelectedId(record.id)}
+                    key={cardKey}
+                    onClick={() => {
+                      if (suppressClickRef.current) {
+                        suppressClickRef.current = false;
+                        return;
+                      }
+                      setSelectedId(record.id);
+                    }}
                     aria-hidden={!inMainCopy}
                     tabIndex={inMainCopy ? undefined : -1}
                     aria-pressed={isSelected}
-                    className={`group relative flex h-[154px] w-[478px] max-w-[85vw] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border p-3 text-left transition-all duration-300 sm:p-4 ${
+                    className={`group relative flex h-[154px] w-[478px] max-w-[85vw] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border p-3 text-left transition-all duration-300 sm:p-4 ${draggingId === record.id ? "opacity-40" : ""} ${
                       isSelected
                         ? "border-[#1DB954] bg-[#0E150F] shadow-[0_0_25px_rgba(29,185,84,0.3)] ring-1 ring-[#1DB954]"
                         : "border-white/10 bg-[#0B0D0B]/80 hover:border-white/30 hover:bg-[#121412]"
                     }`}
                   >
+                    <span
+                      title="Drag to reorder"
+                      aria-hidden="true"
+                      onPointerDown={(e) => onGripPointerDown(e, record.id)}
+                      className="absolute right-2 top-2 z-10 flex h-6 w-6 cursor-grab touch-none items-center justify-center rounded-md border border-white/10 bg-black/50 text-white/40 opacity-60 backdrop-blur-sm transition-all hover:text-white hover:opacity-100 active:cursor-grabbing"
+                    >
+                      <GripVertical className="h-4 w-4" />
+                    </span>
                     <div className="flex items-center gap-3">
                       <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-black sm:h-12 sm:w-12">
                         <img
@@ -550,25 +648,14 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                   </button>
                 );
               })}
+              {dropPos && draggingId && (
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-1 top-1 z-20 w-[3px] -translate-x-1/2 rounded-full bg-[#1DB954] shadow-[0_0_12px_#1DB954]"
+                  style={{ left: `${dropPos.px}px` }}
+                />
+              )}
             </div>
-            <button
-              type="button"
-              onClick={() => scrollRecords(-1)}
-              aria-label="Scroll records left"
-              data-hoverable="true"
-              className={`absolute left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white backdrop-blur-md transition-all hover:border-[#1DB954] hover:text-[#1DB954] opacity-100`}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollRecords(1)}
-              aria-label="Scroll records right"
-              data-hoverable="true"
-              className={`absolute right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white backdrop-blur-md transition-all hover:border-[#1DB954] hover:text-[#1DB954] opacity-100`}
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
           </div>
         </div>
 
@@ -640,7 +727,14 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 self-start rounded-full border border-white/20 bg-white/5 px-3.5 py-1.5 font-mono text-[9px] tracking-[0.18em] text-white hover:border-[#1DB954] hover:text-[#1DB954] transition-colors"
                     >
-                      <SpotifyLogo />
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="#1DB954"
+                        className="h-5 w-5"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.306c-.216.353-.674.467-1.027.25-2.822-1.724-6.376-2.115-10.562-1.158-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.588-1.047 8.528-.601 11.678 1.34.353.216.467.674.25 1.027zm1.472-3.273c-.272.443-.853.582-1.296.31-3.23-1.986-8.156-2.56-11.977-1.4-.35.105-.72-.09-.825-.44-.105-.35.09-.72.44-.825 4.38-1.33 9.805-.688 13.511 1.588.443.272.582.853.31 1.296zm.129-3.41c-3.874-2.3-10.274-2.513-13.99-1.385-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 4.267-1.295 11.328-1.047 15.795 1.604.372.221.493.704.272 1.076-.221.372-.704.493-1.076.272z" />
+                      </svg>
                       <span>OPEN IN SPOTIFY ↗</span>
                     </a>
                   )}

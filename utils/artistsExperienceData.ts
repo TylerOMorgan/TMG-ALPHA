@@ -383,8 +383,7 @@ export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = [
     id: "mimimi",
     title: "MIMIMI HARDTEKK",
     artist: "SAINT RIO",
-    image:
-      "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=70",
+    image: "/sound-id-artwork.png",
     metric: "900K+",
     caption: "TIKTOK CREATIONS",
     soundUrl: "https://www.tiktok.com/music/Mimimi-Hardtekk-7281928471928491",
@@ -395,8 +394,7 @@ export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = [
     id: "odnogo",
     title: "ODNOGO ULTRAFUNK",
     artist: "MAYA SOL",
-    image:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=70",
+    image: "/sound-id-artwork.png",
     metric: "600K+",
     caption: "TIKTOK CREATIONS",
     soundUrl: "https://www.tiktok.com/music/Odnogo-Ultrafunk-7291039481928374",
@@ -407,8 +405,7 @@ export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = [
     id: "stereo-love",
     title: "STEREO LOVE FUNK",
     artist: "ASTER",
-    image:
-      "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&w=800&q=70",
+    image: "/sound-id-artwork.png",
     metric: "1.2M+",
     caption: "TIKTOK CREATIONS",
     soundUrl: "https://www.tiktok.com/music/Stereo-Love-Funk-7301928491827461",
@@ -419,8 +416,7 @@ export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = [
     id: "cant-fight",
     title: "CANT FIGHT THIS FEELING",
     artist: "KODA",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=70",
+    image: "/sound-id-artwork.png",
     metric: "450K+",
     caption: "TIKTOK CREATIONS",
     soundUrl:
