@@ -10,7 +10,7 @@ const Contact: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
       <ContactForm isActive={isActive} />
       <EmailTicker />
       <JoinUs />
-      <Footer />
+      <Footer showScrollTop />
     </div>
   );
 };

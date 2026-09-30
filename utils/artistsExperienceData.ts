@@ -193,7 +193,7 @@ export const SPOTIFY_PROOF_RECORDS: SelectableProofRecord[] = [
     streams: "6M+",
     dailyAtPeak: "54K",
     breakoutPeriod: "BREAKOUT MOMENT",
-    dateRange: "SEP \u2014 OCT",
+    dateRange: "SEP 1 \u2014 SEP 30",
     tag: "HARDTEKK",
     pathData:
       "M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25",
@@ -202,7 +202,7 @@ export const SPOTIFY_PROOF_RECORDS: SelectableProofRecord[] = [
     apexX: 598,
     apexY: 25,
     startDate: "1 SEP",
-    endDate: "23 OCT",
+    endDate: "30 SEP",
     peakDaily: 54210,
     cumulativeBase: 0.12,
     cumulativePeak: 6.14,
@@ -277,10 +277,103 @@ export const SPOTIFY_PROOF_RECORDS: SelectableProofRecord[] = [
     cumulativePeak: 3.82,
     spotifyUrl: "https://open.spotify.com",
   },
+  {
+    id: "neon-skyline",
+    title: "NEON SKYLINE",
+    artist: "NOA VALE \u2022 TRILLEX AVANT",
+    image:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=70",
+    streams: "5.1M+",
+    dailyAtPeak: "48K",
+    breakoutPeriod: "BREAKOUT MOMENT",
+    dateRange: "NOV \u2014 DEC",
+    tag: "HOODTRAP",
+    pathData:
+      "M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25",
+    fillData:
+      "M0,205 C90,200 130,190 190,182 C260,172 300,190 360,165 C420,140 470,90 545,45 L600,25 L600,220 L0,220 Z",
+    apexX: 598,
+    apexY: 25,
+    startDate: "8 NOV",
+    endDate: "19 DEC",
+    peakDaily: 48200,
+    cumulativeBase: 0.18,
+    cumulativePeak: 5.14,
+    spotifyUrl: "https://open.spotify.com",
+  },
+  {
+    id: "midnight-frequency",
+    title: "MIDNIGHT FREQUENCY",
+    artist: "JUNO \u2022 TRILLEX BOUNCE",
+    image:
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=70",
+    streams: "7.2M+",
+    dailyAtPeak: "63K",
+    breakoutPeriod: "VIRAL VELOCITY",
+    dateRange: "SEP \u2014 OCT",
+    tag: "BRAZILIAN FUNK",
+    pathData: "M0,210 C100,205 180,198 250,160 C320,122 390,80 470,48 L600,18",
+    fillData:
+      "M0,210 C100,205 180,198 250,160 C320,122 390,80 470,48 L600,18 L600,220 L0,220 Z",
+    apexX: 598,
+    apexY: 18,
+    startDate: "2 SEP",
+    endDate: "28 OCT",
+    peakDaily: 63400,
+    cumulativeBase: 0.2,
+    cumulativePeak: 7.24,
+    spotifyUrl: "https://open.spotify.com",
+  },
+  {
+    id: "glasshouse-anthem",
+    title: "GLASSHOUSE ANTHEM",
+    artist: "LENA MORI \u2022 TRILLEX AVANT",
+    image:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=70",
+    streams: "2.9M+",
+    dailyAtPeak: "29K",
+    breakoutPeriod: "SUSTAINED RUN",
+    dateRange: "JUN \u2014 AUG",
+    tag: "HARDTEKK",
+    pathData: "M0,200 C80,195 160,188 230,175 C300,150 360,110 440,55 L600,12",
+    fillData:
+      "M0,200 C80,195 160,188 230,175 C300,150 360,110 440,55 L600,12 L600,220 L0,220 Z",
+    apexX: 598,
+    apexY: 12,
+    startDate: "15 JUN",
+    endDate: "22 AUG",
+    peakDaily: 29400,
+    cumulativeBase: 0.1,
+    cumulativePeak: 2.94,
+    spotifyUrl: "https://open.spotify.com",
+  },
+  {
+    id: "velvet-static",
+    title: "VELVET STATIC",
+    artist: "SOLA \u2022 TRILLEX BOUNCE",
+    image:
+      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=800&q=70",
+    streams: "9.3M+",
+    dailyAtPeak: "81K",
+    breakoutPeriod: "GLOBAL SPIKE",
+    dateRange: "MAY \u2014 JUL",
+    tag: "HOODTRAP",
+    pathData: "M0,212 C110,210 200,195 280,165 C360,135 440,95 520,50 L600,22",
+    fillData:
+      "M0,212 C110,210 200,195 280,165 C360,135 440,95 520,50 L600,22 L600,220 L0,220 Z",
+    apexX: 598,
+    apexY: 22,
+    startDate: "3 MAY",
+    endDate: "11 JUL",
+    peakDaily: 81200,
+    cumulativeBase: 0.3,
+    cumulativePeak: 9.36,
+    spotifyUrl: "https://open.spotify.com",
+  },
 ];
 
 export const SOUND_EYEBROW = "TIKTOK SOUND IDS";
-export const SOUND_TITLE = "ONE SOUND. MILLIONS OF VIDEOS.";
+export const SOUND_TITLE = "ONE SOUND, MILLIONS OF VIDEOS.";
 export const SOUND_COPY =
   "The number belongs outside the screenshot. Click any record to inspect the verified TikTok Sound ID and live UGC volume.";
 export const SOUND_GHOST = "5M+";

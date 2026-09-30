@@ -144,7 +144,7 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
       </div>
 
       <div className="relative z-10 w-full shrink-0">
-        <Footer />
+        <Footer showScrollTop />
       </div>
     </section>
   );

@@ -87,7 +87,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
         <Eyebrow text={SOUND_EYEBROW} tone="dark" />
         <div className="mt-5 flex flex-col gap-6 sm:mt-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <h2 className="font-impact text-[8vw] leading-[0.98] tracking-tight text-trillex-paper sm:text-[6.8vw] md:text-[5.5vw] lg:text-[4.6vw] xl:text-[72px] 2xl:text-[84px]">
-            <span className="block">ONE SOUND.</span>
+            <span className="block">ONE SOUND,</span>
             <span className="block">MILLIONS OF</span>
             <span className="block">VIDEOS.</span>
           </h2>
@@ -164,7 +164,8 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 </div>
                 {idx === 0 && (
                   <div className="mt-2 border-t border-white/5 pt-1.5 font-mono text-[7.5px] tracking-[0.12em] text-white/30 uppercase">
-                    DATED PROOF BASELINES &bull; REFRESH EVERY SOURCE BEFORE PUBLIC USE
+                    DATED PROOF BASELINES &bull; REFRESH EVERY SOURCE BEFORE
+                    PUBLIC USE
                   </div>
                 )}
               </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Eyebrow from "./Eyebrow";
 import {
   SPOTIFY_EYEBROW,
@@ -25,9 +26,68 @@ const SpotifyLogo = () => (
   <img
     src="/spotify-for-artists.png"
     alt="Spotify for Artists"
-    className="h-4 w-4 rounded-full object-cover"
+    className="h-6 w-6 rounded-full object-cover"
   />
 );
+
+const MONTHS = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];
+const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+// Maps chart progress t (0..1) to a real calendar date between start
+// ("1 SEP") and end ("30 SEP"), so hover reads "1 SEP" … "30 SEP".
+const dateAtProgress = (start: string, end: string, t: number): string => {
+  const parse = (s: string): { day: number; mon: number } | null => {
+    const m = s
+      .trim()
+      .toUpperCase()
+      .match(/^(\d{1,2})\s+([A-Z]{3})$/);
+    if (!m) return null;
+    const mon = MONTHS.indexOf(m[2]);
+    if (mon < 0) return null;
+    return { day: parseInt(m[1], 10), mon };
+  };
+  const s = parse(start);
+  const e = parse(end);
+  if (!s || !e) return start;
+  let span = 0;
+  {
+    let d = s.day;
+    let m = s.mon;
+    while (d !== e.day || m !== e.mon) {
+      d++;
+      span++;
+      if (d > MONTH_DAYS[m]) {
+        d = 1;
+        m = (m + 1) % 12;
+      }
+      if (span > 366) break;
+    }
+  }
+  let offset = Math.round(t * span);
+  let d = s.day;
+  let m = s.mon;
+  for (let i = 0; i < offset; i++) {
+    d++;
+    if (d > MONTH_DAYS[m]) {
+      d = 1;
+      m = (m + 1) % 12;
+    }
+  }
+  return `${d} ${MONTHS[m]}`;
+};
 
 interface HoverPoint {
   x: number;
@@ -83,9 +143,7 @@ const DynamicGrowthChart: React.FC<{
     }
 
     const t = Math.max(0, Math.min(1, relX / 600));
-    const dayIdx = Math.floor(t * 50);
-    const dateLabel =
-      dayIdx < 25 ? `${record.startDate} +${dayIdx}D` : `${record.endDate}`;
+    const dateLabel = dateAtProgress(record.startDate, record.endDate, t);
     const dailyStreams = Math.round(
       1500 + Math.pow(t, 2.4) * (record.peakDaily - 1500),
     );
@@ -301,6 +359,71 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     SPOTIFY_PROOF_RECORDS.find((r) => r.id === selectedId) ||
     SPOTIFY_PROOF_RECORDS[0];
 
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const copyCount = SPOTIFY_PROOF_RECORDS.length;
+
+  // Tripled track for a seamless infinite loop; we rest in the middle copy
+  const loopRecords = [
+    ...SPOTIFY_PROOF_RECORDS,
+    ...SPOTIFY_PROOF_RECORDS,
+    ...SPOTIFY_PROOF_RECORDS,
+  ];
+
+  const oneCopyWidth = () => {
+    const el = scrollerRef.current;
+    if (!el || el.children.length <= copyCount) return 0;
+    return (el.children[copyCount] as HTMLElement).offsetLeft;
+  };
+
+  // Start in the middle copy so both directions can scroll forever
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const center = () => {
+      const w = oneCopyWidth();
+      if (w > 0) el.scrollLeft = w;
+    };
+    center();
+    const raf = requestAnimationFrame(center);
+    window.addEventListener("resize", center);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", center);
+    };
+  }, []);
+
+  // Seamless wrap: at an edge copy, jump one copy over (identical view)
+  const handleLoopScroll = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const w = oneCopyWidth();
+    if (w <= 0) return;
+    if (el.scrollLeft <= 2) {
+      el.scrollLeft += w;
+    } else if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 2) {
+      el.scrollLeft -= w;
+    }
+  };
+
+  // Infinite scroller: pre-jump past the edge, then glide (no visible snap)
+  const scrollRecords = (dir: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const reduce = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const behavior = reduce ? "auto" : "smooth";
+    const w = oneCopyWidth();
+    if (w > 0) {
+      if (dir === 1 && el.scrollLeft + el.clientWidth >= el.scrollWidth - 4) {
+        el.scrollLeft -= w;
+      } else if (dir === -1 && el.scrollLeft <= 4) {
+        el.scrollLeft += w;
+      }
+    }
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior });
+  };
+
   useEffect(() => {
     if (!isActive) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -356,68 +479,96 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
             <span>SELECT RECORD</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-            {SPOTIFY_PROOF_RECORDS.map((record) => {
-              const isSelected = record.id === selectedId;
-              return (
-                <button
-                  key={record.id}
-                  onClick={() => setSelectedId(record.id)}
-                  aria-pressed={isSelected}
-                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl border p-3 text-left transition-all duration-300 sm:p-4 ${
-                    isSelected
-                      ? "border-[#1DB954] bg-[#0E150F] shadow-[0_0_25px_rgba(29,185,84,0.3)] ring-1 ring-[#1DB954]"
-                      : "border-white/10 bg-[#0B0D0B]/80 hover:border-white/30 hover:bg-[#121412]"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-black sm:h-12 sm:w-12">
-                      <img
-                        src={record.image}
-                        alt={record.title}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      {isSelected && (
-                        <div className="absolute inset-0 bg-[#1DB954]/20 mix-blend-overlay" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className={`h-1.5 w-1.5 rounded-full ${
-                            isSelected
-                              ? "bg-[#1DB954] shadow-[0_0_8px_#1DB954]"
-                              : "bg-white/30"
-                          }`}
+          <div className="relative">
+            <div
+              ref={scrollerRef}
+              onScroll={handleLoopScroll}
+              className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden"
+            >
+              {loopRecords.map((record, copyIdx) => {
+                const isSelected = record.id === selectedId;
+                const inMainCopy =
+                  copyIdx >= copyCount && copyIdx < copyCount * 2;
+                return (
+                  <button
+                    key={`${record.id}-${copyIdx}`}
+                    onClick={() => setSelectedId(record.id)}
+                    aria-hidden={!inMainCopy}
+                    tabIndex={inMainCopy ? undefined : -1}
+                    aria-pressed={isSelected}
+                    className={`group relative flex h-[154px] w-[478px] max-w-[85vw] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border p-3 text-left transition-all duration-300 sm:p-4 ${
+                      isSelected
+                        ? "border-[#1DB954] bg-[#0E150F] shadow-[0_0_25px_rgba(29,185,84,0.3)] ring-1 ring-[#1DB954]"
+                        : "border-white/10 bg-[#0B0D0B]/80 hover:border-white/30 hover:bg-[#121412]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-black sm:h-12 sm:w-12">
+                        <img
+                          src={record.image}
+                          alt={record.title}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                        <span className="truncate font-mono text-[8px] uppercase tracking-[0.16em] text-white/50 sm:text-[9px]">
-                          {record.tag}
-                        </span>
+                        {isSelected && (
+                          <div className="absolute inset-0 bg-[#1DB954]/20 mix-blend-overlay" />
+                        )}
                       </div>
-                      <div
-                        className={`font-impact text-xs sm:text-sm md:text-base mt-0.5 leading-snug line-clamp-2 ${
-                          isSelected ? "text-white" : "text-white/80"
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${
+                              isSelected
+                                ? "bg-[#1DB954] shadow-[0_0_8px_#1DB954]"
+                                : "bg-white/30"
+                            }`}
+                          />
+                          <span className="truncate font-mono text-[8px] uppercase tracking-[0.16em] text-white/50 sm:text-[9px]">
+                            {record.tag}
+                          </span>
+                        </div>
+                        <div
+                          className={`font-impact text-xs sm:text-sm md:text-base mt-0.5 leading-snug line-clamp-2 ${
+                            isSelected ? "text-white" : "text-white/80"
+                          }`}
+                        >
+                          {toTitleCase(record.title)}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex items-baseline justify-between border-t border-white/10 pt-2 font-mono text-[8.5px] sm:text-[9px]">
+                      <span className="text-white/40">STREAMS</span>
+                      <span
+                        className={`font-bold ${
+                          isSelected ? "text-[#19D057]" : "text-white/70"
                         }`}
                       >
-                        {toTitleCase(record.title)}
-                      </div>
+                        {record.streams}
+                      </span>
                     </div>
-                  </div>
-
-                  <div className="mt-3 flex items-baseline justify-between border-t border-white/10 pt-2 font-mono text-[8.5px] sm:text-[9px]">
-                    <span className="text-white/40">STREAMS</span>
-                    <span
-                      className={`font-bold ${
-                        isSelected ? "text-[#19D057]" : "text-white/70"
-                      }`}
-                    >
-                      {record.streams}
-                    </span>
-                  </div>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={() => scrollRecords(-1)}
+              aria-label="Scroll records left"
+              data-hoverable="true"
+              className={`absolute left-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white backdrop-blur-md transition-all hover:border-[#1DB954] hover:text-[#1DB954] opacity-100`}
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollRecords(1)}
+              aria-label="Scroll records right"
+              data-hoverable="true"
+              className={`absolute right-1 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/70 text-white backdrop-blur-md transition-all hover:border-[#1DB954] hover:text-[#1DB954] opacity-100`}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </div>
 
@@ -425,7 +576,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
         <div className="mt-6 sm:mt-8">
           <div className="relative mx-auto w-full rounded-2xl border border-white/15 bg-[#0B0D0B] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.8)] sm:p-7 md:p-8">
             {/* Header row */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 font-mono text-[9px] tracking-[0.18em] text-white/60 sm:text-[10px] sm:tracking-[0.2em]">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 font-mono text-[12px] tracking-[0.18em] text-white/60 sm:text-[13px] sm:tracking-[0.2em]">
               <div className="flex items-center gap-2">
                 <SpotifyLogo />
                 <span className="text-white font-semibold">

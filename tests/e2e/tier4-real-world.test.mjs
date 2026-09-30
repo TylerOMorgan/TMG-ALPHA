@@ -36,18 +36,29 @@ export async function runTier4(browser, baseUrl, results) {
       const h1 = container.locator('h1');
       assert.equal(await h1.textContent(), 'ARTISTS');
 
-      const stat900 = container.locator('text=900+');
-      assert.ok(await stat900.isVisible(), 'Hero metric 900+ is visible');
+      await page.waitForFunction(() => document.body.innerText.includes('3.74B+'), { timeout: 8000 });
+      const statGrid = container.locator('div.grid').filter({ hasText: 'SONGS SIGNED' }).first();
+      const vals = await statGrid.evaluate(el => [...el.children].map(c => c.children[1].textContent.trim()));
+      assert.deepEqual(vals, ['928', '3.74B+', '5M+', '590M+']);
 
-      // 3. Hovers artist card
-      const card = container.locator('div[class*="aspect-[16/10]"]').first();
-      await card.hover({ force: true });
+      // 3. Hovers an artist card currently inside the viewport
+      // (the marquee translates cells, so the first cell may sit off-canvas)
+      const cells = container.locator('div[class*="aspect-square"]');
+      let hovered = false;
+      for (let i = 0; i < 16 && !hovered; i++) {
+        const box = await cells.nth(i).boundingBox();
+        if (box && box.x >= 0 && box.x + box.width <= 1920) {
+          await cells.nth(i).hover({ force: true });
+          hovered = true;
+        }
+      }
+      assert.ok(hovered, 'Hovered an in-view artist card');
       await page.waitForTimeout(50);
 
-      // 4. Scrolls through Lanes
+      // 4. Scrolls through the record selector strip
       await scrollToY(page, 1400);
-      const lanesTitle = container.locator('text=/INTERNET CULTURE DOES NOT WAIT/i');
-      assert.ok(await lanesTitle.count() > 0, 'Lanes section visible during scroll');
+      const stripLabel = container.locator('text=SELECT RECORD');
+      assert.ok(await stripLabel.count() > 0, 'Record strip visible during scroll');
 
       // 5. Scrolls through Spotify Proof
       await scrollToY(page, 2400);
@@ -59,15 +70,16 @@ export async function runTier4(browser, baseUrl, results) {
       const soundTitle = container.locator('h2').filter({ hasText: /ONE SOUND/i }).filter({ hasText: /MILLIONS/i });
       assert.ok(await soundTitle.count() > 0, 'Sound ID section reached');
 
-      // 7. Enters Records Rail
-      await scrollToY(page, 4400);
-      const recordsTitle = container.locator('h2').filter({ hasText: /THE RECORDS PEOPLE REPEAT/i });
-      assert.ok(await recordsTitle.count() > 0, 'Records rail reached');
+      // 7. Selects a record, deep-dive follows
+      await container.locator('button[aria-pressed]').nth(9).click();
+      await page.waitForTimeout(300);
+      const deepDive = container.locator('h3').filter({ hasText: 'ODNOGO ULTRAFUNK' });
+      assert.ok(await deepDive.count() > 0, 'Record deep-dive reached');
 
-      // 8. Enters Work With Us
-      await scrollToY(page, 5200);
-      const workTitle = container.locator('h2').filter({ hasText: /MOVE FAST/i }).filter({ hasText: /COMMUNICATE/i });
-      assert.ok(await workTitle.count() > 0, 'Work section reached');
+      // 8. Reaches the footer scroll-to-top control
+      await scrollToY(page, 6000);
+      const topBtn = container.locator('button[aria-label="Scroll to top"]').first();
+      assert.ok(await topBtn.count() > 0, 'Footer scroll-to-top reached');
 
       // 9. Clicks SUBMIT YOUR DEMO
       const ctaBtn = container.locator('a, button').filter({ hasText: 'SUBMIT YOUR DEMO' }).first();
@@ -185,7 +197,7 @@ export async function runTier4(browser, baseUrl, results) {
       const h1 = container.locator('h1');
       assert.ok(await h1.isVisible());
 
-      const stats = container.locator('text=900+');
+      const stats = container.locator('text="SONGS SIGNED"');
       assert.ok(await stats.isVisible());
 
       // Keyboard navigation with Tab
@@ -194,7 +206,7 @@ export async function runTier4(browser, baseUrl, results) {
       await page.waitForTimeout(50);
 
       // Check card containers maintain non-zero size without images
-      const cards = container.locator('div[class*="aspect-[16/10]"]');
+      const cards = container.locator('div[class*="aspect-square"]');
       const box = await cards.first().boundingBox();
       assert.ok(box && box.height > 50, 'Card height is maintained via aspect-ratio');
 

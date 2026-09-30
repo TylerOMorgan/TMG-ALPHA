@@ -238,12 +238,18 @@ export async function runTier2(browser, baseUrl, results) {
       assert.ok(await cards.count() > 0, 'Cards should adapt to tablet layout');
     });
 
-    await runTest('T2.4.4', 'Desktop Viewport 1440x900 Pin Accuracy', results, async () => {
+    await runTest('T2.4.4', 'Desktop Record Strip Configuration', results, async () => {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.waitForTimeout(150);
 
-      const desktopTrack = container.locator('div[class*="md:overflow-visible"]').filter({ hasText: 'MIMIMI HARDTEKK' }).first();
-      assert.ok(await desktopTrack.count() > 0, 'Desktop RecordsRail track should be configured');
+      const strip = container.locator('div.overflow-x-auto').filter({ hasText: 'MIMIMI HARDTEKK' }).first();
+      assert.ok(await strip.count() > 0, 'Desktop record strip scroller should be configured');
+
+      const cardBox = await container.locator('button[aria-pressed]').nth(8).boundingBox();
+      assert.ok(cardBox && Math.abs(cardBox.width - 478) < 2, `Record cards should be 478px wide, got ${cardBox && cardBox.width}`);
+
+      const rightArrow = container.locator('button[aria-label="Scroll records right"]').first();
+      assert.equal(await rightArrow.isVisible(), true, 'Strip arrow should be visible on desktop');
     });
 
     await runTest('T2.4.5', 'Dynamic Resize During Mid-Scroll', results, async () => {
@@ -283,9 +289,12 @@ export async function runTier2(browser, baseUrl, results) {
       assert.ok(await chartLine.count() > 0, 'Spotify chart line exists in reduced motion');
     });
 
-    await runTest('T2.5.4', 'RecordsRail Reduced Motion Presentation', results, async () => {
-      const recordsTitle = container.locator('text=THE RECORDS PEOPLE REPEAT.');
-      assert.ok(await recordsTitle.count() > 0, 'Records Rail section is accessible');
+    await runTest('T2.5.4', 'Record Strip Reduced Motion Presentation', results, async () => {
+      const stripLabel = container.locator('text=SELECT RECORD');
+      assert.ok(await stripLabel.count() > 0, 'Record strip is accessible in reduced motion');
+
+      const arrows = container.locator('button[aria-label^="Scroll records"]');
+      assert.ok((await arrows.count()) >= 2, 'Strip arrows present in reduced motion');
     });
 
     await runTest('T2.5.5', 'Zero Runtime Errors on Preference Toggle', results, async () => {
@@ -312,10 +321,10 @@ export async function runTier2(browser, baseUrl, results) {
     });
 
     await runTest('T2.6.2', 'Card Aspect Ratio Preservation', results, async () => {
-      const cards = container.locator('div[class*="aspect-[16/10]"]');
+      const cards = container.locator('div[class*="aspect-square"]');
       const count = await cards.count();
-      assert.ok(count >= 12, '12 artist cards maintain their aspect containers');
-      
+      assert.ok(count >= 40, 'Marquee artist cells maintain their aspect containers');
+
       const firstCardBox = await cards.first().boundingBox();
       assert.ok(firstCardBox && firstCardBox.width > 0 && firstCardBox.height > 0,
         'Card container has non-zero width and height even if image fails');
@@ -325,7 +334,7 @@ export async function runTier2(browser, baseUrl, results) {
       const cardName = container.locator('span').filter({ hasText: 'MAYA SOL' }).first();
       assert.equal(await cardName.isVisible(), true, 'Artist name MAYA SOL remains visible');
 
-      const badge = container.locator('div[class*="aspect-[16/10]"] svg').first();
+      const badge = container.locator('div[class*="aspect-square"] svg').first();
       assert.equal(await badge.isVisible(), true, 'Spotify badge remains visible');
     });
 

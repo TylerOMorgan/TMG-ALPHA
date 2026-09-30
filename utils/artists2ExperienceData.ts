@@ -186,7 +186,7 @@ export const SPOTIFY_CARDS: SpotifyProofCard[] = [
 ];
 
 export const SOUND_EYEBROW = "SOUND IDS \u2022 CULTURAL REACH";
-export const SOUND_TITLE = "ONE SOUND. MILLIONS OF VIDEOS.";
+export const SOUND_TITLE = "ONE SOUND, MILLIONS OF VIDEOS.";
 export const SOUND_COPY =
   "The number belongs outside the screenshot. Artists should understand the size of the movement before they open the proof.";
 export const SOUND_GHOST = "5M+";

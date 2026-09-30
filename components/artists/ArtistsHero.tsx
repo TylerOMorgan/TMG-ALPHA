@@ -13,16 +13,18 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Original TikTok brand mark: white note with cyan/red chromatic offsets
+// (same glyph + treatment as ContactForm's TikTokIcon).
 const TikTokGlyph: React.FC<{ className?: string }> = ({
   className = "h-4 w-4",
 }) => (
   <svg
-    viewBox="0 0 24 24"
+    viewBox="0 0 448 512"
     fill="currentColor"
-    className={className}
+    className={`${className} text-white drop-shadow-[-1.5px_0px_0_#25F4EE] drop-shadow-[1.5px_0px_0_#FE2C55]`}
     aria-hidden="true"
   >
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-.88-.06 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.71a8.21 8.21 0 0 0 4.77 1.52V6.78a4.85 4.85 0 0 1-1-.09z" />
+    <path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z" />
   </svg>
 );
 

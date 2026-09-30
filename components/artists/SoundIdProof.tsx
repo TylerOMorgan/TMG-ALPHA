@@ -83,7 +83,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
 
         <div className="mt-4 flex flex-col gap-4 sm:mt-5 sm:gap-5 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <h2 className="font-impact text-[8.5vw] leading-[0.98] tracking-tight text-trillex-paper sm:text-[6.5vw] md:text-[5vw] lg:text-[4vw] xl:text-[64px] 2xl:text-[76px]">
-            <span className="block">ONE SOUND.</span>
+            <span className="block">ONE SOUND,</span>
             <span className="block">MILLIONS OF</span>
             <span className="block">VIDEOS.</span>
           </h2>
@@ -114,31 +114,29 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
 
-              {/* Top Left: Clear TikTok Branding Badge with dual-glow accents */}
-              <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/70 px-2.5 py-1 font-mono text-[8.5px] tracking-[0.14em] text-white backdrop-blur-md transition-colors group-hover:border-[#00F2FE]/60">
-                <span className="flex items-center -space-x-1">
-                  <span className="h-2 w-2 rounded-full bg-[#00F2FE]" />
-                  <span className="h-2 w-2 rounded-full bg-[#FE2C55] opacity-90" />
-                </span>
-                <span className="font-semibold text-white/90">
-                  TIKTOK SOUND
-                </span>
-              </span>
-
-              <div className="absolute inset-x-0 bottom-0 p-3.5">
-                <div className="font-mono text-[9px] tracking-[0.2em] text-white/60">
-                  {card.artist}
-                </div>
-                <div className="mt-1 font-impact text-base leading-tight text-white md:text-lg group-hover:text-white transition-colors">
-                  {card.title}
-                </div>
-              </div>
+              {/* Top Right: TikTok loading animation */}
+              <img
+                src="/tiktok-loading.svg"
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+                className="absolute right-3 top-3 h-11 w-11"
+              />
             </div>
 
-            {/* Display Metrics & Click Prompt */}
+            {/* Bottom row: title bottom-left, metric bottom-right */}
             <div className="border-t border-white/10 p-3.5 bg-[#0C0C0C]">
-              <div className="flex items-baseline justify-between gap-2">
-                <div className="font-impact text-2xl text-white group-hover:text-[#00F2FE] transition-colors md:text-3xl">
+              <div className="flex items-end justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-mono text-[9px] tracking-[0.2em] text-white/60">
+                    {card.artist}
+                  </div>
+                  <div className="mt-1 font-impact text-base leading-tight text-white md:text-lg group-hover:text-white transition-colors">
+                    {card.title}
+                  </div>
+                </div>
+                <div className="shrink-0 font-impact text-2xl text-white group-hover:text-[#00F2FE] transition-colors md:text-3xl">
                   {card.metric}
                 </div>
               </div>

@@ -4,13 +4,19 @@ import {
   navigateToArtists,
   resetToArtistsTop,
   scrollToY,
+  waitForPreloader,
   getArtistsContainer,
   runTest,
   assert
 } from './harness.mjs';
 
 /**
- * Tier 1: Feature Coverage Suite (40 tests across 8 timestamp sections)
+ * Tier 1: Feature Coverage Suite (40 tests across the revised #artists page)
+ *
+ * NOTE (2026-09-30): the full 8-section experience was deliberately moved to
+ * the #artist2 route (commit 90b9d45) while #artists was revised (live hero
+ * marquee, selectable Spotify deep-dive, Sound ID proof cards, demo CTA).
+ * This suite tests the REVISED page as the source of truth.
  */
 export async function runTier1(browser, baseUrl, results) {
   console.log('\n=== TIER 1: FEATURE COVERAGE (40 TESTS) ===');
@@ -25,19 +31,19 @@ export async function runTier1(browser, baseUrl, results) {
     const container = getArtistsContainer(page);
 
     // =========================================================================
-    // SECTION 1: HERO STRIP & STATS (00:00) — 5 Tests
+    // SECTION 1: HERO STRIP & STATS — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 1: Hero Strip & Stats (00:00) ---');
+    console.log('\n--- Group 1: Hero Strip & Stats ---');
 
     await runTest('T1.1.1', 'Hero Eyebrow & Indicator', results, async () => {
-      const eyebrow = container.locator('text=/ARTISTS/i').filter({ hasText: /WHY WORK WITH US/i }).first();
-      await assert.equal(await eyebrow.isVisible(), true, 'Eyebrow should be visible');
-      
-      // Check for orange indicator dot (span with rounded-full and signal class)
+      const eyebrow = container.locator('text=THE TRILLEX ROSTER').first();
+      assert.equal(await eyebrow.isVisible(), true, 'Eyebrow should be visible');
+
+      // Check for indicator dot (span with rounded-full inside the eyebrow row)
       const dot = eyebrow.locator('xpath=ancestor::*[contains(@class, "flex")][1]//span[contains(@class, "rounded-full")]');
       const dotCount = await dot.count();
       assert.ok(dotCount > 0, 'Eyebrow should have an indicator dot');
-      
+
       // Check monospace styling
       const textSpan = eyebrow.locator('xpath=ancestor-or-self::*[contains(@class, "font-mono")]').first();
       assert.ok(await textSpan.count() > 0, 'Eyebrow should use font-mono');
@@ -48,71 +54,71 @@ export async function runTier1(browser, baseUrl, results) {
       assert.equal(await h1.isVisible(), true, 'h1 should be visible');
       const text = (await h1.textContent()).trim();
       assert.equal(text, 'ARTISTS', 'h1 text should be ARTISTS');
-      
+
       const fontSize = await h1.evaluate(el => parseFloat(window.getComputedStyle(el).fontSize));
       assert.ok(fontSize >= 100, `h1 font-size should be display scale (>=100px on desktop), got ${fontSize}px`);
     });
 
-    await runTest('T1.1.3', 'Hero Subtitle Head & Tail Copy', results, async () => {
-      const head = container.locator('text=/The artists\\. The records\\. The proof\\./i');
-      assert.ok(await head.count() > 0, 'Head copy "The artists. The records. The proof." should be present');
-      assert.equal(await head.first().isVisible(), true, 'Head copy should be visible');
+    await runTest('T1.1.3', 'Hero Live Badge & Backdrop', results, async () => {
+      const live = container.locator('text=ROSTER LIVE').first();
+      assert.ok(await live.count() > 0, 'ROSTER LIVE badge should be present');
+      assert.equal(await live.isVisible(), true, 'ROSTER LIVE badge should be visible');
 
-      const tail = container.locator('text=/Built around the sounds moving internet culture\\./i');
-      assert.ok(await tail.count() > 0, 'Tail copy "Built around the sounds moving internet culture." should be present');
-      assert.equal(await tail.first().isVisible(), true, 'Tail copy should be visible');
+      const backdrop = container.locator('text=ROSTER').first();
+      assert.ok(await backdrop.count() > 0, 'Giant ROSTER backdrop should be present');
     });
 
     await runTest('T1.1.4', '4-Stat Metric Values', results, async () => {
-      const expectedValues = ['900+', '3.7B+', '5M+', '590M+'];
-      for (const val of expectedValues) {
-        const locator = container.locator(`text="${val}"`);
-        assert.ok(await locator.count() > 0, `Metric value ${val} should exist`);
-        assert.equal(await locator.first().isVisible(), true, `Metric value ${val} should be visible`);
-      }
+      // Count-up finishes ~1.4s after the stats scroll into view; wait for final values.
+      // Values are read structurally (exact-text locators are flaky against
+      // React text nodes mid count-up).
+      await page.waitForFunction(() => document.body.innerText.includes('3.74B+'), { timeout: 8000 });
+      const grid = container.locator('div.grid').filter({ hasText: 'SONGS SIGNED' }).first();
+      assert.equal(await grid.isVisible(), true, 'Stat grid should be visible');
+      const vals = await grid.evaluate(el => [...el.children].map(c => c.children[1].textContent.trim()));
+      assert.deepEqual(vals, ['928', '3.74B+', '5M+', '590M+']);
     });
 
-    await runTest('T1.1.5', '4-Stat Metric Labels & Dividers', results, async () => {
+    await runTest('T1.1.5', '4-Stat Metric Labels & Card Accents', results, async () => {
       const expectedLabels = ['SONGS SIGNED', 'TIKTOK VIEWS', 'UGC CREATIONS', 'SPOTIFY STREAMS'];
       for (const label of expectedLabels) {
         const locator = container.locator(`text="${label}"`);
         assert.ok(await locator.count() > 0, `Metric label ${label} should exist`);
         assert.equal(await locator.first().isVisible(), true, `Metric label ${label} should be visible`);
       }
-      
-      // Metric strip container has border styling
-      const metricContainer = container.locator('div.grid').filter({ hasText: 'SONGS SIGNED' }).first();
-      const hasBorder = await metricContainer.evaluate(el => {
-        const cls = el.className;
-        return cls.includes('border-y') || cls.includes('border-t');
+
+      // Each stat card carries a colored top accent via inline border-top style
+      const accents = await container.locator('div.grid').filter({ hasText: 'SONGS SIGNED' }).first().evaluate(el => {
+        return [...el.children].map(c => c.style.borderTop || '');
       });
-      assert.ok(hasBorder, 'Metric strip container should have hairline border styling');
+      assert.equal(accents.length, 4, 'There should be 4 stat cards');
+      assert.ok(accents.every(a => a.includes('2px')), 'Every stat card should have a 2px top accent');
     });
 
     // =========================================================================
-    // SECTION 2: INTERACTIVE EXPLORE ARTISTS GRID & BADGES (00:00 - 00:01) — 5 Tests
+    // SECTION 2: EXPLORE ARTISTS MARQUEE & BADGES — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 2: Interactive Explore Artists Grid & Badges (00:00 - 00:01) ---');
+    console.log('\n--- Group 2: Explore Artists Marquee & Badges ---');
 
     await runTest('T1.2.1', 'Explore Subheader Row', results, async () => {
       const exploreText = container.locator('text=EXPLORE ARTISTS');
       assert.ok(await exploreText.count() > 0, 'Subheader "EXPLORE ARTISTS" should be present');
       assert.equal(await exploreText.first().isVisible(), true);
 
-      const twoWorldsText = container.locator('text=/TWO WORLDS/i');
-      assert.ok(await twoWorldsText.count() > 0, 'Subheader "TWO WORLDS" should be present');
+      const marquee = container.locator('div.cursor-grab').first();
+      assert.ok(await marquee.count() > 0, 'Explore marquee scroller should be present');
     });
 
-    await runTest('T1.2.2', 'Artist Card Quantity & Grid Layout', results, async () => {
-      // Explore grid cards are within the hero section and have aspect-[16/10]
+    await runTest('T1.2.2', 'Artist Card Quantity & Square Layout', results, async () => {
+      // Marquee rows repeat the roster; cells are square artwork cards
       const heroSection = container.locator('section').first();
-      const cards = heroSection.locator('div[class*="aspect-[16/10]"]');
+      const cards = heroSection.locator('div[class*="aspect-square"]');
       const cardCount = await cards.count();
-      assert.ok(cardCount >= 12, `Expected at least 12 artist cards in Explore grid, found ${cardCount}`);
+      assert.ok(cardCount >= 40, `Expected at least 40 artist marquee cells, found ${cardCount}`);
     });
 
     await runTest('T1.2.3', 'Artist Names & Typography', results, async () => {
-      // Roster names: IO/SAINT RIO, MAYA SOL, NOA VALE, LENA MORI, JUNO, SOLA
+      // Roster names: SAINT RIO, MAYA SOL, NOA VALE, LENA MORI, JUNO, SOLA
       const expectedSampleNames = ['MAYA SOL', 'NOA VALE', 'LENA MORI', 'JUNO', 'SOLA'];
       for (const name of expectedSampleNames) {
         const el = container.locator(`text="${name}"`);
@@ -122,101 +128,82 @@ export async function runTier1(browser, baseUrl, results) {
 
     await runTest('T1.2.4', 'Spotify Circular Badges', results, async () => {
       const heroSection = container.locator('section').first();
-      const badges = heroSection.locator('div[class*="aspect-[16/10]"] svg');
+      const badges = heroSection.locator('div[class*="aspect-square"] svg');
       const badgeCount = await badges.count();
-      assert.ok(badgeCount >= 12, `Expected at least 12 Spotify badges on explore cards, found ${badgeCount}`);
+      assert.ok(badgeCount >= 40, `Expected at least 40 Spotify badges on explore cards, found ${badgeCount}`);
     });
 
-    await runTest('T1.2.5', 'Card Image Hover Transform & Footer Disclaimer', results, async () => {
+    await runTest('T1.2.5', 'Card Image Hover Transform & Spotify Links', results, async () => {
       const heroSection = container.locator('section').first();
-      const firstCardImg = heroSection.locator('div[class*="aspect-[16/10]"] img').first();
+      const firstCardImg = heroSection.locator('div[class*="aspect-square"] img').first();
       assert.equal(await firstCardImg.isVisible(), true);
-      
+
       const imgClass = await firstCardImg.getAttribute('class');
       assert.ok(imgClass.includes('group-hover:scale-105') || imgClass.includes('hover:scale'),
         'Card image should support hover zoom transition');
 
-      // Grid footer disclaimers
-      const footerLeft = container.locator('text=CONCEPT ARTIST IMAGERY');
-      assert.ok(await footerLeft.count() > 0, 'Grid footer "CONCEPT ARTIST IMAGERY" should be present');
-      
-      const footerRight = container.locator('text=FINAL ROSTER APPROVAL REQUIRED');
-      assert.ok(await footerRight.count() > 0, 'Grid footer "FINAL ROSTER APPROVAL REQUIRED" should be present');
+      // Every card links out to Spotify
+      const spotifyLink = heroSection.locator('a[aria-label*="Spotify"]').first();
+      assert.ok(await spotifyLink.count() > 0, 'Spotify listen link should be present on cards');
+      const href = await spotifyLink.getAttribute('href');
+      assert.ok(href.includes('open.spotify.com'), `Spotify link should point at open.spotify.com, got ${href}`);
     });
 
     // =========================================================================
-    // SECTION 3: OFF-WHITE SECTION & EXPANDABLE GENRE LANES (00:01 - 00:02) — 5 Tests
+    // SECTION 3: SELECT RECORD INFINITE STRIP — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 3: Off-White Section & Expandable Genre Lanes (00:01 - 00:02) ---');
+    console.log('\n--- Group 3: Select Record Infinite Strip ---');
 
-    await runTest('T1.3.1', 'Theme Background & Text Color Switch', results, async () => {
-      await scrollToY(page, 1100);
-      const lanesHeading = container.locator('text=/DOES NOT WAIT/i').first();
-      assert.ok(await lanesHeading.count() > 0, 'Lanes heading should exist');
-      
-      const lanesSection = container.locator('section').filter({ hasText: /DOES NOT WAIT/i }).first();
-      const bgColor = await lanesSection.evaluate(el => window.getComputedStyle(el).backgroundColor);
-      // Trillex bone color: #EFECE1, #ECEADE, #EBE7DD
-      assert.ok(
-        bgColor.includes('239, 236, 225') || bgColor.includes('235, 231, 221') || bgColor.includes('236, 234, 222'),
-        `Lanes section background should be warm bone, got ${bgColor}`
-      );
+    await runTest('T1.3.1', 'Select Record Label', results, async () => {
+      const label = container.locator('text=SELECT RECORD').first();
+      assert.ok(await label.count() > 0, 'Label "SELECT RECORD" should be present');
+      assert.equal(await label.isVisible(), true, 'Label should be visible');
     });
 
-    await runTest('T1.3.2', 'Lanes Eyebrow & Display Headline', results, async () => {
-      const eyebrow = container.locator('text=/OUR LANES/i').filter({ hasText: /INTERNET DRIVEN MUSIC/i });
-      assert.ok(await eyebrow.count() > 0, 'Lanes eyebrow should be present');
-
-      const title = container.locator('h2').filter({ hasText: /INTERNET CULTURE DOES NOT WAIT/i });
-      assert.ok(await title.count() > 0, 'Lanes title "INTERNET CULTURE DOES NOT WAIT." should be present');
+    await runTest('T1.3.2', '8 Records Tripled For Infinite Loop', results, async () => {
+      // 8 records x 3 loop copies = 24 selectable buttons
+      const buttons = container.locator('button[aria-pressed]');
+      assert.equal(await buttons.count(), 24, 'Expected 24 record buttons (8 records x 3 loop copies)');
     });
 
-    await runTest('T1.3.3', '3 Genre Lanes Presence & Content', results, async () => {
-      const lanes = ['HARDTEKK', 'BRAZILIAN FUNK', 'HOODTRAP'];
-      for (const lane of lanes) {
-        const el = container.locator(`text="${lane}"`);
-        assert.ok(await el.count() > 0, `Genre lane ${lane} should be present`);
-      }
-      // Check indices 01, 02, 03
-      const indices = ['01', '02', '03'];
-      for (const idx of indices) {
-        const el = container.locator(`text="${idx}"`);
-        assert.ok(await el.count() > 0, `Lane index ${idx} should be present`);
-      }
+    await runTest('T1.3.3', 'Strip Navigation Arrows', results, async () => {
+      const left = container.locator('button[aria-label="Scroll records left"]').first();
+      const right = container.locator('button[aria-label="Scroll records right"]').first();
+      assert.equal(await left.isVisible(), true, 'Left arrow should be visible');
+      assert.equal(await right.isVisible(), true, 'Right arrow should be visible');
     });
 
-    await runTest('T1.3.4', 'Lane Alignment & Color Hierarchy', results, async () => {
-      // 01 HARDTEKK should have signal color styling
-      const hardtekk = container.locator('span').filter({ hasText: 'HARDTEKK' }).first();
-      const hardtekkClass = await hardtekk.getAttribute('class');
-      assert.ok(
-        hardtekkClass.includes('text-trillex-signal') || hardtekkClass.includes('text-[#') || hardtekkClass.includes('orange'),
-        `HARDTEKK should have signal orange color, got class: ${hardtekkClass}`
-      );
-
-      // 02 BRAZILIAN FUNK is right-aligned
-      const brazilian = container.locator('div').filter({ hasText: 'BRAZILIAN FUNK' }).first();
-      const brClass = await brazilian.getAttribute('class');
-      assert.ok(
-        brClass.includes('justify-end') || brClass.includes('ml-auto') || (await brazilian.locator('.ml-auto, [class*="justify-end"]').count()) > 0,
-        `BRAZILIAN FUNK row should be right-aligned, got class: ${brClass}`
-      );
+    await runTest('T1.3.4', 'Arrow Scroll Advances Strip', results, async () => {
+      const scroller = container.locator('div.overflow-x-auto').first();
+      const before = await scroller.evaluate(el => el.scrollLeft);
+      await container.locator('button[aria-label="Scroll records right"]').first().click();
+      const handle = await scroller.elementHandle();
+      await page.waitForFunction(([el, b]) => el.scrollLeft > b, [handle, before], { timeout: 4000 });
+      const after = await scroller.evaluate(el => el.scrollLeft);
+      assert.ok(after > before, `Strip should advance right (before=${before}, after=${after})`);
     });
 
-    await runTest('T1.3.5', 'Waveform Line Accent', results, async () => {
-      // Look for the waveform SVG
-      const waveform = container.locator('svg[viewBox*="340 52"], svg path[d*="M0 26"]');
-      assert.ok(await waveform.count() > 0, 'Waveform SVG line should be present in Lanes section');
+    await runTest('T1.3.5', 'Record Selection Updates Deep-Dive', results, async () => {
+      // Middle loop copy starts at index 8: click ODNOGO (index 9), then restore MIMIMI (index 8)
+      await container.locator('button[aria-pressed]').nth(9).click();
+      await page.waitForTimeout(400);
+      const updated = container.locator('h3').filter({ hasText: 'ODNOGO ULTRAFUNK' });
+      assert.ok(await updated.count() > 0, 'Deep-dive should show ODNOGO ULTRAFUNK after selection');
+
+      await container.locator('button[aria-pressed]').nth(8).click();
+      await page.waitForTimeout(400);
+      const restored = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
+      assert.ok(await restored.count() > 0, 'Deep-dive should restore MIMIMI HARDTEKK');
     });
 
     // =========================================================================
-    // SECTION 4: GLOWING SPOTIFY FOR ARTISTS GRAPH CARDS (00:03) — 5 Tests
+    // SECTION 4: SPOTIFY DEEP-DIVE SHOWCASE (00:03) — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 4: Glowing Spotify For Artists Graph Cards (00:03) ---');
+    console.log('\n--- Group 4: Spotify Deep-Dive Showcase ---');
 
-    await runTest('T1.4.1', 'Dark Theme Return & Spotify Eyebrow', results, async () => {
+    await runTest('T1.4.1', 'Dark Theme & Spotify Eyebrow', results, async () => {
       await scrollToY(page, 2000);
-      const spotifyEyebrow = container.locator('text=/SPOTIFY FOR ARTISTS/i').filter({ hasText: /GROWTH PROOF/i });
+      const spotifyEyebrow = container.locator('text=/SPOTIFY FOR ARTISTS/i').first();
       assert.ok(await spotifyEyebrow.count() > 0, 'Spotify eyebrow should be present');
 
       const spotifySection = container.locator('section').filter({ hasText: /MOMENTUM/i }).first();
@@ -230,35 +217,34 @@ export async function runTier1(browser, baseUrl, results) {
       assert.ok(isDark, 'Spotify section background should be dark black');
     });
 
-    await runTest('T1.4.2', 'Spotify Section Heading & Description', results, async () => {
+    await runTest('T1.4.2', 'Spotify Section Heading & Record Strip', results, async () => {
       const heading = container.locator('h2').filter({ hasText: /MOMENTUM/i });
       assert.ok(await heading.count() > 0, 'Heading "MOMENTUM YOU CAN SEE." should be present');
 
-      const copy = container.locator('text=/Real growth belongs beside the record that created it/i');
-      assert.ok(await copy.count() > 0, 'Spotify section copy should be present');
+      const strip = container.locator('text=SELECT RECORD');
+      assert.ok(await strip.count() > 0, 'Record selector strip should sit under the heading');
     });
 
-    await runTest('T1.4.3', '3-Card Fanned Stacking Hierarchy', results, async () => {
-      // Check for Back Card (ARTIST), Mid Card (GROWTH 02), Hero Card (MIMIMI HARDTEKK)
-      const artistCard = container.locator('text=/ARTIST \\(/i');
-      assert.ok(await artistCard.count() > 0, 'Back card "ARTIST (" should be present');
-
-      const growthCard = container.locator('text=/GROWTH 02/i');
-      assert.ok(await growthCard.count() > 0, 'Mid card "GROWTH 02" should be present');
-
+    await runTest('T1.4.3', 'Record Deep-Dive Showcase Card', results, async () => {
       const heroCard = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
-      assert.ok(await heroCard.count() > 0, 'Hero card "MIMIMI HARDTEKK" should be present');
+      assert.ok(await heroCard.count() > 0, 'Deep-dive card "MIMIMI HARDTEKK" should be present');
+
+      const artwork = container.locator('img[alt="MIMIMI HARDTEKK"]').first();
+      assert.ok(await artwork.count() > 0, 'Deep-dive artwork should be present');
+
+      const openLink = container.locator('a').filter({ hasText: /OPEN IN SPOTIFY/i }).first();
+      assert.ok(await openLink.count() > 0, 'OPEN IN SPOTIFY link should be present');
     });
 
-    await runTest('T1.4.4', 'Hero Proof Card Metrics & Title', results, async () => {
+    await runTest('T1.4.4', 'Deep-Dive Metrics & Verification Window', results, async () => {
       const streams = container.locator('text=6M+');
       assert.ok(await streams.count() > 0, 'Spotify Streams metric "6M+" should be displayed');
 
       const daily = container.locator('text=54K');
-      assert.ok(await daily.count() > 0, 'Daily at Snapshot metric "54K" should be displayed');
+      assert.ok(await daily.count() > 0, 'Daily at peak metric "54K" should be displayed');
 
-      const breakout = container.locator('text=BREAKOUT MOMENT');
-      assert.ok(await breakout.count() > 0, 'Breakout moment label should be displayed');
+      const window = container.locator('text=/SEP 1.*SEP 30/');
+      assert.ok(await window.count() > 0, 'Verification window "SEP 1 — SEP 30" should be displayed');
     });
 
     await runTest('T1.4.5', 'SVG Growth Chart & Glowing Stroke', results, async () => {
@@ -275,15 +261,15 @@ export async function runTier1(browser, baseUrl, results) {
     // =========================================================================
     // SECTION 5: SOUND ID PROOF SECTION & 5M+ WATERMARK (00:04 - 00:05) — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 5: Sound ID Proof Section & 5M+ Watermark (00:04 - 00:05) ---');
+    console.log('\n--- Group 5: Sound ID Proof Section & 5M+ Watermark ---');
 
     await runTest('T1.5.1', 'Sound ID Section Header', results, async () => {
       await scrollToY(page, 2800);
-      const eyebrow = container.locator('text=/SOUND IDS/i').filter({ hasText: /CULTURAL REACH/i });
+      const eyebrow = container.locator('text=/TIKTOK SOUND IDS/i').first();
       assert.ok(await eyebrow.count() > 0, 'Sound ID eyebrow should exist');
 
       const heading = container.locator('h2').filter({ hasText: /ONE SOUND/i }).filter({ hasText: /MILLIONS OF/i });
-      assert.ok(await heading.count() > 0, 'Headline "ONE SOUND. MILLIONS OF VIDEOS." should exist');
+      assert.ok(await heading.count() > 0, 'Headline "ONE SOUND, MILLIONS OF VIDEOS." should exist');
     });
 
     await runTest('T1.5.2', 'Giant Background 5M+ Watermark', results, async () => {
@@ -296,8 +282,8 @@ export async function runTier1(browser, baseUrl, results) {
       const expectedCards = [
         'MIMIMI HARDTEKK',
         'ODNOGO ULTRAFUNK',
-        'INTERNET CULTURE IN MOTION',
-        'NEXT WINNER EVIDENCE'
+        'STEREO LOVE FUNK',
+        'CANT FIGHT THIS FEELING'
       ];
       for (const title of expectedCards) {
         const el = container.locator(`text="${title}"`);
@@ -305,16 +291,16 @@ export async function runTier1(browser, baseUrl, results) {
       }
     });
 
-    await runTest('T1.5.4', 'Live Evidence Badges / Pills', results, async () => {
-      const expectedPills = ['SOUND ID PROOF', 'CATALOG PROOF', 'SCREEN TREATMENT'];
-      for (const pill of expectedPills) {
-        const el = container.locator(`text="${pill}"`);
-        assert.ok(await el.count() > 0, `Evidence pill badge "${pill}" should exist`);
-      }
+    await runTest('T1.5.4', 'TikTok Loading Indicators Replace Legacy Pills', results, async () => {
+      const loaders = container.locator('img[src*="tiktok-loading"]');
+      assert.equal(await loaders.count(), 4, 'All 4 proof cards should show the TikTok loading animation');
+
+      const legacy = container.locator('text="TIKTOK SOUND"');
+      assert.equal(await legacy.count(), 0, 'Legacy TIKTOK SOUND pill should be gone');
     });
 
-    await runTest('T1.5.5', 'External Metric Readouts & Baselines', results, async () => {
-      const expectedMetrics = ['900K+', '600K+', '5M+', 'LIVE'];
+    await runTest('T1.5.5', 'External Metric Readouts', results, async () => {
+      const expectedMetrics = ['900K+', '600K+', '1.2M+', '450K+'];
       for (const metric of expectedMetrics) {
         const el = container.locator(`text="${metric}"`);
         assert.ok(await el.count() > 0, `Proof metric "${metric}" should exist`);
@@ -322,113 +308,102 @@ export async function runTier1(browser, baseUrl, results) {
     });
 
     // =========================================================================
-    // SECTION 6: HORIZONTAL RECORD RAILS & APPROVED PROOF BADGES (00:06) — 5 Tests
+    // SECTION 6: SPOTIFY CHART HOVER READOUT — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 6: Horizontal Record Rails & Approved Proof Badges (00:06) ---');
+    console.log('\n--- Group 6: Spotify Chart Hover Readout ---');
 
-    await runTest('T1.6.1', 'Records Section Header & Theme', results, async () => {
-      await scrollToY(page, 3800);
-      const eyebrow = container.locator('text=/SELECTED PROOF/i').filter({ hasText: /REPEATABLE OUTCOMES/i });
-      assert.ok(await eyebrow.count() > 0, 'Records eyebrow should exist');
+    const getChart = () => container.locator('div.cursor-crosshair').first();
+    const getTooltipDate = () => container.locator('[role="tooltip"] span').nth(1).textContent();
 
-      const heading = container.locator('h2').filter({ hasText: /THE RECORDS PEOPLE REPEAT\./i });
-      assert.ok(await heading.count() > 0, 'Records heading "THE RECORDS PEOPLE REPEAT." should exist');
-
-      const section = container.locator('section').filter({ hasText: /THE RECORDS PEOPLE REPEAT/i }).first();
-      const bgColor = await section.evaluate(el => window.getComputedStyle(el).backgroundColor);
-      assert.ok(
-        bgColor.includes('239, 236, 225') || bgColor.includes('235, 231, 221') || bgColor.includes('239, 239, 239'),
-        `Records section background should be cream/bone, got ${bgColor}`
-      );
+    await runTest('T1.6.1', 'Hover Reveals Daily Point Tooltip', results, async () => {
+      const chart = getChart();
+      await chart.scrollIntoViewIfNeeded();
+      const box = await chart.boundingBox();
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.waitForTimeout(200);
+      const tooltip = container.locator('[role="tooltip"]');
+      assert.equal(await tooltip.isVisible(), true, 'Tooltip should appear on chart hover');
+      const streams = await tooltip.filter({ hasText: /STREAMS\/DAY/ }).count();
+      assert.ok(streams > 0, 'Tooltip should show a STREAMS/DAY readout');
     });
 
-    await runTest('T1.6.2', '5 Record Rail Cards Completeness', results, async () => {
-      const sampleTitles = [
-        'MIMIMI HARDTEKK',
-        'ODNOGO ULTRAFUNK',
-        'I WAS MADE FOR LOVIN YOU',
-        'CANT FIGHT THIS FEELING'
-      ];
-      for (const t of sampleTitles) {
-        const el = container.locator(`text=/${t}/i`);
-        assert.ok(await el.count() > 0, `Record card "${t}" should exist`);
-      }
+    await runTest('T1.6.2', 'Hover Left Edge Shows Sep 1', results, async () => {
+      const chart = getChart();
+      const box = await chart.boundingBox();
+      await page.mouse.move(box.x + 6, box.y + box.height / 2);
+      await page.waitForTimeout(200);
+      assert.equal((await getTooltipDate()).trim(), '1 SEP', 'Left edge hover should read "1 SEP"');
     });
 
-    await runTest('T1.6.3', 'Record Lane Tags & Styling', results, async () => {
-      // Look for lane tags (HARDTEKK, BRAZILIAN FUNK)
-      const hardtekkTags = container.locator('span[class*="text-trillex-signal"]').filter({ hasText: 'HARDTEKK' });
-      assert.ok(await hardtekkTags.count() > 0, 'Signal orange HARDTEKK lane tag should exist on record cards');
+    await runTest('T1.6.3', 'Hover Right Edge Shows Sep 30', results, async () => {
+      const chart = getChart();
+      const box = await chart.boundingBox();
+      await page.mouse.move(box.x + box.width - 6, box.y + box.height / 2);
+      await page.waitForTimeout(200);
+      assert.equal((await getTooltipDate()).trim(), '30 SEP', 'Right edge hover should read "30 SEP"');
     });
 
-    await runTest('T1.6.4', 'Approved Proof Candidate Badges', results, async () => {
-      const badges = container.locator('text=APPROVED PROOF CANDIDATE');
-      const count = await badges.count();
-      assert.ok(count >= 5, `Expected at least 5 APPROVED PROOF CANDIDATE badges, found ${count}`);
+    await runTest('T1.6.4', 'Hover Shows Streams And Cumulative Totals', results, async () => {
+      const chart = getChart();
+      const box = await chart.boundingBox();
+      await page.mouse.move(box.x + box.width * 0.75, box.y + box.height / 2);
+      await page.waitForTimeout(200);
+      const tooltip = container.locator('[role="tooltip"]');
+      assert.ok(await tooltip.filter({ hasText: /STREAMS\/DAY/ }).count() > 0, 'Tooltip should show daily streams');
+      assert.ok(await tooltip.filter({ hasText: /CUMULATIVE/ }).count() > 0, 'Tooltip should show cumulative total');
     });
 
-    await runTest('T1.6.5', 'Desktop Pinning Configuration', results, async () => {
-      // On desktop, the records section pin wrapper exists
-      const pinContainer = container.locator('section').filter({ hasText: /THE RECORDS PEOPLE REPEAT/i }).locator('div').first();
-      assert.ok(await pinContainer.count() > 0, 'Records rail pin container should exist');
+    await runTest('T1.6.5', 'Tooltip Hides On Mouse Leave', results, async () => {
+      await page.mouse.move(5, 5);
+      await page.waitForTimeout(200);
+      assert.equal(await container.locator('[role="tooltip"]').count(), 0, 'Tooltip should hide after mouse leave');
     });
 
     // =========================================================================
-    // SECTION 7: VIBRANT ORANGE 3-PILLAR WORK GRID (00:07) — 5 Tests
+    // SECTION 7: FOOTER SCROLL-TO-TOP — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 7: Vibrant Orange 3-Pillar Work Grid (00:07) ---');
+    console.log('\n--- Group 7: Footer Scroll-To-Top ---');
 
-    await runTest('T1.7.1', 'Vibrant Signal Orange Background', results, async () => {
-      await scrollToY(page, 4800);
-      const workSection = container.locator('section').filter({ hasText: /MOVE FAST/i }).first();
-      assert.ok(await workSection.count() > 0, 'Work section should exist');
-      
-      const bgColor = await workSection.evaluate(el => window.getComputedStyle(el).backgroundColor);
-      // Signal orange: rgb(234, 120, 38), rgb(229, 138, 30), rgb(222, 138, 30)
-      assert.ok(
-        bgColor.includes('234, 120, 38') || bgColor.includes('229, 138, 30') || bgColor.includes('230, 126, 34') || bgColor.includes('222, 138, 30'),
-        `Work section background should be vibrant signal orange, got ${bgColor}`
-      );
+    await runTest('T1.7.1', 'Scroll-To-Top Button In Artists Footer', results, async () => {
+      await resetToArtistsTop(page);
+      const btn = container.locator('button[aria-label="Scroll to top"]').first();
+      assert.ok(await btn.count() > 0, 'Scroll-to-top button should exist in footer');
+      assert.equal(await btn.isVisible(), true, 'Scroll-to-top button should be visible');
     });
 
-    await runTest('T1.7.2', 'Work Section Eyebrow', results, async () => {
-      const eyebrow = container.locator('text=/WHAT THE PROOF MEANS FOR THE ARTIST/i');
-      assert.ok(await eyebrow.count() > 0, 'Work section eyebrow should exist');
+    await runTest('T1.7.2', 'Scroll-To-Top Accessible Name', results, async () => {
+      const btn = container.locator('button[aria-label="Scroll to top"]').first();
+      assert.equal(await btn.getAttribute('aria-label'), 'Scroll to top', 'Button should expose its accessible name');
     });
 
-    await runTest('T1.7.3', 'Work Section Main Headline', results, async () => {
-      const heading = container.locator('h2').filter({ hasText: /MOVE FAST/i }).filter({ hasText: /BUILD/i });
-      assert.ok(await heading.count() > 0, 'Work headline should exist');
+    await runTest('T1.7.3', 'Scroll-To-Top Returns To Page Top', results, async () => {
+      await scrollToY(page, 1500, true);
+      await container.locator('button[aria-label="Scroll to top"]').first().click();
+      await page.waitForFunction(() => window.scrollY < 30, { timeout: 6000 });
+      const y = await page.evaluate(() => window.scrollY);
+      assert.ok(y < 30, `Page should be back at top after click, got scrollY=${y}`);
     });
 
-    await runTest('T1.7.4', '3 Pillar Titles & Indices', results, async () => {
-      const expectedPillars = [
-        { index: '01', title: 'SOUND ID CLAIMING' },
-        { index: '02', title: 'RELEASE EXECUTION' },
-        { index: '03', title: 'ARTIST COMMUNICATION' }
-      ];
-      for (const p of expectedPillars) {
-        const titleEl = container.locator(`text="${p.title}"`);
-        assert.ok(await titleEl.count() > 0, `Pillar title "${p.title}" should exist`);
-        
-        const idxEl = container.locator(`text="${p.index}"`);
-        assert.ok(await idxEl.count() > 0, `Pillar index "${p.index}" should exist`);
-      }
+    await runTest('T1.7.4', 'No Scroll-To-Top Button On Home', results, async () => {
+      await page.goto(`${baseUrl}/#home`);
+      await waitForPreloader(page);
+      await page.waitForTimeout(400);
+      // Scope to the visible page: all routes stay mounted, hidden ones still match plain locators
+      assert.equal(await page.locator('main > div:visible button[aria-label="Scroll to top"]').count(), 0, 'Home footer should not show the button');
     });
 
-    await runTest('T1.7.5', 'Pillar Grid Dividers & Stacking', results, async () => {
-      const pillarGrid = container.locator('div.grid').filter({ hasText: 'SOUND ID CLAIMING' }).first();
-      assert.ok(await pillarGrid.count() > 0, 'Pillar grid container should exist');
-      
-      const gridClass = await pillarGrid.getAttribute('class');
-      assert.ok(gridClass.includes('sm:grid-cols-3') || gridClass.includes('grid-cols-3'),
-        `Pillar grid should support 3 columns on desktop, got class: ${gridClass}`);
+    await runTest('T1.7.5', 'Scroll-To-Top Button On About', results, async () => {
+      await page.goto(`${baseUrl}/#about`);
+      await page.waitForTimeout(600);
+      const btn = page.locator('button[aria-label="Scroll to top"]').first();
+      assert.ok(await btn.count() > 0, 'About footer should show the button');
+      await resetToArtistsTop(page);
     });
 
     // =========================================================================
     // SECTION 8: CTA DEMO SUBMISSION & HASH NAVIGATION (00:08) — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 8: CTA Demo Submission & Hash Navigation (00:08) ---');
+    console.log('\n--- Group 8: CTA Demo Submission & Hash Navigation ---');
 
     await runTest('T1.8.1', 'CTA Waveform Logo Mark', results, async () => {
       await scrollToY(page, 5600);

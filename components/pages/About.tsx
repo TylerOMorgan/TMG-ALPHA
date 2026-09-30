@@ -1,23 +1,22 @@
-import React, { useEffect } from 'react';
-import Manifesto from '../Manifesto';
-import SvgAnimation from '../SvgAnimation';
-import Services from '../Services';
-import FounderWord from '../FounderWord';
-import Footer from '../Footer';
+import React, { useEffect } from "react";
+import Manifesto from "../Manifesto";
+import SvgAnimation from "../SvgAnimation";
+import Services from "../Services";
+import FounderWord from "../FounderWord";
+import Footer from "../Footer";
 
 interface AboutProps {
   isActive?: boolean;
 }
 
 const About: React.FC<AboutProps> = ({ isActive = true }) => {
-
   // Set page title
   useEffect(() => {
     if (isActive) {
-      document.title = 'ABOUT — TRILLEX';
+      document.title = "ABOUT — TRILLEX";
     }
   }, [isActive]);
-  
+
   return (
     <div className="bg-trillex-black min-h-screen">
       {/* Pinned Hero Stage: Combined Manifesto Reveal & Ecosystem SVG Unfolding Animation */}
@@ -35,7 +34,7 @@ const About: React.FC<AboutProps> = ({ isActive = true }) => {
       <div className="w-full h-12 md:h-36 lg:h-48" />
 
       <FounderWord />
-      <Footer />
+      <Footer showScrollTop />
     </div>
   );
 };
