@@ -13,19 +13,18 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Original TikTok brand mark: white note with cyan/red chromatic offsets
-// (same glyph + treatment as ContactForm's TikTokIcon).
+// Official TikTok brand mark served as a static asset.
 const TikTokGlyph: React.FC<{ className?: string }> = ({
   className = "h-4 w-4",
 }) => (
-  <svg
-    viewBox="0 0 448 512"
-    fill="currentColor"
-    className={`${className} text-white drop-shadow-[-1.5px_0px_0_#25F4EE] drop-shadow-[1.5px_0px_0_#FE2C55]`}
+  <img
+    src="/tiktok-logo.svg"
+    alt=""
     aria-hidden="true"
-  >
-    <path d="M448,209.91a210.06,210.06,0,0,1-122.77-39.25V349.38A162.55,162.55,0,1,1,185,188.31V278.2a74.62,74.62,0,1,0,52.23,71.18V0l88,0a121.18,121.18,0,0,0,1.86,22.17h0A122.18,122.18,0,0,0,381,102.39a121.43,121.43,0,0,0,67,20.14Z" />
-  </svg>
+    loading="lazy"
+    decoding="async"
+    className={className}
+  />
 );
 
 const SpotifyGlyph: React.FC<{ className?: string }> = ({
