@@ -11,10 +11,10 @@ import {
 } from './harness.mjs';
 
 /**
- * Tier 4: Real-World Scenarios (4 comprehensive user journeys)
+ * Tier 4: Real-World Scenarios (4 journeys and 5 touch viewport checks)
  */
 export async function runTier4(browser, baseUrl, results) {
-  console.log('\n=== TIER 4: REAL-WORLD SCENARIOS (4 JOURNEYS) ===');
+  console.log('\n=== TIER 4: REAL-WORLD SCENARIOS (4 JOURNEYS + 5 TOUCH VIEWPORTS) ===');
 
   // =========================================================================
   // T4.1: The Complete Prospective Artist Journey (Desktop 1920x1080)
@@ -36,8 +36,11 @@ export async function runTier4(browser, baseUrl, results) {
       const h1 = container.locator('h1');
       assert.equal(await h1.textContent(), 'ARTISTS');
 
-      await page.waitForFunction(() => document.body.innerText.includes('3.74B+'), { timeout: 8000 });
       const statGrid = container.locator('div.grid').filter({ hasText: 'SONGS SIGNED' }).first();
+      await page.waitForFunction(el => {
+        const expected = ['928', '3.74B+', '5M+', '590M+'];
+        return [...el.children].every((card, index) => card.children[1].textContent.trim() === expected[index]);
+      }, await statGrid.elementHandle(), { timeout: 8000 });
       const vals = await statGrid.evaluate(el => [...el.children].map(c => c.children[1].textContent.trim()));
       assert.deepEqual(vals, ['928', '3.74B+', '5M+', '590M+']);
 
@@ -71,7 +74,7 @@ export async function runTier4(browser, baseUrl, results) {
       assert.ok(await soundTitle.count() > 0, 'Sound ID section reached');
 
       // 7. Selects a record, deep-dive follows
-      await container.locator('button[aria-pressed]').nth(9).click();
+      await container.getByRole('button', { name: /Odnogo Ultrafunk/i }).click();
       await page.waitForTimeout(300);
       const deepDive = container.locator('h3').filter({ hasText: 'ODNOGO ULTRAFUNK' });
       assert.ok(await deepDive.count() > 0, 'Record deep-dive reached');
@@ -215,4 +218,71 @@ export async function runTier4(browser, baseUrl, results) {
       await session.context.close();
     }
   });
+
+  // Real touch input across small phones, larger phones, and tablets.
+  for (const width of [320, 375, 390, 430, 768]) {
+    await runTest(`T4.5.${width}`, `Mobile Record And Daily Chart Interactions (${width}px)`, results, async () => {
+      const session = await createPageSession(browser, {
+        viewport: { width, height: 900 },
+        hasTouch: true,
+      });
+      const { page, getPageErrors } = session;
+      try {
+        await navigateToArtists(page, baseUrl);
+        const container = getArtistsContainer(page);
+        const strip = container.locator('#spotify-record-strip');
+        const cards = strip.locator('button');
+        const titles = () => cards.locator('img').evaluateAll(els => els.map(el => el.alt));
+        const originalOrder = await titles();
+        assert.equal(await strip.locator('[title="Drag to reorder"]').count(), 0);
+
+        const chart = container.getByRole('region', { name: 'Interactive Spotify growth chart' });
+        await chart.scrollIntoViewIfNeeded();
+        assert.equal(await container.getByText('TAP FOR DAILY DATA', { exact: true }).isVisible(), true);
+        assert.equal(await container.getByText('HOVER FOR DAILY DATA', { exact: true }).isVisible(), false);
+        const chartBox = await chart.boundingBox();
+        for (const offset of [0, 1, 2, 28, 29]) {
+          const x = Math.max(1, Math.min(chartBox.width - 1, chartBox.width * offset / 29));
+          await page.touchscreen.tap(chartBox.x + x, chartBox.y + chartBox.height / 2);
+          const tooltip = container.getByRole('tooltip');
+          assert.equal((await tooltip.locator('span').nth(1).textContent()).trim(), `${offset + 1} SEP`);
+          const tooltipBox = await tooltip.boundingBox();
+          assert.ok(tooltipBox.x >= 0 && tooltipBox.x + tooltipBox.width <= width + 1, 'Daily tooltip fits the viewport');
+        }
+        const heading = await container.getByText('STREAM VELOCITY', { exact: true }).boundingBox();
+        const topTick = await container.getByRole('img', { name: /^Daily streams axis:/ }).getByText('60K', { exact: true }).boundingBox();
+        assert.ok(heading.y + heading.height < topTick.y, 'Chart heading clears the highest axis label');
+
+        await strip.scrollIntoViewIfNeeded();
+        const box = await strip.boundingBox();
+        const client = await page.context().newCDPSession(page);
+        const startX = box.x + box.width * 0.85;
+        const y = box.y + box.height / 2;
+        await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: startX, y }] });
+        for (let step = 1; step <= 10; step++) {
+          await client.send('Input.dispatchTouchEvent', {
+            type: 'touchMove',
+            touchPoints: [{ x: startX - box.width * 0.65 * step / 10, y }],
+          });
+        }
+        await client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        await page.waitForTimeout(600);
+        assert.ok(await strip.evaluate(el => el.scrollLeft) > 100, 'A touch swipe scrolls the record strip');
+        assert.equal(await cards.first().getAttribute('aria-pressed'), 'true', 'Swiping preserves selection');
+        assert.deepEqual(await titles(), originalOrder, 'Swiping preserves card order');
+        await cards.nth(1).scrollIntoViewIfNeeded();
+        await cards.nth(1).tap();
+        assert.equal(await cards.nth(1).getAttribute('aria-pressed'), 'true', 'A tap selects a record after swiping');
+        assert.equal(await container.locator('h3').textContent(), 'ODNOGO ULTRAFUNK');
+
+        const soundCard = container.getByRole('link', { name: 'Open MIMIMI HARDTEKK on TikTok', exact: true });
+        await soundCard.scrollIntoViewIfNeeded();
+        assert.equal(await soundCard.locator('[data-card-tilt]').evaluate(el => getComputedStyle(el).transform), 'none', 'Touch devices do not run mouse tracking');
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false, 'No horizontal document overflow');
+        assert.equal(getPageErrors().length, 0, 'No runtime errors during mobile interactions');
+      } finally {
+        await session.context.close();
+      }
+    });
+  }
 }

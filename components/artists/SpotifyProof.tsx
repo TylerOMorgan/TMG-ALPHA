@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ChevronLeft, ChevronRight, GripVertical } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Eyebrow from "./Eyebrow";
 import {
   SPOTIFY_EYEBROW,
@@ -46,9 +46,8 @@ const MONTHS = [
 ];
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-// Snap to five-day intervals from the record's start date. A partial final
-// interval uses the last available point, keeping all readouts five days apart.
-const fiveDayPointAtProgress = (
+// Snap to each calendar day, including the record's start and end dates.
+const dailyPointAtProgress = (
   start: string,
   end: string,
   t: number,
@@ -80,10 +79,7 @@ const fiveDayPointAtProgress = (
       if (span > 366) break;
     }
   }
-  const offset = Math.min(
-    Math.floor(span / 5) * 5,
-    Math.round((Math.max(0, Math.min(1, t)) * span) / 5) * 5,
-  );
+  const offset = Math.round(Math.max(0, Math.min(1, t)) * span);
   let d = s.day;
   let m = s.mon;
   for (let i = 0; i < offset; i++) {
@@ -133,7 +129,7 @@ const DynamicGrowthChart: React.FC<{
       0,
       Math.min(600, ((clientX - rect.left) / rect.width) * 600),
     );
-    const { date: dateLabel, progress: t } = fiveDayPointAtProgress(
+    const { date: dateLabel, progress: t } = dailyPointAtProgress(
       record.startDate,
       record.endDate,
       pointerX / 600,
@@ -361,75 +357,56 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
   const scrollTargetRef = useRef<number | null>(null);
   const [scrollEdges, setScrollEdges] = useState({ left: false, right: false });
 
-  const byId = useMemo(
-    () => Object.fromEntries(SPOTIFY_PROOF_RECORDS.map((r) => [r.id, r])),
-    [],
-  );
-  // User-reorderable record sequence (drag the grip handle to rearrange)
-  const [order, setOrder] = useState<string[]>(() =>
-    SPOTIFY_PROOF_RECORDS.map((r) => r.id),
-  );
-  const ordered = order.map((id) => byId[id]).filter(Boolean);
-
-  // Drag-to-reorder state (grip handle; mouse + touch via pointer events)
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [dropPos, setDropPos] = useState<{ at: number; px: number } | null>(
-    null,
-  );
+  // Mouse and pen drag the track; touch retains native swipe scrolling.
+  const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<{
-    id: string;
+    pointerId: number;
     startX: number;
+    scrollLeft: number;
     moved: boolean;
   } | null>(null);
   const suppressClickRef = useRef(false);
 
-  const onGripPointerDown = (e: React.PointerEvent, id: string) => {
-    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
-    dragRef.current = { id, startX: e.clientX, moved: false };
-    setDraggingId(id);
+  const onStripPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    suppressClickRef.current = false;
+    handleManualScroll();
+    if (e.pointerType === "touch" || !e.isPrimary || e.button !== 0) return;
+    const el = e.currentTarget;
+    el.scrollTo({ left: el.scrollLeft, behavior: "instant" });
+    dragRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      scrollLeft: el.scrollLeft,
+      moved: false,
+    };
   };
 
-  const onStripPointerMove = (e: React.PointerEvent) => {
+  const onStripPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     const d = dragRef.current;
-    const el = scrollerRef.current;
-    if (!d || !el) return;
-    if (Math.abs(e.clientX - d.startX) > 6) d.moved = true;
-    if (!d.moved) return;
-    const kids = Array.from(el.children).filter(
-      (k) => k.tagName === "BUTTON",
-    ) as HTMLElement[];
-    if (kids.length === 0) return;
-    const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left + el.scrollLeft;
-    let at = 0;
-    for (let i = 0; i < kids.length; i++) {
-      if (x >= kids[i].offsetLeft + kids[i].offsetWidth / 2) at = i + 1;
-      else break;
-    }
-    const last = kids[kids.length - 1];
-    const px =
-      at < kids.length ? kids[at].offsetLeft : last.offsetLeft + last.offsetWidth;
-    setDropPos({ at, px });
-  };
-
-  const endStripDrag = () => {
-    const d = dragRef.current;
-    dragRef.current = null;
-    if (d?.moved) {
+    if (!d || d.pointerId !== e.pointerId) return;
+    const delta = e.clientX - d.startX;
+    if (!d.moved) {
+      if (Math.abs(delta) <= 6) return;
+      d.moved = true;
       suppressClickRef.current = true;
-      const id = d.id;
-      setOrder((prev) => {
-        const without = prev.filter((x) => x !== id);
-        const at = Math.max(
-          0,
-          Math.min(dropPos?.at ?? without.length, without.length),
-        );
-        without.splice(at, 0, id);
-        return without;
-      });
+      e.currentTarget.setPointerCapture(e.pointerId);
+      e.currentTarget.style.scrollSnapType = "none";
+      setIsDragging(true);
     }
-    setDraggingId(null);
-    setDropPos(null);
+    e.preventDefault();
+    e.currentTarget.scrollLeft = d.scrollLeft - delta;
+  };
+
+  const endStripDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    const d = dragRef.current;
+    if (!d || d.pointerId !== e.pointerId) return;
+    dragRef.current = null;
+    e.currentTarget.style.removeProperty("scroll-snap-type");
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    setIsDragging(false);
+    updateScrollEdges();
   };
 
   const updateScrollEdges = () => {
@@ -446,7 +423,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     );
   };
 
-  // Keep controls accurate after resizing or reordering the finite track.
+  // Keep controls accurate after resizing the finite track.
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -458,7 +435,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     const observer = new ResizeObserver(update);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [order, isActive]);
+  }, [isActive]);
 
   const handleRecordScroll = () => {
     const el = scrollerRef.current;
@@ -588,46 +565,45 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
               id="spotify-record-strip"
               onScroll={handleRecordScroll}
               onWheel={handleManualScroll}
-              onPointerDown={handleManualScroll}
+              onPointerDown={onStripPointerDown}
               onKeyDown={handleManualScroll}
               onPointerMove={onStripPointerMove}
               onPointerUp={endStripDrag}
               onPointerCancel={endStripDrag}
-              className={`relative flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden ${draggingId ? "select-none" : ""}`}
+              onLostPointerCapture={endStripDrag}
+              onPointerLeave={(e) => {
+                if (!dragRef.current?.moved) endStripDrag(e);
+              }}
+              onDragStart={(e) => e.preventDefault()}
+              onClickCapture={(e) => {
+                if (suppressClickRef.current && e.detail !== 0) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  suppressClickRef.current = false;
+                }
+              }}
+              className={`relative flex select-none snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
             >
-              {ordered.map((record) => {
+              {SPOTIFY_PROOF_RECORDS.map((record) => {
                 const isSelected = record.id === selectedId;
                 return (
                   <button
                     key={record.id}
-                    onClick={() => {
-                      if (suppressClickRef.current) {
-                        suppressClickRef.current = false;
-                        return;
-                      }
-                      setSelectedId(record.id);
-                    }}
+                    onClick={() => setSelectedId(record.id)}
                     aria-pressed={isSelected}
-                    className={`group relative flex h-[154px] w-[478px] max-w-[85vw] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border-2 p-3 text-left transition-all duration-300 sm:p-4 ${draggingId === record.id ? "opacity-40" : ""} ${
+                    className={`group relative flex h-[154px] w-[478px] max-w-[85vw] shrink-0 snap-start cursor-[inherit] flex-col justify-between overflow-hidden rounded-xl border-2 p-3 text-left transition-all duration-300 sm:p-4 ${
                       isSelected
                         ? "border-[#1DB954] bg-[#0E150F]"
                         : "border-white/10 bg-[#0B0D0B]/80 hover:border-white/30 hover:bg-[#121412]"
                     }`}
                   >
-                    <span
-                      title="Drag to reorder"
-                      aria-hidden="true"
-                      onPointerDown={(e) => onGripPointerDown(e, record.id)}
-                      className="absolute right-2 top-2 z-10 flex h-6 w-6 cursor-grab touch-none items-center justify-center rounded-md border border-white/10 bg-black/50 text-white/40 opacity-60 backdrop-blur-sm transition-all hover:text-white hover:opacity-100 active:cursor-grabbing"
-                    >
-                      <GripVertical className="h-4 w-4" />
-                    </span>
                     <div className="flex items-center gap-3">
                       <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-white/15 bg-black sm:h-12 sm:w-12">
                         <img
                           src={record.image}
                           alt={record.title}
                           loading="lazy"
+                          draggable={false}
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         {isSelected && (
@@ -670,13 +646,6 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                   </button>
                 );
               })}
-              {dropPos && draggingId && (
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute bottom-1 top-1 z-20 w-[3px] -translate-x-1/2 rounded-full bg-[#1DB954] shadow-[0_0_12px_#1DB954]"
-                  style={{ left: `${dropPos.px}px` }}
-                />
-              )}
             </div>
           </div>
         </div>
@@ -763,7 +732,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 </div>
 
                 <div className="w-full border-y border-white/10 py-3.5">
-                  <div className="mx-auto grid w-full max-w-2xl grid-cols-2 gap-4 text-center">
+                  <div className="mx-auto grid w-full max-w-4xl grid-cols-2 gap-8 text-center sm:gap-16">
                     <div>
                       <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
                         TOTAL SPOTIFY STREAMS
@@ -786,11 +755,11 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
 
                 {/* Growth Chart */}
                 <div className="mt-1">
-                  <div className="mb-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
-                    <span>STREAM VELOCITY OVER TIME</span>
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
+                    <span>STREAM VELOCITY</span>
                     <span className="text-[#19D057]">
-                      <span className="sm:hidden">TAP FOR 5-DAY POINT DATA</span>
-                      <span className="hidden sm:inline">HOVER FOR 5-DAY POINT DATA</span>
+                      <span className="hidden [@media(hover:none)]:inline">TAP FOR DAILY DATA</span>
+                      <span className="[@media(hover:none)]:hidden">HOVER FOR DAILY DATA</span>
                     </span>
                   </div>
                   <DynamicGrowthChart key={activeRecord.id} record={activeRecord} lineRef={lineRef} />

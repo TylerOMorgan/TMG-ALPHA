@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import { MOUSE_TRACKING_MOTION } from "../utils/mouseTrackingMotion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Instagram, Linkedin } from "lucide-react";
@@ -137,7 +138,7 @@ const FounderWord: React.FC = () => {
 
       // Initialize quickTo setters for high-performance mouse parallax tracking
       if (logoRef.current) {
-        gsap.set(logoRef.current, { transformPerspective: 1000 });
+        gsap.set(logoRef.current, { transformPerspective: MOUSE_TRACKING_MOTION.perspective });
         const isTouch = typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches;
 
         if (isTouch) {
@@ -152,20 +153,16 @@ const FounderWord: React.FC = () => {
           });
         } else {
           xTo.current = gsap.quickTo(logoRef.current, "x", {
-            duration: 0.8,
-            ease: "power2.out",
+            ...MOUSE_TRACKING_MOTION.tween,
           });
           yTo.current = gsap.quickTo(logoRef.current, "y", {
-            duration: 0.8,
-            ease: "power2.out",
+            ...MOUSE_TRACKING_MOTION.tween,
           });
           rotXTo.current = gsap.quickTo(logoRef.current, "rotationX", {
-            duration: 0.8,
-            ease: "power2.out",
+            ...MOUSE_TRACKING_MOTION.tween,
           });
           rotYTo.current = gsap.quickTo(logoRef.current, "rotationY", {
-            duration: 0.8,
-            ease: "power2.out",
+            ...MOUSE_TRACKING_MOTION.tween,
           });
         }
       }
@@ -197,10 +194,10 @@ const FounderWord: React.FC = () => {
     const x = ((clientX - rect.left) / rect.width - 0.5) * 2;
     const y = ((clientY - rect.top) / rect.height - 0.5) * 2;
 
-    rotYTo.current(x * 15);
-    rotXTo.current(-y * 15);
-    xTo.current(x * 20);
-    yTo.current(y * 20);
+    rotYTo.current(x * MOUSE_TRACKING_MOTION.rotation);
+    rotXTo.current(-y * MOUSE_TRACKING_MOTION.rotation);
+    xTo.current(x * MOUSE_TRACKING_MOTION.offset);
+    yTo.current(y * MOUSE_TRACKING_MOTION.offset);
   };
 
   const handleMouseLeave = () => {

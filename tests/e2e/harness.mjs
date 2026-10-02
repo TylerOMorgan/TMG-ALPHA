@@ -11,6 +11,7 @@ export const DEFAULT_CHROME_PATH = process.env.PLAYWRIGHT_CHROME_PATH ||
 export async function createPageSession(browser, options = {}) {
   const {
     viewport = { width: 1440, height: 900 },
+    hasTouch = false,
     reducedMotion = 'no-preference', // 'reduce' | 'no-preference'
     blockImages = false,
     extraHttpHeaders = {}
@@ -18,6 +19,7 @@ export async function createPageSession(browser, options = {}) {
 
   const context = await browser.newContext({
     viewport,
+    hasTouch,
     reducedMotion,
     extraHttpHeaders,
     bypassCSP: true

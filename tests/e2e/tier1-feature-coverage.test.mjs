@@ -74,8 +74,11 @@ export async function runTier1(browser, baseUrl, results) {
       // Count-up finishes ~1.4s after the stats scroll into view; wait for final values.
       // Values are read structurally (exact-text locators are flaky against
       // React text nodes mid count-up).
-      await page.waitForFunction(() => document.body.innerText.includes('3.74B+'), { timeout: 8000 });
       const grid = container.locator('div.grid').filter({ hasText: 'SONGS SIGNED' }).first();
+      await page.waitForFunction(el => {
+        const expected = ['928', '3.74B+', '5M+', '590M+'];
+        return [...el.children].every((card, index) => card.children[1].textContent.trim() === expected[index]);
+      }, await grid.elementHandle(), { timeout: 8000 });
       assert.equal(await grid.isVisible(), true, 'Stat grid should be visible');
       const vals = await grid.evaluate(el => [...el.children].map(c => c.children[1].textContent.trim()));
       assert.deepEqual(vals, ['928', '3.74B+', '5M+', '590M+']);
@@ -216,26 +219,29 @@ export async function runTier1(browser, baseUrl, results) {
       const restored = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
       assert.ok(await restored.count() > 0, 'Deep-dive should restore MIMIMI HARDTEKK');
 
-      // Drag-to-reorder the first card while preserving all unique records.
+      // Dragging anywhere on a card scrolls the track without selecting or reordering.
       const recordTitles = () => container.locator('button[aria-pressed]').evaluateAll(
         els => els.map(e => e.textContent.replace(/\s+/g, ' ').trim())
       );
       const beforeDrag = await recordTitles();
-      const grip = container.locator('button[aria-pressed]').nth(0).locator('span[title="Drag to reorder"]');
-      const gbox = await grip.boundingBox();
-      await page.mouse.move(gbox.x + gbox.width / 2, gbox.y + gbox.height / 2);
+      assert.equal(await container.locator('[title="Drag to reorder"]').count(), 0, 'Reorder handles are removed');
+      const scroller = container.locator('#spotify-record-strip');
+      const box = await scroller.boundingBox();
+      const startX = box.x + 350;
+      const startY = box.y + box.height / 2;
+      await page.mouse.move(startX, startY);
       await page.mouse.down();
-      for (let i = 1; i <= 20; i++) {
-        await page.mouse.move(gbox.x + gbox.width / 2 + (i * 1000) / 20, gbox.y + gbox.height / 2);
-        await page.waitForTimeout(15);
-      }
+      await page.mouse.move(startX - 280, startY, { steps: 20 });
+      assert.ok(await scroller.evaluate(el => el.scrollLeft) > 200, 'Dragging left scrolls the track right');
       await page.mouse.up();
       await page.waitForTimeout(400);
       const afterDrag = await recordTitles();
-      assert.ok(JSON.stringify(afterDrag) !== JSON.stringify(beforeDrag), 'Drag should reorder the strip');
-      assert.deepEqual([...afterDrag].sort(), [...beforeDrag].sort(), 'Reorder preserves all 8 records');
+      assert.deepEqual(afterDrag, beforeDrag, 'Dragging preserves the record order');
       const keptSelection = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
-      assert.ok(await keptSelection.count() > 0, 'Selection survives reorder');
+      assert.ok(await keptSelection.count() > 0, 'Dragging does not select another record');
+      await container.locator('button[aria-pressed]').nth(1).click();
+      assert.ok(await container.locator('h3').filter({ hasText: 'ODNOGO ULTRAFUNK' }).count() > 0, 'Click-to-select works after dragging');
+      await container.locator('button[aria-pressed]').nth(0).click();
     });
 
     // =========================================================================
@@ -370,12 +376,12 @@ export async function runTier1(browser, baseUrl, results) {
         assert.equal(hit, true, 'The stationary edge point remains on the same link');
       }
       await page.mouse.move(5, 5);
-      await page.waitForTimeout(400);
+      await page.waitForTimeout(1000);
       const settled = await firstCard.locator('[data-card-tilt]').evaluate(el => {
         const matrix = new DOMMatrixReadOnly(getComputedStyle(el).transform);
-        return { y: matrix.m42, rotationX: matrix.m23, rotationY: matrix.m13 };
+        return { x: matrix.m41, y: matrix.m42, rotationX: matrix.m23, rotationY: matrix.m13 };
       });
-      assert.ok(Math.abs(settled.y) < 0.1 && Math.abs(settled.rotationX) < 0.001 && Math.abs(settled.rotationY) < 0.001, 'Hover motion resets after leaving the card');
+      assert.ok(Math.abs(settled.x) < 0.1 && Math.abs(settled.y) < 0.1 && Math.abs(settled.rotationX) < 0.001 && Math.abs(settled.rotationY) < 0.001, 'Hover motion resets after leaving the card');
     });
 
     await runTest('T1.5.4', 'TikTok Loader Only On Card Hover', results, async () => {
@@ -414,7 +420,7 @@ export async function runTier1(browser, baseUrl, results) {
     const getChart = () => container.locator('div.cursor-crosshair').first();
     const getTooltipDate = () => container.locator('[role="tooltip"] span').nth(1).textContent();
 
-    await runTest('T1.6.1', 'Hover Reveals Five-Day Point Tooltip', results, async () => {
+    await runTest('T1.6.1', 'Hover Reveals Daily Point Tooltip', results, async () => {
       const chart = getChart();
       await chart.scrollIntoViewIfNeeded();
       const box = await chart.boundingBox();
@@ -434,18 +440,19 @@ export async function runTier1(browser, baseUrl, results) {
       assert.equal((await getTooltipDate()).trim(), '1 SEP', 'Left edge hover should read "1 SEP"');
     });
 
-    await runTest('T1.6.3', 'Readouts Stay On Five-Day Intervals', results, async () => {
+    await runTest('T1.6.3', 'Readouts Include Every Day And The End Date', results, async () => {
       const chart = getChart();
       const box = await chart.boundingBox();
       const dates = [];
-      for (const dayOffset of [0, 5, 10, 15, 20, 25]) {
-        await page.mouse.move(box.x + box.width * dayOffset / 29 + 1, box.y + box.height / 2);
+      for (let dayOffset = 0; dayOffset < 30; dayOffset++) {
+        const x = Math.min(box.width - 1, Math.max(1, box.width * dayOffset / 29));
+        await page.mouse.move(box.x + x, box.y + box.height / 2);
         dates.push((await getTooltipDate()).trim());
       }
-      assert.deepEqual(dates, ['1 SEP', '6 SEP', '11 SEP', '16 SEP', '21 SEP', '26 SEP']);
+      assert.deepEqual(dates, Array.from({ length: 30 }, (_, index) => `${index + 1} SEP`));
       await page.mouse.move(box.x + box.width - 6, box.y + box.height / 2);
       await page.waitForTimeout(200);
-      assert.equal((await getTooltipDate()).trim(), '26 SEP', 'Partial final interval uses the last five-day sample');
+      assert.equal((await getTooltipDate()).trim(), '30 SEP', 'Right edge should include the final day');
     });
 
     await runTest('T1.6.4', 'Hover Shows Streams And Cumulative Totals', results, async () => {

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
+import { MOUSE_TRACKING_MOTION } from "../../utils/mouseTrackingMotion";
 import {
   SOUND_EYEBROW,
   SOUND_GHOST,
@@ -33,6 +34,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
   const tiltRefs = useRef<(HTMLDivElement | null)[]>([]);
   const trackers = useRef<
     {
+      x: (v: number) => void;
       y: (v: number) => void;
       rotX: (v: number) => void;
       rotY: (v: number) => void;
@@ -85,17 +87,12 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
       ).matches;
       if (canHover) {
         wrappers.forEach((el, i) => {
-          gsap.set(el, { transformPerspective: 800 });
+          gsap.set(el, { transformPerspective: MOUSE_TRACKING_MOTION.perspective });
           trackers.current[i] = {
-            y: gsap.quickTo(el, "y", { duration: 0.25, ease: "power2.out" }),
-            rotX: gsap.quickTo(el, "rotationX", {
-              duration: 0.25,
-              ease: "power2.out",
-            }),
-            rotY: gsap.quickTo(el, "rotationY", {
-              duration: 0.25,
-              ease: "power2.out",
-            }),
+            x: gsap.quickTo(el, "x", { ...MOUSE_TRACKING_MOTION.tween }),
+            y: gsap.quickTo(el, "y", { ...MOUSE_TRACKING_MOTION.tween }),
+            rotX: gsap.quickTo(el, "rotationX", { ...MOUSE_TRACKING_MOTION.tween }),
+            rotY: gsap.quickTo(el, "rotationY", { ...MOUSE_TRACKING_MOTION.tween }),
           };
         });
       }
@@ -125,7 +122,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
     };
   }, [isActive]);
 
-  // The link's hit area never tilts or lifts, so pointer position cannot feed
+  // The link's hit area never moves, so pointer position cannot feed
   // back into the animated bounds or repeatedly toggle hover at card edges.
   const handleCardMove = (e: React.MouseEvent<HTMLAnchorElement>, idx: number) => {
     const t = trackers.current[idx];
@@ -140,9 +137,10 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
       -1,
       Math.min(1, ((e.clientY - rect.top) / rect.height - 0.5) * 2),
     );
-    t.rotY(x * 6);
-    t.rotX(-y * 6);
-    t.y(-8);
+    t.rotY(x * MOUSE_TRACKING_MOTION.rotation);
+    t.rotX(-y * MOUSE_TRACKING_MOTION.rotation);
+    t.x(x * MOUSE_TRACKING_MOTION.offset);
+    t.y(y * MOUSE_TRACKING_MOTION.offset);
   };
 
   const handleCardLeave = (idx: number) => {
@@ -150,6 +148,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
     if (!t) return;
     t.rotY(0);
     t.rotX(0);
+    t.x(0);
     t.y(0);
   };
 

@@ -245,7 +245,7 @@ export async function runTier2(browser, baseUrl, results) {
       const strip = container.locator('div.overflow-x-auto').filter({ hasText: 'MIMIMI HARDTEKK' }).first();
       assert.ok(await strip.count() > 0, 'Desktop record strip scroller should be configured');
 
-      const cardBox = await container.locator('button[aria-pressed]').nth(8).boundingBox();
+      const cardBox = await container.locator('#spotify-record-strip button').first().boundingBox();
       assert.ok(cardBox && Math.abs(cardBox.width - 478) < 2, `Record cards should be 478px wide, got ${cardBox && cardBox.width}`);
 
       const rightArrow = container.locator('button[aria-label="Scroll records right"]').first();
