@@ -80,7 +80,7 @@ const Footer: React.FC<FooterProps> = ({ showScrollTop = false }) => {
       </span>
 
       {/* Navigation Links */}
-      <div className="flex flex-nowrap items-center gap-x-2.5 sm:gap-x-4 lg:gap-x-6 order-1 lg:order-2 tracking-widest overflow-x-auto w-full lg:w-auto justify-center px-3 sm:px-6 lg:px-0 no-scrollbar">
+      <div className="flex flex-wrap lg:flex-nowrap items-center gap-x-2.5 gap-y-1 sm:gap-x-4 lg:gap-x-6 order-1 lg:order-2 tracking-widest w-full lg:w-auto justify-center px-3 sm:px-6 lg:px-0">
         {/* 1. Brand/Loc */}
         <span className="text-white hover:text-trillex-orange transition-colors cursor-default whitespace-nowrap flex-shrink-0">
           BKK FOUNDED

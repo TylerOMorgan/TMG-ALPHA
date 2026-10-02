@@ -46,9 +46,13 @@ const MONTHS = [
 ];
 const MONTH_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
-// Maps chart progress t (0..1) to a real calendar date between start
-// ("1 SEP") and end ("30 SEP"), so hover reads "1 SEP" … "30 SEP".
-const dateAtProgress = (start: string, end: string, t: number): string => {
+// Snap to five-day intervals from the record's start date. A partial final
+// interval uses the last available point, keeping all readouts five days apart.
+const fiveDayPointAtProgress = (
+  start: string,
+  end: string,
+  t: number,
+): { date: string; progress: number } => {
   const parse = (s: string): { day: number; mon: number } | null => {
     const m = s
       .trim()
@@ -61,7 +65,7 @@ const dateAtProgress = (start: string, end: string, t: number): string => {
   };
   const s = parse(start);
   const e = parse(end);
-  if (!s || !e) return start;
+  if (!s || !e) return { date: start, progress: 0 };
   let span = 0;
   {
     let d = s.day;
@@ -76,7 +80,10 @@ const dateAtProgress = (start: string, end: string, t: number): string => {
       if (span > 366) break;
     }
   }
-  let offset = Math.round(t * span);
+  const offset = Math.min(
+    Math.floor(span / 5) * 5,
+    Math.round((Math.max(0, Math.min(1, t)) * span) / 5) * 5,
+  );
   let d = s.day;
   let m = s.mon;
   for (let i = 0; i < offset; i++) {
@@ -86,7 +93,7 @@ const dateAtProgress = (start: string, end: string, t: number): string => {
       m = (m + 1) % 12;
     }
   }
-  return `${d} ${MONTHS[m]}`;
+  return { date: `${d} ${MONTHS[m]}`, progress: span > 0 ? offset / span : 0 };
 };
 
 interface HoverPoint {
@@ -102,16 +109,36 @@ const DynamicGrowthChart: React.FC<{
   lineRef: React.RefObject<SVGPathElement | null>;
 }> = ({ record, lineRef }) => {
   const [hover, setHover] = useState<HoverPoint | null>(null);
+  // Calibrate the axis and hover counts to the curve's peak for each record.
+  const streamsAtY = (y: number) =>
+    ((220 - y) / (220 - record.apexY)) * record.peakDaily;
+  const tickStep = Math.max(5000, Math.ceil(record.peakDaily / 4 / 5000) * 5000);
+  const yAxisTicks = Array.from(
+    { length: Math.floor(streamsAtY(0) / tickStep) + 1 },
+    (_, index) => {
+      const count = index * tickStep;
+      return {
+        count,
+        y: 220 - (count / record.peakDaily) * (220 - record.apexY),
+      };
+    },
+  );
 
   const calculateHoverData = (
     clientX: number,
     rect: DOMRect,
     path: SVGPathElement | null,
   ): HoverPoint => {
-    const relX = Math.max(
+    const pointerX = Math.max(
       0,
       Math.min(600, ((clientX - rect.left) / rect.width) * 600),
     );
+    const { date: dateLabel, progress: t } = fiveDayPointAtProgress(
+      record.startDate,
+      record.endDate,
+      pointerX / 600,
+    );
+    const relX = t * 600;
 
     let targetY = 190;
     if (
@@ -134,18 +161,14 @@ const DynamicGrowthChart: React.FC<{
         }
         targetY = path.getPointAtLength((low + high) / 2).y;
       } catch {
-        const t = relX / 600;
         targetY = 205 - (205 - record.apexY) * Math.pow(t, 2.2);
       }
     } else {
-      const t = relX / 600;
       targetY = 205 - (205 - record.apexY) * Math.pow(t, 2.2);
     }
 
-    const t = Math.max(0, Math.min(1, relX / 600));
-    const dateLabel = dateAtProgress(record.startDate, record.endDate, t);
     const dailyStreams = Math.round(
-      1500 + Math.pow(t, 2.4) * (record.peakDaily - 1500),
+      Math.max(0, Math.min(record.peakDaily, streamsAtY(targetY))),
     );
     const streamsStr = `${dailyStreams.toLocaleString()} STREAMS/DAY`;
     const totalStreams =
@@ -187,155 +210,138 @@ const DynamicGrowthChart: React.FC<{
   };
 
   return (
-    <div
-      className="relative w-full cursor-crosshair select-none touch-pan-x"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onTouchStart={handleTouchMove}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleMouseLeave}
-      role="region"
-      aria-label="Interactive Spotify growth chart"
-    >
-      <svg
-        viewBox="0 0 600 220"
-        preserveAspectRatio="none"
-        className="block h-32 w-full sm:h-44 md:h-52"
-        aria-hidden="true"
+    <div className="flex w-full gap-2 sm:gap-3">
+      <div
+        className="relative w-9 shrink-0 font-mono text-[9px] tabular-nums text-white/50 sm:w-11 sm:text-[10px]"
+        role="img"
+        aria-label={`Daily streams axis: ${yAxisTicks.map(({ count }) => count.toLocaleString()).join(", ")}`}
       >
-        <defs>
-          <linearGradient id="axp-chart-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1DB954" stopOpacity="0.38" />
-            <stop offset="100%" stopColor="#1DB954" stopOpacity="0.01" />
-          </linearGradient>
-          <filter id="glow-dot" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Horizontal grid lines */}
-        {[40, 85, 130, 175].map((y) => (
-          <line
-            key={y}
-            x1="0"
-            y1={y}
-            x2="600"
-            y2={y}
-            stroke="rgba(255,255,255,0.07)"
-            strokeWidth="1"
-          />
+        {yAxisTicks.map(({ count, y }) => (
+          <span
+            key={count}
+            aria-hidden="true"
+            className="absolute right-0 -translate-y-1/2"
+            style={{ top: `${(y / 220) * 100}%` }}
+          >
+            {count === 0 ? "0" : `${count / 1000}K`}
+          </span>
         ))}
+      </div>
+      <div
+        className="relative min-w-0 flex-1 cursor-crosshair select-none touch-pan-y"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchMove}
+        onTouchMove={handleTouchMove}
+        onTouchCancel={handleMouseLeave}
+        role="region"
+        aria-label="Interactive Spotify growth chart"
+      >
+        <svg
+          viewBox="0 0 600 220"
+          preserveAspectRatio="none"
+          className="block h-32 w-full sm:h-44 md:h-52"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient id="axp-chart-fill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#1DB954" stopOpacity="0.38" />
+              <stop offset="100%" stopColor="#1DB954" stopOpacity="0.01" />
+            </linearGradient>
+            <filter id="glow-dot" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
 
-        {/* Vertical grid lines */}
-        {[100, 200, 300, 400, 500].map((x) => (
-          <line
-            key={x}
-            x1={x}
-            y1="0"
-            x2={x}
-            y2="220"
-            stroke="rgba(255,255,255,0.05)"
-            strokeWidth="1"
-          />
-        ))}
-
-        {/* Area fill beneath curve */}
-        <path
-          d={record.fillData}
-          fill="url(#axp-chart-fill)"
-          className="transition-all duration-500 ease-out"
-        />
-
-        {/* Green stroke curve */}
-        <path
-          ref={lineRef}
-          id="axp-chart-line"
-          d={record.pathData}
-          fill="none"
-          stroke="#19D057"
-          strokeWidth="2.5"
-          className="transition-all duration-500 ease-out"
-        />
-
-        {/* Interactive hover tracking guideline (dots render as HTML overlay below so they stay round) */}
-        {hover && (
-          <g className="pointer-events-none">
+          {/* Horizontal grid lines */}
+          {yAxisTicks.map(({ count, y }) => (
             <line
-              x1={hover.x}
-              y1={0}
-              x2={hover.x}
-              y2={220}
-              stroke="#19D057"
-              strokeOpacity="0.4"
-              strokeDasharray="3 3"
+              key={count}
+              x1="0"
+              y1={y}
+              x2="600"
+              y2={y}
+              stroke="rgba(255,255,255,0.07)"
               strokeWidth="1"
             />
-          </g>
-        )}
-      </svg>
+          ))}
 
-      {/* Apex marker: HTML overlay stays perfectly round (SVG stretches) */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
-        style={{
-          left: `${(record.apexX / 600) * 100}%`,
-          top: `${(record.apexY / 220) * 100}%`,
-        }}
-      >
-        <span className="block h-2.5 w-2.5 rounded-full bg-[#19D057] shadow-[0_0_10px_#19D057]" />
-        <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#19D057]/60" />
-      </div>
+          {/* Area fill beneath curve */}
+          <path
+            d={record.fillData}
+            fill="url(#axp-chart-fill)"
+            className="transition-all duration-500 ease-out"
+          />
 
-      {/* Hover marker: HTML overlay stays perfectly round */}
-      {hover && (
+          {/* Green stroke curve */}
+          <path
+            ref={lineRef}
+            id="axp-chart-line"
+            d={record.pathData}
+            fill="none"
+            stroke="#19D057"
+            strokeWidth="2.5"
+            className="transition-all duration-500 ease-out"
+          />
+        </svg>
+
+        {/* Apex marker: HTML overlay stays perfectly round (SVG stretches) */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2"
+          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
           style={{
-            left: `${(hover.x / 600) * 100}%`,
-            top: `${(hover.y / 220) * 100}%`,
+            left: `${(record.apexX / 600) * 100}%`,
+            top: `${(record.apexY / 220) * 100}%`,
           }}
         >
           <span className="block h-2.5 w-2.5 rounded-full bg-[#19D057] shadow-[0_0_10px_#19D057]" />
-          <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#19D057]/75" />
+          <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#19D057]/60" />
         </div>
-      )}
 
-      {/* Floating Readout Tooltip */}
-      {hover && (
-        <div
-          className="pointer-events-none absolute z-30 flex flex-col gap-0.5 rounded border border-[#19D057]/40 bg-[#0B0D0B]/95 px-2.5 py-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.8)] backdrop-blur-md transition-all duration-75"
-          style={{
-            left: `${(hover.x / 600) * 100}%`,
-            top: `${(hover.y / 220) * 100}%`,
-            transform: `translate(${
-              hover.x < 90
-                ? "8px"
-                : hover.x > 510
-                  ? "calc(-100% - 8px)"
-                  : "-50%"
-            }, ${hover.y < 65 ? "16px" : "calc(-100% - 14px)"})`,
-          }}
-          role="tooltip"
-          aria-hidden="false"
-        >
-          <div className="flex items-center gap-1.5 font-mono text-[9px] font-bold tracking-[0.15em] text-[#19D057]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#19D057] shadow-[0_0_6px_#19D057]" />
-            <span>{hover.date}</span>
+        {/* Hover marker: HTML overlay stays perfectly round */}
+        {hover && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2"
+            style={{
+              left: `${(hover.x / 600) * 100}%`,
+              top: `${(hover.y / 220) * 100}%`,
+            }}
+          >
+            <span className="block h-2.5 w-2.5 rounded-full bg-[#19D057] shadow-[0_0_10px_#19D057]" />
+            <span className="absolute left-1/2 top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#19D057]/75" />
           </div>
-          <div className="font-mono text-[10px] font-bold tracking-wide text-white">
-            {hover.streams}
+        )}
+
+        {/* Floating Readout Tooltip */}
+        {hover && (
+          <div
+            className="pointer-events-none absolute z-30 flex w-[190px] max-w-full flex-col gap-0.5 rounded border border-[#19D057]/40 bg-[#0B0D0B]/95 px-2.5 py-1.5 shadow-[0_8px_20px_rgba(0,0,0,0.8)] backdrop-blur-md transition-all duration-75"
+            style={{
+              left: `clamp(0px, calc(${(hover.x / 600) * 100}% - 95px), calc(100% - 190px))`,
+              top: `${(hover.y / 220) * 100}%`,
+              transform: `translateY(${hover.y < 65 ? "16px" : "calc(-100% - 14px)"})`,
+            }}
+            role="tooltip"
+            aria-hidden="false"
+          >
+            <div className="flex items-center gap-1.5 font-mono text-[9px] font-bold tracking-[0.15em] text-[#19D057]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#19D057] shadow-[0_0_6px_#19D057]" />
+              <span>{hover.date}</span>
+            </div>
+            <div className="font-mono text-[10px] font-bold tracking-wide text-white">
+              {hover.streams}
+            </div>
+            <div className="font-mono text-[8px] tracking-[0.18em] text-white/50">
+              CUMULATIVE: {hover.total}
+            </div>
           </div>
-          <div className="font-mono text-[8px] tracking-[0.18em] text-white/50">
-            CUMULATIVE: {hover.total}
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
@@ -352,7 +358,8 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     SPOTIFY_PROOF_RECORDS[0];
 
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const copyCount = SPOTIFY_PROOF_RECORDS.length;
+  const scrollTargetRef = useRef<number | null>(null);
+  const [scrollEdges, setScrollEdges] = useState({ left: false, right: false });
 
   const byId = useMemo(
     () => Object.fromEntries(SPOTIFY_PROOF_RECORDS.map((r) => [r.id, r])),
@@ -363,9 +370,6 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     SPOTIFY_PROOF_RECORDS.map((r) => r.id),
   );
   const ordered = order.map((id) => byId[id]).filter(Boolean);
-
-  // Tripled track for a seamless infinite loop; we rest in the middle copy
-  const loopRecords = [...ordered, ...ordered, ...ordered];
 
   // Drag-to-reorder state (grip handle; mouse + touch via pointer events)
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -394,18 +398,17 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     const kids = Array.from(el.children).filter(
       (k) => k.tagName === "BUTTON",
     ) as HTMLElement[];
-    const mid = kids.slice(copyCount, copyCount * 2);
-    if (mid.length === 0) return;
+    if (kids.length === 0) return;
     const rect = el.getBoundingClientRect();
     const x = e.clientX - rect.left + el.scrollLeft;
     let at = 0;
-    for (let i = 0; i < mid.length; i++) {
-      if (x >= mid[i].offsetLeft + mid[i].offsetWidth / 2) at = i + 1;
+    for (let i = 0; i < kids.length; i++) {
+      if (x >= kids[i].offsetLeft + kids[i].offsetWidth / 2) at = i + 1;
       else break;
     }
-    const last = mid[mid.length - 1];
+    const last = kids[kids.length - 1];
     const px =
-      at < mid.length ? mid[at].offsetLeft : last.offsetLeft + last.offsetWidth;
+      at < kids.length ? kids[at].offsetLeft : last.offsetLeft + last.offsetWidth;
     setDropPos({ at, px });
   };
 
@@ -429,59 +432,73 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
     setDropPos(null);
   };
 
-  const oneCopyWidth = () => {
+  const updateScrollEdges = () => {
     const el = scrollerRef.current;
-    if (!el || el.children.length <= copyCount) return 0;
-    return (el.children[copyCount] as HTMLElement).offsetLeft;
+    if (!el) return;
+    const position = scrollTargetRef.current ?? el.scrollLeft;
+    const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
+    const left = position > 1;
+    const right = position < maxScroll - 1;
+    setScrollEdges((previous) =>
+      previous.left === left && previous.right === right
+        ? previous
+        : { left, right },
+    );
   };
 
-  // Start in the middle copy so both directions can scroll forever
+  // Keep controls accurate after resizing or reordering the finite track.
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
-    const center = () => {
-      const w = oneCopyWidth();
-      if (w > 0) el.scrollLeft = w;
+    const update = () => {
+      scrollTargetRef.current = null;
+      updateScrollEdges();
     };
-    center();
-    const raf = requestAnimationFrame(center);
-    window.addEventListener("resize", center);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", center);
-    };
-  }, []);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [order, isActive]);
 
-  // Seamless wrap: at an edge copy, jump one copy over (identical view)
-  const handleLoopScroll = () => {
+  const handleRecordScroll = () => {
     const el = scrollerRef.current;
     if (!el) return;
-    const w = oneCopyWidth();
-    if (w <= 0) return;
-    if (el.scrollLeft <= 2) {
-      el.scrollLeft += w;
-    } else if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 2) {
-      el.scrollLeft -= w;
+    if (
+      scrollTargetRef.current !== null &&
+      Math.abs(el.scrollLeft - scrollTargetRef.current) <= 1
+    ) {
+      scrollTargetRef.current = null;
     }
+    updateScrollEdges();
   };
 
-  // Infinite scroller: pre-jump past the edge, then glide (no visible snap)
+  const handleManualScroll = () => {
+    scrollTargetRef.current = null;
+    updateScrollEdges();
+  };
+
+  // Advance to the adjacent card, clamping the final step to the track's end.
   const scrollRecords = (dir: 1 | -1) => {
     const el = scrollerRef.current;
     if (!el) return;
+    const maxScroll = Math.max(0, el.scrollWidth - el.clientWidth);
+    const cards = Array.from(el.children).filter(
+      (child) => child.tagName === "BUTTON",
+    ) as HTMLElement[];
+    const stops = [
+      ...new Set(cards.map((card) => Math.min(card.offsetLeft, maxScroll))),
+    ];
+    const current = scrollTargetRef.current ?? el.scrollLeft;
+    const target =
+      dir === 1
+        ? stops.find((stop) => stop > current + 1) ?? maxScroll
+        : stops.reverse().find((stop) => stop < current - 1) ?? 0;
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const behavior = reduce ? "auto" : "smooth";
-    const w = oneCopyWidth();
-    if (w > 0) {
-      if (dir === 1 && el.scrollLeft + el.clientWidth >= el.scrollWidth - 4) {
-        el.scrollLeft -= w;
-      } else if (dir === -1 && el.scrollLeft <= 4) {
-        el.scrollLeft += w;
-      }
-    }
-    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior });
+    scrollTargetRef.current = target;
+    el.scrollTo({ left: target, behavior: reduce ? "auto" : "smooth" });
+    updateScrollEdges();
   };
 
   useEffect(() => {
@@ -542,19 +559,25 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 type="button"
                 onClick={() => scrollRecords(-1)}
                 aria-label="Scroll records left"
+                aria-controls="spotify-record-strip"
+                title="Previous record"
+                disabled={!scrollEdges.left}
                 data-hoverable="true"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition-all hover:border-[#1DB954] hover:text-[#1DB954]"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/5 text-white transition-colors enabled:hover:border-[#1DB954] enabled:hover:bg-[#1DB954]/15 enabled:hover:text-[#19D057] enabled:active:bg-[#1DB954]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19D057] focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-transparent disabled:text-white/20"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-5 w-5" aria-hidden="true" />
               </button>
               <button
                 type="button"
                 onClick={() => scrollRecords(1)}
                 aria-label="Scroll records right"
+                aria-controls="spotify-record-strip"
+                title="Next record"
+                disabled={!scrollEdges.right}
                 data-hoverable="true"
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white backdrop-blur-md transition-all hover:border-[#1DB954] hover:text-[#1DB954]"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/5 text-white transition-colors enabled:hover:border-[#1DB954] enabled:hover:bg-[#1DB954]/15 enabled:hover:text-[#19D057] enabled:active:bg-[#1DB954]/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19D057] focus-visible:ring-offset-2 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-transparent disabled:text-white/20"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </button>
             </span>
           </div>
@@ -562,20 +585,21 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
           <div className="relative">
             <div
               ref={scrollerRef}
-              onScroll={handleLoopScroll}
+              id="spotify-record-strip"
+              onScroll={handleRecordScroll}
+              onWheel={handleManualScroll}
+              onPointerDown={handleManualScroll}
+              onKeyDown={handleManualScroll}
               onPointerMove={onStripPointerMove}
               onPointerUp={endStripDrag}
               onPointerCancel={endStripDrag}
               className={`relative flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] sm:gap-4 [&::-webkit-scrollbar]:hidden ${draggingId ? "select-none" : ""}`}
             >
-              {loopRecords.map((record, copyIdx) => {
+              {ordered.map((record) => {
                 const isSelected = record.id === selectedId;
-                const inMainCopy =
-                  copyIdx >= copyCount && copyIdx < copyCount * 2;
-                const cardKey = `${record.id}-${copyIdx}`;
                 return (
                   <button
-                    key={cardKey}
+                    key={record.id}
                     onClick={() => {
                       if (suppressClickRef.current) {
                         suppressClickRef.current = false;
@@ -583,12 +607,10 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                       }
                       setSelectedId(record.id);
                     }}
-                    aria-hidden={!inMainCopy}
-                    tabIndex={inMainCopy ? undefined : -1}
                     aria-pressed={isSelected}
-                    className={`group relative flex h-[154px] w-[478px] max-w-[85vw] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border p-3 text-left transition-all duration-300 sm:p-4 ${draggingId === record.id ? "opacity-40" : ""} ${
+                    className={`group relative flex h-[154px] w-[478px] max-w-[85vw] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-xl border-2 p-3 text-left transition-all duration-300 sm:p-4 ${draggingId === record.id ? "opacity-40" : ""} ${
                       isSelected
-                        ? "border-[#1DB954] bg-[#0E150F] shadow-[0_0_25px_rgba(29,185,84,0.3)] ring-1 ring-[#1DB954]"
+                        ? "border-[#1DB954] bg-[#0E150F]"
                         : "border-white/10 bg-[#0B0D0B]/80 hover:border-white/30 hover:bg-[#121412]"
                     }`}
                   >
@@ -740,44 +762,38 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 border-y border-white/10 py-3.5 sm:grid-cols-3">
-                  <div>
-                    <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
-                      TOTAL SPOTIFY STREAMS
+                <div className="w-full border-y border-white/10 py-3.5">
+                  <div className="mx-auto grid w-full max-w-2xl grid-cols-2 gap-4 text-center">
+                    <div>
+                      <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
+                        TOTAL SPOTIFY STREAMS
+                      </div>
+                      <div className="mt-0.5 font-impact text-2xl text-white sm:text-3xl">
+                        {activeRecord.streams}
+                      </div>
                     </div>
-                    <div className="mt-0.5 font-impact text-2xl text-white sm:text-3xl">
-                      {activeRecord.streams}
-                    </div>
-                  </div>
 
-                  <div>
-                    <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
-                      DAILY AT PEAK
-                    </div>
-                    <div className="mt-0.5 font-impact text-2xl text-[#19D057] sm:text-3xl">
-                      {activeRecord.dailyAtPeak}
-                    </div>
-                  </div>
-
-                  <div className="col-span-2 sm:col-span-1">
-                    <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
-                      VERIFICATION WINDOW
-                    </div>
-                    <div className="mt-0.5 font-impact text-xl text-white/90 sm:text-2xl">
-                      {activeRecord.dateRange}
+                    <div>
+                      <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
+                        DAILY AT PEAK
+                      </div>
+                      <div className="mt-0.5 font-impact text-2xl text-[#19D057] sm:text-3xl">
+                        {activeRecord.dailyAtPeak}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Growth Chart */}
                 <div className="mt-1">
-                  <div className="mb-1 flex items-center justify-between font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
+                  <div className="mb-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
                     <span>STREAM VELOCITY OVER TIME</span>
                     <span className="text-[#19D057]">
-                      HOVER CHART FOR DAILY POINT DATA
+                      <span className="sm:hidden">TAP FOR 5-DAY POINT DATA</span>
+                      <span className="hidden sm:inline">HOVER FOR 5-DAY POINT DATA</span>
                     </span>
                   </div>
-                  <DynamicGrowthChart record={activeRecord} lineRef={lineRef} />
+                  <DynamicGrowthChart key={activeRecord.id} record={activeRecord} lineRef={lineRef} />
                 </div>
               </div>
             </div>

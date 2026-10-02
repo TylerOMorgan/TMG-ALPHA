@@ -383,7 +383,7 @@ export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = [
     id: "mimimi",
     title: "MIMIMI HARDTEKK",
     artist: "SAINT RIO",
-    image: "/sound-id-artwork.png",
+    image: "/sound-id-preview.png",
     metric: "900K+",
     caption: "TIKTOK CREATIONS",
     soundUrl: "https://www.tiktok.com/music/Mimimi-Hardtekk-7281928471928491",
@@ -394,7 +394,7 @@ export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = [
     id: "odnogo",
     title: "ODNOGO ULTRAFUNK",
     artist: "MAYA SOL",
-    image: "/sound-id-artwork.png",
+    image: "/sound-id-preview.png",
     metric: "600K+",
     caption: "TIKTOK CREATIONS",
     soundUrl: "https://www.tiktok.com/music/Odnogo-Ultrafunk-7291039481928374",
@@ -405,7 +405,7 @@ export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = [
     id: "stereo-love",
     title: "STEREO LOVE FUNK",
     artist: "ASTER",
-    image: "/sound-id-artwork.png",
+    image: "/sound-id-preview.png",
     metric: "1.2M+",
     caption: "TIKTOK CREATIONS",
     soundUrl: "https://www.tiktok.com/music/Stereo-Love-Funk-7301928491827461",
@@ -416,7 +416,7 @@ export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = [
     id: "cant-fight",
     title: "CANT FIGHT THIS FEELING",
     artist: "KODA",
-    image: "/sound-id-artwork.png",
+    image: "/sound-id-preview.png",
     metric: "450K+",
     caption: "TIKTOK CREATIONS",
     soundUrl:
@@ -479,8 +479,7 @@ export const WORK_PILLARS: WorkPillar[] = [
 
 export const CTA_EYEBROW = "THE NEXT SOUND STARTS HERE";
 export const CTA_TITLE = "YOUR RECORD COULD BE NEXT.";
-export const CTA_COPY =
-  "Bring the record. Bring the ambition. We will tell you clearly if TRILLEX is the right team to build with.";
+export const CTA_COPY = "OUR A&R TEAM REVIEWS EVERY DEMO SUBMISSION";
 export const CTA_BUTTON = "SUBMIT YOUR DEMO";
 export const CTA_FOOTER_LEFT = "TRILLEX MUSIC GROUP";
 export const CTA_FOOTER_RIGHT =

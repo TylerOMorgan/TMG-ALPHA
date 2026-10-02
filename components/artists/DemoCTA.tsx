@@ -1,11 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Eyebrow from "./Eyebrow";
 import Logo from "../Logo";
 import Footer from "../Footer";
 import {
-  CTA_EYEBROW,
   CTA_TITLE,
   CTA_COPY,
   CTA_BUTTON,
@@ -76,7 +74,7 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
     <section
       ref={sectionRef}
       data-nav-theme="dark"
-      className="relative flex w-full flex-col justify-between overflow-hidden bg-gradient-to-b from-[#050505] via-[#090A09] to-[#040404] text-center text-white"
+      className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden bg-gradient-to-b from-[#050505] via-[#090A09] to-[#040404] text-center text-white"
     >
       {/* Soft atmospheric ambient glow transitioning seamlessly into dark */}
       <div
@@ -99,14 +97,10 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
 
       <div
         ref={contentRef}
-        className="relative z-10 mx-auto my-auto flex w-full max-w-[1300px] flex-col items-center justify-center px-5 pt-4 pb-[160px] will-change-transform sm:pt-6 sm:pb-[184px] md:px-10 md:pb-[216px]"
+        className="relative z-10 mx-auto flex w-full max-w-[1300px] flex-1 flex-col items-center justify-center px-5 py-12 will-change-transform sm:py-14 md:px-10 md:py-16"
       >
         <div className="flex items-center justify-center">
           <Logo className="h-[64px] w-auto text-white md:h-[110px] transition-transform duration-500 hover:scale-105" />
-        </div>
-
-        <div className="mt-5 sm:mt-6">
-          <Eyebrow text={CTA_EYEBROW} tone="dark" align="center" />
         </div>
 
         <h2
@@ -137,9 +131,6 @@ const DemoCTA: React.FC<SectionProps> = ({ isActive = true }) => {
               &rarr;
             </span>
           </a>
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.2em] text-white/40">
-            A&amp;R TEAM REVIEWS EVERY SUBMISSION
-          </span>
         </div>
       </div>
 

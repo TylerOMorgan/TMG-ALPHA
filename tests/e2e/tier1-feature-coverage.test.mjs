@@ -152,9 +152,9 @@ export async function runTier1(browser, baseUrl, results) {
     });
 
     // =========================================================================
-    // SECTION 3: SELECT RECORD INFINITE STRIP — 5 Tests
+    // SECTION 3: SELECT RECORD FINITE STRIP — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 3: Select Record Infinite Strip ---');
+    console.log('\n--- Group 3: Select Record Finite Strip ---');
 
     await runTest('T1.3.1', 'Select Record Label', results, async () => {
       const label = container.locator('text=SELECT RECORD').first();
@@ -162,10 +162,11 @@ export async function runTier1(browser, baseUrl, results) {
       assert.equal(await label.isVisible(), true, 'Label should be visible');
     });
 
-    await runTest('T1.3.2', '8 Records Tripled For Infinite Loop', results, async () => {
-      // 8 records x 3 loop copies = 24 selectable buttons
+    await runTest('T1.3.2', '8 Unique Records Without Loop Copies', results, async () => {
       const buttons = container.locator('button[aria-pressed]');
-      assert.equal(await buttons.count(), 24, 'Expected 24 record buttons (8 records x 3 loop copies)');
+      assert.equal(await buttons.count(), 8, 'Expected exactly 8 record buttons');
+      const titles = await buttons.locator('img').evaluateAll(els => els.map(el => el.alt));
+      assert.equal(new Set(titles).size, 8, 'Every record appears once');
     });
 
     await runTest('T1.3.3', 'Strip Navigation Arrows', results, async () => {
@@ -173,36 +174,54 @@ export async function runTier1(browser, baseUrl, results) {
       const right = container.locator('button[aria-label="Scroll records right"]').first();
       assert.equal(await left.isVisible(), true, 'Left arrow should be visible');
       assert.equal(await right.isVisible(), true, 'Right arrow should be visible');
+      assert.equal(await left.isDisabled(), true, 'Previous is disabled at the start');
+      assert.equal(await right.isEnabled(), true, 'Next is enabled at the start');
+      const selected = container.locator('button[aria-pressed="true"]').first();
+      const borders = await selected.evaluate(el => {
+        const style = getComputedStyle(el);
+        return [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth];
+      });
+      assert.deepEqual(borders, ['2px', '2px', '2px', '2px'], 'Selected border is even on all sides');
     });
 
-    await runTest('T1.3.4', 'Arrow Scroll Advances Strip', results, async () => {
-      const scroller = container.locator('div.overflow-x-auto').first();
-      const before = await scroller.evaluate(el => el.scrollLeft);
-      await container.locator('button[aria-label="Scroll records right"]').first().click();
+    await runTest('T1.3.4', 'Arrows Move One Card And Stop At Both Ends', results, async () => {
+      const scroller = container.locator('#spotify-record-strip');
+      const left = container.locator('button[aria-label="Scroll records left"]').first();
+      const right = container.locator('button[aria-label="Scroll records right"]').first();
+      const stops = await scroller.evaluate(el => [...new Set(
+        [...el.querySelectorAll('button')].map(card => Math.min(card.offsetLeft, el.scrollWidth - el.clientWidth))
+      )]);
       const handle = await scroller.elementHandle();
-      await page.waitForFunction(([el, b]) => el.scrollLeft > b, [handle, before], { timeout: 4000 });
-      const after = await scroller.evaluate(el => el.scrollLeft);
-      assert.ok(after > before, `Strip should advance right (before=${before}, after=${after})`);
+      for (const target of stops.slice(1)) {
+        await right.click();
+        await page.waitForFunction(([el, x]) => Math.abs(el.scrollLeft - x) <= 1, [handle, target], { timeout: 4000 });
+      }
+      assert.equal(await right.isDisabled(), true, 'Next is disabled at the last card');
+      assert.equal(await scroller.evaluate(el => Math.abs(el.scrollLeft + el.clientWidth - el.scrollWidth) <= 1), true, 'Track ends with the last card fully visible');
+      for (const target of stops.slice(0, -1).reverse()) {
+        await left.click();
+        await page.waitForFunction(([el, x]) => Math.abs(el.scrollLeft - x) <= 1, [handle, target], { timeout: 4000 });
+      }
+      assert.equal(await left.isDisabled(), true, 'Previous is disabled at the first card');
     });
 
     await runTest('T1.3.5', 'Record Selection Updates Deep-Dive', results, async () => {
-      // Middle loop copy starts at index 8: click ODNOGO (index 9), then restore MIMIMI (index 8)
-      await container.locator('button[aria-pressed]').nth(9).click();
+      await container.locator('button[aria-pressed]').nth(1).click();
       await page.waitForTimeout(400);
       const updated = container.locator('h3').filter({ hasText: 'ODNOGO ULTRAFUNK' });
       assert.ok(await updated.count() > 0, 'Deep-dive should show ODNOGO ULTRAFUNK after selection');
 
-      await container.locator('button[aria-pressed]').nth(8).click();
+      await container.locator('button[aria-pressed]').nth(0).click();
       await page.waitForTimeout(400);
       const restored = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
       assert.ok(await restored.count() > 0, 'Deep-dive should restore MIMIMI HARDTEKK');
 
-      // Drag-to-reorder: drag the first middle-copy card two slots right
-      const midTitles = () => container.locator('button[aria-pressed]').evaluateAll(
-        els => els.slice(8, 16).map(e => e.textContent.replace(/\s+/g, ' ').trim())
+      // Drag-to-reorder the first card while preserving all unique records.
+      const recordTitles = () => container.locator('button[aria-pressed]').evaluateAll(
+        els => els.map(e => e.textContent.replace(/\s+/g, ' ').trim())
       );
-      const beforeDrag = await midTitles();
-      const grip = container.locator('button[aria-pressed]').nth(8).locator('span[title="Drag to reorder"]');
+      const beforeDrag = await recordTitles();
+      const grip = container.locator('button[aria-pressed]').nth(0).locator('span[title="Drag to reorder"]');
       const gbox = await grip.boundingBox();
       await page.mouse.move(gbox.x + gbox.width / 2, gbox.y + gbox.height / 2);
       await page.mouse.down();
@@ -212,7 +231,7 @@ export async function runTier1(browser, baseUrl, results) {
       }
       await page.mouse.up();
       await page.waitForTimeout(400);
-      const afterDrag = await midTitles();
+      const afterDrag = await recordTitles();
       assert.ok(JSON.stringify(afterDrag) !== JSON.stringify(beforeDrag), 'Drag should reorder the strip');
       assert.deepEqual([...afterDrag].sort(), [...beforeDrag].sort(), 'Reorder preserves all 8 records');
       const keptSelection = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
@@ -279,6 +298,12 @@ export async function runTier1(browser, baseUrl, results) {
 
       const apexDot = container.locator('div.cursor-crosshair [class*="bg-[#19D057]"]');
       assert.ok(await apexDot.count() > 0, 'Round green apex dot indicator should exist');
+      const grid = await chart.locator('line').evaluateAll(lines => lines.map(line => ({
+        x1: line.getAttribute('x1'), x2: line.getAttribute('x2'),
+        y1: line.getAttribute('y1'), y2: line.getAttribute('y2')
+      })));
+      assert.ok(grid.length > 0 && grid.every(line => line.y1 === line.y2 && line.x1 !== line.x2), 'Grid contains horizontal lines only');
+      assert.ok(await container.locator('[aria-label^="Daily streams axis:"]').count() > 0, 'Chart exposes its y-axis counts');
     });
 
     // =========================================================================
@@ -308,29 +333,48 @@ export async function runTier1(browser, baseUrl, results) {
         'STEREO LOVE FUNK',
         'CANT FIGHT THIS FEELING'
       ];
+      const cards = container.locator('a[aria-label$="on TikTok"]');
+      assert.equal(await cards.count(), 4);
       for (const title of expectedCards) {
-        const el = container.locator(`text="${title}"`);
-        assert.ok(await el.count() > 0, `Proof card "${title}" should exist`);
+        assert.equal(await container.locator(`a[aria-label="Open ${title} on TikTok"]`).count(), 1);
       }
+      const previews = await cards.evaluateAll(els => els.map(el => ({
+        lines: [...el.lastElementChild.querySelector('.font-impact').children].map(line => line.textContent.trim()),
+        artistLabel: Boolean(el.lastElementChild.querySelector('.font-mono')),
+        imageFit: getComputedStyle(el.querySelector('img')).objectFit,
+        imageSource: el.querySelector('img').getAttribute('src')
+      })));
+      assert.deepEqual(previews.map(card => card.lines), [
+        ['MIMIMI', 'HARDTEKK'], ['ODNOGO', 'ULTRAFUNK'],
+        ['STEREO', 'LOVE FUNK'], ['CANT FIGHT', 'THIS FEELING']
+      ]);
+      assert.ok(previews.every(card => !card.artistLabel && card.lines[0].length <= 10 && card.imageFit === 'contain' && card.imageSource === '/sound-id-preview.png'), 'Titles and proportional previews follow the card layout');
+
+      // Founder-logo mirror: card tilts tracking the cursor (matrix3d via perspective)
+      const firstCard = container.locator('a[aria-label^="Open"]').nth(0);
+      await firstCard.scrollIntoViewIfNeeded();
+      const box = await firstCard.boundingBox();
+      await page.mouse.move(box.x + box.width * 0.25, box.y + box.height * 0.3);
+      await page.waitForTimeout(1000);
+      const tilt = await firstCard.evaluate(el => window.getComputedStyle(el.parentElement).transform);
+      assert.ok(tilt && tilt !== 'none', 'Hovered card wrapper should carry a tilt transform');
+      await page.mouse.move(5, 5);
     });
 
-    await runTest('T1.5.4', 'TikTok Loaders Idle Until Card Hover', results, async () => {
-      const staticDots = container.locator('img[src*="tiktok-loading-static"]');
-      assert.equal(await staticDots.count(), 4, 'All 4 proof cards should show idle TikTok dots');
-
+    await runTest('T1.5.4', 'TikTok Loader Only On Card Hover', results, async () => {
       const animated = container.locator('img[src="/tiktok-loading.svg"]');
       assert.equal(await animated.count(), 4, 'All 4 proof cards should have the hover loader ready');
 
-      // Animation starts only on the hovered card
+      // Corner stays empty until hover; animation starts only on the hovered card
       // (park the cursor clear first: prior scrollToY calls can leave it resting on a card)
       await page.mouse.move(5, 5);
       await page.waitForTimeout(150);
       const cards = container.locator('a[aria-label^="Open"]');
-      assert.equal(await animated.nth(0).isVisible(), false, 'Animated loader hidden before hover');
+      assert.equal(await animated.nth(0).isVisible(), false, 'Corner empty before hover');
       await cards.nth(0).hover({ force: true });
       await page.waitForTimeout(200);
       assert.equal(await animated.nth(0).isVisible(), true, 'Animated loader plays on hovered card');
-      assert.equal(await animated.nth(1).isVisible(), false, 'Other cards stay idle');
+      assert.equal(await animated.nth(1).isVisible(), false, 'Other corners stay empty');
       await page.mouse.move(5, 5);
 
       const legacy = container.locator('text="TIKTOK SOUND"');
@@ -353,7 +397,7 @@ export async function runTier1(browser, baseUrl, results) {
     const getChart = () => container.locator('div.cursor-crosshair').first();
     const getTooltipDate = () => container.locator('[role="tooltip"] span').nth(1).textContent();
 
-    await runTest('T1.6.1', 'Hover Reveals Daily Point Tooltip', results, async () => {
+    await runTest('T1.6.1', 'Hover Reveals Five-Day Point Tooltip', results, async () => {
       const chart = getChart();
       await chart.scrollIntoViewIfNeeded();
       const box = await chart.boundingBox();
@@ -373,12 +417,18 @@ export async function runTier1(browser, baseUrl, results) {
       assert.equal((await getTooltipDate()).trim(), '1 SEP', 'Left edge hover should read "1 SEP"');
     });
 
-    await runTest('T1.6.3', 'Hover Right Edge Shows Sep 30', results, async () => {
+    await runTest('T1.6.3', 'Readouts Stay On Five-Day Intervals', results, async () => {
       const chart = getChart();
       const box = await chart.boundingBox();
+      const dates = [];
+      for (const dayOffset of [0, 5, 10, 15, 20, 25]) {
+        await page.mouse.move(box.x + box.width * dayOffset / 29 + 1, box.y + box.height / 2);
+        dates.push((await getTooltipDate()).trim());
+      }
+      assert.deepEqual(dates, ['1 SEP', '6 SEP', '11 SEP', '16 SEP', '21 SEP', '26 SEP']);
       await page.mouse.move(box.x + box.width - 6, box.y + box.height / 2);
       await page.waitForTimeout(200);
-      assert.equal((await getTooltipDate()).trim(), '30 SEP', 'Right edge hover should read "30 SEP"');
+      assert.equal((await getTooltipDate()).trim(), '26 SEP', 'Partial final interval uses the last five-day sample');
     });
 
     await runTest('T1.6.4', 'Hover Shows Streams And Cumulative Totals', results, async () => {
@@ -389,6 +439,9 @@ export async function runTier1(browser, baseUrl, results) {
       const tooltip = container.locator('[role="tooltip"]');
       assert.ok(await tooltip.filter({ hasText: /STREAMS\/DAY/ }).count() > 0, 'Tooltip should show daily streams');
       assert.ok(await tooltip.filter({ hasText: /CUMULATIVE/ }).count() > 0, 'Tooltip should show cumulative total');
+      const before = await tooltip.textContent();
+      await page.mouse.move(box.x + box.width * 0.76, box.y + box.height / 2);
+      assert.equal(await tooltip.textContent(), before, 'Nearby positions expose the same sampled data');
     });
 
     await runTest('T1.6.5', 'Tooltip Hides On Mouse Leave', results, async () => {
@@ -458,14 +511,35 @@ export async function runTier1(browser, baseUrl, results) {
 
       const logo = ctaSection.locator('svg').first();
       assert.ok(await logo.count() > 0, 'CTA logo SVG should exist');
+      const layout = await ctaSection.evaluate(el => {
+        const content = el.querySelector('h2').parentElement;
+        const top = content.firstElementChild.getBoundingClientRect().top;
+        const bottom = content.lastElementChild.getBoundingClientRect().bottom;
+        return {
+          height: el.getBoundingClientRect().height,
+          viewportHeight: innerHeight,
+          previousBottom: el.previousElementSibling.getBoundingClientRect().bottom,
+          center: (top + bottom) / 2,
+          viewportCenter: innerHeight / 2
+        };
+      });
+      assert.ok(layout.height >= layout.viewportHeight, 'Final section fills at least the viewport');
+      assert.ok(layout.previousBottom <= 1, 'Earlier cards are out of view at the page bottom');
+      assert.ok(Math.abs(layout.center - layout.viewportCenter) < 8, 'Desktop CTA content is centered in the viewport');
     });
 
     await runTest('T1.8.2', 'CTA Headline & Pitch Copy', results, async () => {
       const heading = container.locator('h2').filter({ hasText: /YOUR RECORD/i }).filter({ hasText: /COULD BE NEXT/i });
       assert.ok(await heading.count() > 0, 'CTA heading should exist');
 
-      const copy = container.locator('text=/Bring the record\\. Bring the ambition\\./i');
+      const copy = container.locator('text=/OUR A&R TEAM REVIEWS EVERY DEMO SUBMISSION/i');
       assert.ok(await copy.count() > 0, 'CTA copy should exist');
+
+      const oldEyebrow = container.locator('text=/THE NEXT SOUND STARTS HERE/i');
+      assert.equal(await oldEyebrow.count(), 0, 'Old CTA eyebrow should be gone');
+
+      const oldNote = container.locator('text=/A&R TEAM REVIEWS EVERY SUBMISSION$/i');
+      assert.equal(await oldNote.count(), 0, 'Old CTA footnote should be gone');
     });
 
     await runTest('T1.8.3', 'Submit Your Demo Button', results, async () => {
