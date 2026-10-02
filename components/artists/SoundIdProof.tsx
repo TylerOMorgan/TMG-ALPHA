@@ -4,7 +4,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
 import {
   SOUND_EYEBROW,
-  SOUND_TITLE,
   SOUND_GHOST,
   TIKTOK_VERIFIED_HITS,
 } from "../../utils/artistsExperienceData";
@@ -30,10 +29,10 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
   const ghostRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const entryRefs = useRef<(HTMLDivElement | null)[]>([]);
   const tiltRefs = useRef<(HTMLDivElement | null)[]>([]);
   const trackers = useRef<
     {
-      x: (v: number) => void;
       y: (v: number) => void;
       rotX: (v: number) => void;
       rotY: (v: number) => void;
@@ -41,6 +40,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
   >([]);
 
   useEffect(() => {
+    trackers.current = [];
     if (!isActive) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = gsap.context(() => {
@@ -78,30 +78,31 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
         );
       }
 
-      // Wobble + cursor tracking mirroring the founder logo behaviour.
-      // Tilt lives on wrapper divs so it never fights the scrub tween above.
+      // Scroll, entrance, and hover transforms each own a separate element.
       const wrappers = tiltRefs.current.filter(Boolean) as HTMLDivElement[];
-      const isCoarse = window.matchMedia("(pointer: coarse)").matches;
-      wrappers.forEach((el, i) => {
-        gsap.set(el, { transformPerspective: 800 });
-        if (!isCoarse) {
+      const canHover = window.matchMedia(
+        "(hover: hover) and (pointer: fine)",
+      ).matches;
+      if (canHover) {
+        wrappers.forEach((el, i) => {
+          gsap.set(el, { transformPerspective: 800 });
           trackers.current[i] = {
-            x: gsap.quickTo(el, "x", { duration: 0.8, ease: "power2.out" }),
-            y: gsap.quickTo(el, "y", { duration: 0.8, ease: "power2.out" }),
+            y: gsap.quickTo(el, "y", { duration: 0.25, ease: "power2.out" }),
             rotX: gsap.quickTo(el, "rotationX", {
-              duration: 0.8,
+              duration: 0.25,
               ease: "power2.out",
             }),
             rotY: gsap.quickTo(el, "rotationY", {
-              duration: 0.8,
+              duration: 0.25,
               ease: "power2.out",
             }),
           };
-        }
-      });
-      if (wrappers.length) {
+        });
+      }
+      const entrances = entryRefs.current.filter(Boolean) as HTMLDivElement[];
+      if (entrances.length) {
         gsap.fromTo(
-          wrappers,
+          entrances,
           { scale: 0.85, opacity: 0, rotation: -6 },
           {
             scale: 1,
@@ -118,21 +119,30 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
         );
       }
     }, sectionRef);
-    return () => ctx.revert();
+    return () => {
+      trackers.current = [];
+      ctx.revert();
+    };
   }, [isActive]);
 
-  // Per-card 3D tilt tracking the cursor (same ±15°/±20px ranges as the founder logo)
-  const handleCardMove = (e: React.MouseEvent, idx: number) => {
+  // The link's hit area never tilts or lifts, so pointer position cannot feed
+  // back into the animated bounds or repeatedly toggle hover at card edges.
+  const handleCardMove = (e: React.MouseEvent<HTMLAnchorElement>, idx: number) => {
     const t = trackers.current[idx];
-    const el = tiltRefs.current[idx];
-    if (!t || !el) return;
-    const rect = el.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
-    t.rotY(x * 15);
-    t.rotX(-y * 15);
-    t.x(x * 20);
-    t.y(y * 20);
+    if (!t) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    const x = Math.max(
+      -1,
+      Math.min(1, ((e.clientX - rect.left) / rect.width - 0.5) * 2),
+    );
+    const y = Math.max(
+      -1,
+      Math.min(1, ((e.clientY - rect.top) / rect.height - 0.5) * 2),
+    );
+    t.rotY(x * 6);
+    t.rotX(-y * 6);
+    t.y(-8);
   };
 
   const handleCardLeave = (idx: number) => {
@@ -140,7 +150,6 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
     if (!t) return;
     t.rotY(0);
     t.rotX(0);
-    t.x(0);
     t.y(0);
   };
 
@@ -179,57 +188,67 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
         className="relative z-10 mx-auto mt-20 sm:mt-24 md:mt-36 lg:mt-44 xl:mt-48 max-w-[1840px] px-4 sm:px-6 md:px-10 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-4"
       >
         {TIKTOK_VERIFIED_HITS.map((card, idx) => (
-          <div
-            key={card.id}
-            ref={(el) => {
-              tiltRefs.current[idx] = el;
-            }}
-            onMouseMove={(e) => handleCardMove(e, idx)}
-            onMouseLeave={() => handleCardLeave(idx)}
-            className="will-change-transform"
-          >
+          <div key={card.id} className="will-change-transform">
             <a
               href={card.soundUrl}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`Open ${card.title} on TikTok`}
-              className="group relative block h-full overflow-hidden rounded-xl border border-white/10 bg-[#0C0C0C] will-change-transform transition-all duration-300 hover:-translate-y-2 hover:border-[#00F2FE]/70 hover:shadow-[0_12px_35px_rgba(0,242,254,0.25)] focus:outline-none focus:ring-2 focus:ring-[#00F2FE]"
+              onMouseEnter={(e) => handleCardMove(e, idx)}
+              onMouseMove={(e) => handleCardMove(e, idx)}
+              onMouseLeave={() => handleCardLeave(idx)}
+              className="group relative block h-full rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00F2FE]"
             >
-              <div className="relative aspect-[16/10] overflow-hidden">
-                <img
-                  src={card.image}
-                  alt={card.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-contain"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
+              <div
+                ref={(el) => {
+                  entryRefs.current[idx] = el;
+                }}
+                className="pointer-events-none h-full will-change-transform"
+              >
+                <div
+                  ref={(el) => {
+                    tiltRefs.current[idx] = el;
+                  }}
+                  data-card-tilt
+                  className="h-full overflow-hidden rounded-xl border border-white/10 bg-[#0C0C0C] will-change-transform transition-[border-color,box-shadow] duration-300 group-hover:border-[#00F2FE]/70 group-hover:shadow-[0_12px_35px_rgba(0,242,254,0.25)] group-focus-visible:border-[#00F2FE]/70"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-contain"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
 
-                {/* Top Right: loader animation plays only on this card's hover; corner stays empty otherwise */}
-                <img
-                  src="/tiktok-loading.svg"
-                  alt=""
-                  aria-hidden="true"
-                  loading="lazy"
-                  decoding="async"
-                  className="absolute right-3 top-3 hidden h-11 w-11 group-hover:block"
-                />
-              </div>
-
-              {/* Bottom row: title bottom-left, metric bottom-right */}
-              <div className="border-t border-white/10 p-3.5 bg-[#0C0C0C]">
-                <div className="flex items-end justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-impact text-base leading-tight text-white md:text-lg group-hover:text-white transition-colors">
-                      {getTitleLines(card.title).map((line, lineIndex) => (
-                        <span key={lineIndex} className="block">
-                          {line}{" "}
-                        </span>
-                      ))}
-                    </div>
+                    {/* Top Right: loader animation plays only on this card's hover; corner stays empty otherwise */}
+                    <img
+                      src="/tiktok-loading.svg"
+                      alt=""
+                      aria-hidden="true"
+                      loading="lazy"
+                      decoding="async"
+                      className="absolute right-3 top-3 hidden h-11 w-11 group-hover:block"
+                    />
                   </div>
-                  <div className="shrink-0 font-impact text-2xl text-white group-hover:text-[#00F2FE] transition-colors md:text-3xl">
-                    {card.metric}
+
+                  {/* Bottom row: title bottom-left, metric bottom-right */}
+                  <div className="border-t border-white/10 p-3.5 bg-[#0C0C0C]">
+                    <div className="flex items-end justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-impact text-base leading-tight text-white md:text-lg group-hover:text-white transition-colors">
+                          {getTitleLines(card.title).map((line, lineIndex) => (
+                            <span key={lineIndex} className="block">
+                              {line}{" "}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="shrink-0 font-impact text-2xl text-white group-hover:text-[#00F2FE] transition-colors md:text-3xl">
+                        {card.metric}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -339,8 +339,8 @@ export async function runTier1(browser, baseUrl, results) {
         assert.equal(await container.locator(`a[aria-label="Open ${title} on TikTok"]`).count(), 1);
       }
       const previews = await cards.evaluateAll(els => els.map(el => ({
-        lines: [...el.lastElementChild.querySelector('.font-impact').children].map(line => line.textContent.trim()),
-        artistLabel: Boolean(el.lastElementChild.querySelector('.font-mono')),
+        lines: [...el.querySelector('[data-card-tilt]').lastElementChild.querySelector('.font-impact').children].map(line => line.textContent.trim()),
+        artistLabel: Boolean(el.querySelector('[data-card-tilt]').lastElementChild.querySelector('.font-mono')),
         imageFit: getComputedStyle(el.querySelector('img')).objectFit,
         imageSource: el.querySelector('img').getAttribute('src')
       })));
@@ -350,15 +350,32 @@ export async function runTier1(browser, baseUrl, results) {
       ]);
       assert.ok(previews.every(card => !card.artistLabel && card.lines[0].length <= 10 && card.imageFit === 'contain' && card.imageSource === '/sound-id-preview.png'), 'Titles and proportional previews follow the card layout');
 
-      // Founder-logo mirror: card tilts tracking the cursor (matrix3d via perspective)
+      // Hover moves only the visual layer; the link and scroll wrapper stay stable.
       const firstCard = container.locator('a[aria-label^="Open"]').nth(0);
       await firstCard.scrollIntoViewIfNeeded();
       const box = await firstCard.boundingBox();
       await page.mouse.move(box.x + box.width * 0.25, box.y + box.height * 0.3);
       await page.waitForTimeout(1000);
-      const tilt = await firstCard.evaluate(el => window.getComputedStyle(el.parentElement).transform);
-      assert.ok(tilt && tilt !== 'none', 'Hovered card wrapper should carry a tilt transform');
+      const tilt = await firstCard.evaluate(el => window.getComputedStyle(el.querySelector('[data-card-tilt]')).transform);
+      assert.ok(tilt && tilt !== 'none', 'Hovered visual layer should carry a tilt transform');
+      const after = await firstCard.boundingBox();
+      assert.ok(Math.abs(after.x - box.x) < 1 && Math.abs(after.y - box.y) < 1, 'Hover must not move its own hit area');
+      const transitions = await firstCard.locator('[data-card-tilt]').evaluate(el => getComputedStyle(el).transitionProperty);
+      assert.ok(!transitions.includes('transform') && transitions !== 'all', 'CSS cannot compete with GSAP hover transforms');
+      // Stationary edge hovers previously repeatedly entered/left the moving card.
+      for (const x of [box.x + 1, box.x + box.width - 1]) {
+        await page.mouse.move(x, box.y + box.height / 2);
+        await page.waitForTimeout(450);
+        const hit = await firstCard.evaluate((el, point) => document.elementFromPoint(point.x, point.y) === el, { x, y: box.y + box.height / 2 });
+        assert.equal(hit, true, 'The stationary edge point remains on the same link');
+      }
       await page.mouse.move(5, 5);
+      await page.waitForTimeout(400);
+      const settled = await firstCard.locator('[data-card-tilt]').evaluate(el => {
+        const matrix = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+        return { y: matrix.m42, rotationX: matrix.m23, rotationY: matrix.m13 };
+      });
+      assert.ok(Math.abs(settled.y) < 0.1 && Math.abs(settled.rotationX) < 0.001 && Math.abs(settled.rotationY) < 0.001, 'Hover motion resets after leaving the card');
     });
 
     await runTest('T1.5.4', 'TikTok Loader Only On Card Hover', results, async () => {
