@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test:assets": "node tests/assets/catalog.test.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

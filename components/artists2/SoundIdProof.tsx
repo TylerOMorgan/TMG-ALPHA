@@ -5,7 +5,6 @@ import Eyebrow from "./Eyebrow";
 import {
   SOUND_EYEBROW,
   SOUND_TITLE,
-  SOUND_COPY,
   SOUND_GHOST,
   PROOF_CARDS,
 } from "../../utils/artists2ExperienceData";
@@ -91,9 +90,6 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
             <span className="block">MILLIONS OF</span>
             <span className="block">VIDEOS.</span>
           </h2>
-          <p className="max-w-md text-sm font-light leading-relaxed text-white/60 sm:text-base lg:max-w-[340px] lg:shrink-0 xl:max-w-[400px]">
-            {SOUND_COPY}
-          </p>
         </div>
       </div>
 
@@ -125,30 +121,16 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                   alt={card.title}
                   loading="lazy"
                   decoding="async"
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  className="h-full w-full object-contain transition-transform duration-700 ease-out group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/20" />
 
-                {/* Top Left Badges: TikTok dual-color pills on 0 & 1, Cyan dot on 2 & 3 */}
-                <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/60 px-2.5 py-1 font-mono text-[9px] tracking-[0.15em] text-white/80 backdrop-blur-md">
-                  {idx <= 1 ? (
-                    <span className="flex items-center -space-x-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#00F2FE]" />
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#FE2C55] opacity-90" />
-                    </span>
-                  ) : (
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#00F2FE]" />
-                  )}
-                  <span>{card.pill}</span>
-                </span>
-
-                <div className="absolute inset-x-0 bottom-0 p-3.5">
-                  <div className="font-mono text-[9px] tracking-[0.2em] text-white/50">
-                    {card.eyebrow}
-                  </div>
-                  <div className="mt-1 font-impact text-base leading-tight text-white md:text-lg">
-                    {card.title}
-                  </div>
+              </div>
+              <div className="px-3.5 py-3.5">
+                <div className="font-mono text-[9px] tracking-[0.2em] text-white/50">
+                  {card.eyebrow}
+                </div>
+                <div className="mt-1 font-impact text-base leading-tight text-white md:text-lg">
+                  {card.title}
                 </div>
               </div>
 
@@ -162,12 +144,9 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                     {card.caption}
                   </div>
                 </div>
-                {idx === 0 && (
-                  <div className="mt-2 border-t border-white/5 pt-1.5 font-mono text-[7.5px] tracking-[0.12em] text-white/30 uppercase">
-                    DATED PROOF BASELINES &bull; REFRESH EVERY SOURCE BEFORE
-                    PUBLIC USE
-                  </div>
-                )}
+                <a href={card.soundUrl} target="_blank" rel="noopener noreferrer" aria-label={`Open ${card.title} on TikTok`} className="mt-3 inline-block font-mono text-[9px] text-white/70 hover:text-white">
+                  LISTEN ON TIKTOK ↗
+                </a>
               </div>
             </div>
           ))}

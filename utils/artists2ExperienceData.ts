@@ -1,3 +1,6 @@
+import { ARTIST_ROSTER, SOUND_ID_PREVIEWS } from "./realAssets";
+export { RECORDS } from "./artistsExperienceData";
+
 export interface HeroStat {
   value: string;
   label: string;
@@ -8,6 +11,7 @@ export interface ExploreArtist {
   name: string;
   image: string;
   objectPosition?: string;
+  spotifyUrl?: string;
 }
 
 export interface GenreLane {
@@ -26,6 +30,7 @@ export interface SpotifyProofCard {
 export interface ProofCard {
   id: string;
   image: string;
+  soundUrl: string;
   pill: string;
   eyebrow: string;
   title: string;
@@ -58,95 +63,9 @@ export const HERO_STATS: HeroStat[] = [
   { value: "590M+", label: "SPOTIFY STREAMS" },
 ];
 
-export const EXPLORE_ARTISTS: ExploreArtist[] = [
-  {
-    id: "saint-rio",
-    name: "SAINT RIO",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 25%",
-  },
-  {
-    id: "maya-sol",
-    name: "MAYA SOL",
-    image:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 38%",
-  },
-  {
-    id: "noa-vale",
-    name: "NOA VALE",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 28%",
-  },
-  {
-    id: "lena-mori",
-    name: "LENA MORI",
-    image:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "80% 70%",
-  },
-  {
-    id: "juno",
-    name: "JUNO",
-    image:
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 42%",
-  },
-  {
-    id: "sola",
-    name: "SOLA",
-    image:
-      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 70%",
-  },
-];
+export const EXPLORE_ARTISTS: ExploreArtist[] = ARTIST_ROSTER.filter((artist) => artist.row === 1);
 
-export const EXPLORE_ROW_2: ExploreArtist[] = [
-  {
-    id: "aster",
-    name: "ASTER",
-    image:
-      "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center center",
-  },
-  {
-    id: "mira",
-    name: "MIRA",
-    image:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center center",
-  },
-  {
-    id: "koda",
-    name: "KODA",
-    image:
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 65%",
-  },
-  {
-    id: "elara",
-    name: "ELARA",
-    image:
-      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center 28%",
-  },
-  {
-    id: "lumen",
-    name: "LUMEN",
-    image:
-      "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center center",
-  },
-  {
-    id: "rafa",
-    name: "RAFA",
-    image:
-      "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=600&q=70",
-    objectPosition: "center center",
-  },
-];
+export const EXPLORE_ROW_2: ExploreArtist[] = ARTIST_ROSTER.filter((artist) => artist.row === 2);
 
 export const LANES_EYEBROW = "OUR LANES \u2022 INTERNET DRIVEN MUSIC";
 export const LANES_TITLE = "INTERNET CULTURE DOES NOT WAIT.";
@@ -163,11 +82,11 @@ export const SPOTIFY_EYEBROW = "SPOTIFY FOR ARTISTS \u2022 GROWTH PROOF";
 export const SPOTIFY_COPY =
   "Real growth belongs beside the record that created it. Every curve, date, and result stays connected to the story.";
 export const SPOTIFY_NOTE =
-  "Every final graph will use the original export, reporting period, source owner, and approval record.";
+  "Charts and stream counts are design examples. Original Spotify reporting data is pending.";
 
 export const SPOTIFY_CALLOUT = {
-  title: "Proof, not promises.",
-  body: "Every final graph will use the original export, reporting period, source owner, and approval record.",
+  title: "Illustrative growth preview.",
+  body: "Charts and stream counts are design examples. Original Spotify reporting data is pending.",
 };
 
 export const FLOATING_BADGE =
@@ -188,92 +107,19 @@ export const SPOTIFY_CARDS: SpotifyProofCard[] = [
 export const SOUND_EYEBROW = "SOUND IDS \u2022 CULTURAL REACH";
 export const SOUND_TITLE = "ONE SOUND, MILLIONS OF VIDEOS.";
 export const SOUND_COPY =
-  "The number belongs outside the screenshot. Artists should understand the size of the movement before they open the proof.";
+  "Supplied Sound ID visuals, with the post counts shown in each image. Live source links are pending.";
 export const SOUND_GHOST = "5M+";
 
-export const PROOF_CARDS: ProofCard[] = [
-  {
-    id: "mimimi",
-    image:
-      "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=70",
-    pill: "SOUND ID PROOF",
-    eyebrow: "TRILLEX AVANT",
-    title: "MIMIMI HARDTEKK",
-    metric: "900K+",
-    caption: "VIDEOS AT PROOF BASELINE",
-  },
-  {
-    id: "odnogo",
-    image:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=70",
-    pill: "SOUND ID PROOF",
-    eyebrow: "TRILLEX BOUNCE",
-    title: "ODNOGO ULTRAFUNK",
-    metric: "600K+",
-    caption: "VIDEOS AT PROOF BASELINE",
-  },
-  {
-    id: "catalog",
-    image:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=70",
-    pill: "CATALOG PROOF",
-    eyebrow: "ACROSS TRILLEX",
-    title: "INTERNET CULTURE IN MOTION",
-    metric: "5M+",
-    caption: "UGC CREATIONS",
-  },
-  {
-    id: "next-winner",
-    image:
-      "https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=800&q=70",
-    pill: "SCREEN TREATMENT",
-    eyebrow: "PRODUCTION SLOT",
-    title: "NEXT WINNER EVIDENCE",
-    metric: "LIVE",
-    caption: "COUNT OUTSIDE THE SCREEN",
-  },
-];
+export const PROOF_CARDS: ProofCard[] = SOUND_ID_PREVIEWS.map((preview) => ({
+  ...preview,
+  pill: preview.tag,
+  eyebrow: preview.artist,
+}));
 
 export const RECORDS_EYEBROW = "SELECTED PROOF \u2022 REPEATABLE OUTCOMES";
 export const RECORDS_TITLE = "THE RECORDS PEOPLE REPEAT.";
 
-export const RECORDS: RecordEntry[] = [
-  {
-    index: "01",
-    title: "MIMIMI HARDTEKK",
-    lane: "HARDTEKK",
-    image:
-      "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&w=800&q=70",
-  },
-  {
-    index: "02",
-    title: "ODNOGO ULTRAFUNK",
-    lane: "BRAZILIAN FUNK",
-    image:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=800&q=70",
-  },
-  {
-    index: "03",
-    title: "I WAS MADE FOR LOVIN YOU HARDTEKK",
-    lane: "HARDTEKK",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=70",
-  },
-  {
-    index: "04",
-    title: "CANT FIGHT THIS FEELING HARDTEKK",
-    lane: "HARDTEKK",
-    image:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=70",
-  },
-  {
-    index: "05",
-    title: "STEREO LOVE FUNK",
-    lane: "BRAZILIAN FUNK",
-    image:
-      "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&w=800&q=70",
-  },
-];
+
 
 export const WORK_EYEBROW = "WHAT THE PROOF MEANS FOR THE ARTIST";
 export const WORK_TITLE =

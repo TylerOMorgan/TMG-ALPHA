@@ -90,7 +90,7 @@ const RecordsRail: React.FC<SectionProps> = ({ isActive = true }) => {
                     {record.title}
                   </div>
                   <div className="mt-3 border-t border-trillex-ink/15 pt-2 font-mono text-[9px] uppercase tracking-[0.2em] text-trillex-ink/40">
-                    APPROVED PROOF CANDIDATE
+                    SELECTED RELEASE
                   </div>
                 </div>
               ))}

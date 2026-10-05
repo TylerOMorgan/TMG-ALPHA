@@ -181,7 +181,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
         </div>
       </div>
 
-      {/* 4 Clickable Verified Hits Cards */}
+      {/* Supplied Sound ID visuals link to the corresponding TikTok sounds. */}
       <div
         ref={cardsRef}
         className="relative z-10 mx-auto mt-20 sm:mt-24 md:mt-36 lg:mt-44 xl:mt-48 max-w-[1840px] px-4 sm:px-6 md:px-10 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-5 xl:grid-cols-4"
@@ -189,10 +189,10 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
         {TIKTOK_VERIFIED_HITS.map((card, idx) => (
           <div key={card.id} className="will-change-transform">
             <a
-              href={card.soundUrl}
+              href={card.soundUrl || card.image}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`Open ${card.title} on TikTok`}
+              aria-label={`Open ${card.title} ${card.soundUrl ? "on TikTok" : "Sound ID visual"}`}
               onMouseEnter={(e) => handleCardMove(e, idx)}
               onMouseMove={(e) => handleCardMove(e, idx)}
               onMouseLeave={() => handleCardLeave(idx)}
@@ -219,7 +219,6 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                       decoding="async"
                       className="h-full w-full object-contain"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/20" />
 
                     {/* Top Right: loader animation plays only on this card's hover; corner stays empty otherwise */}
                     <img
@@ -236,6 +235,9 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                   <div className="border-t border-white/10 p-3.5 bg-[#0C0C0C]">
                     <div className="flex items-end justify-between gap-3">
                       <div className="min-w-0">
+                        <div className="mb-1 font-mono text-[9px] tracking-wide text-white/60">
+                          {card.artist}
+                        </div>
                         <div className="font-impact text-base leading-tight text-white md:text-lg group-hover:text-white transition-colors">
                           {getTitleLines(card.title).map((line, lineIndex) => (
                             <span key={lineIndex} className="block">
@@ -248,6 +250,9 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                         {card.metric}
                       </div>
                     </div>
+                    <p className="mt-3 font-mono text-[8px] tracking-wide text-white/50">
+                      {card.caption}
+                    </p>
                   </div>
                 </div>
               </div>

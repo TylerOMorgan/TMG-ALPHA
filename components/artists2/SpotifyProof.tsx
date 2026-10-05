@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
+import { RELEASE_CATALOG } from "../../utils/realAssets";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
 import {
   SPOTIFY_EYEBROW,
   SPOTIFY_COPY,
-  SPOTIFY_CALLOUT,
 } from "../../utils/artists2ExperienceData";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -341,7 +341,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
               </span>
             </div>
             <div className="mt-5 font-impact text-xl text-white/70 sm:mt-7 sm:text-2xl md:text-3xl">
-              ARTIST (
+              {RELEASE_CATALOG[1].title}
             </div>
             {/* SVG curve for Left background card */}
             <div className="mt-3 h-20 overflow-hidden sm:mt-4 sm:h-24 md:h-28">
@@ -367,7 +367,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
               <span className="hidden md:inline">SVG MOTION STUDY</span>
             </div>
             <div className="mt-5 text-right font-impact text-xl text-white/70 sm:mt-7 sm:text-2xl md:text-3xl">
-              GROWTH 02
+              {RELEASE_CATALOG[2].title}
             </div>
             {/* SVG curve for Right background card */}
             <div className="mt-3 h-20 overflow-hidden sm:mt-4 sm:h-24 md:h-28">
@@ -390,12 +390,17 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
               <span className="flex items-center gap-2">
                 <SpotifyLogo /> SPOTIFY FOR ARTISTS
               </span>
-              <span className="hidden sm:inline">DATED PROOF SNAPSHOT</span>
             </div>
             <div className="mt-5 flex flex-col gap-3 sm:mt-6 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-              <h3 className="font-impact text-xl tracking-tight text-white sm:text-2xl md:text-3xl">
-                MIMIMI HARDTEKK
-              </h3>
+              <div className="flex items-center gap-3">
+                <img src={RELEASE_CATALOG[0].image} alt={RELEASE_CATALOG[0].title} className="h-14 w-14 rounded object-cover" loading="lazy" />
+                <div>
+                  <h3 className="font-impact text-xl tracking-tight text-white sm:text-2xl md:text-3xl">
+                    {RELEASE_CATALOG[0].title}
+                  </h3>
+                  <p className="mt-1 text-xs text-white/60">{RELEASE_CATALOG[0].artist}</p>
+                </div>
+              </div>
               <div className="flex gap-5 sm:gap-6 text-left sm:text-right">
                 <div>
                   <div className="font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
@@ -420,18 +425,6 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
           </div>
         </div>
 
-        {/* Proof Callout Block (Bottom-Right) with 180px orange accent bar */}
-        <div className="mt-10 flex justify-end sm:mt-12 md:mr-[8%] md:mt-16">
-          <div className="w-full max-w-[340px] text-left">
-            <div className="h-[2px] w-[180px] bg-trillex-signal" />
-            <h4 className="mt-3 text-sm sm:text-base font-bold text-white">
-              {SPOTIFY_CALLOUT.title}
-            </h4>
-            <p className="mt-1 text-xs font-light leading-relaxed text-white/60">
-              {SPOTIFY_CALLOUT.body}
-            </p>
-          </div>
-        </div>
       </div>
     </section>
   );

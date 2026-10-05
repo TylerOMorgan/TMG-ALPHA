@@ -18,20 +18,21 @@ interface SectionProps {
   isActive?: boolean;
 }
 
-const SpotifyBadge: React.FC = () => (
-  <span className="absolute bottom-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/25 bg-black/45 backdrop-blur-sm">
+const SpotifyBadge: React.FC<{ url: string; name: string }> = ({ url, name }) => (
+  <a href={url} target="_blank" rel="noopener noreferrer" aria-label={`Listen to ${name} on Spotify`} className="absolute bottom-2.5 right-2.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/25 bg-black/45 backdrop-blur-sm">
     <svg viewBox="0 0 24 24" fill="white" className="h-3 w-3 opacity-90">
       <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.306c-.216.353-.674.467-1.027.25-2.822-1.724-6.376-2.115-10.562-1.158-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.588-1.047 8.528-.601 11.678 1.34.353.216.467.674.25 1.027zm1.472-3.273c-.272.443-.853.582-1.296.31-3.23-1.986-8.156-2.56-11.977-1.4-.35.105-.72-.09-.825-.44-.105-.35.09-.72.44-.825 4.38-1.33 9.805-.688 13.511 1.588.443.272.582.853.31 1.296zm.129-3.41c-3.874-2.3-10.274-2.513-13.99-1.385-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 4.267-1.295 11.328-1.047 15.795 1.604.372.221.493.704.272 1.076-.221.372-.704.493-1.076.272z" />
     </svg>
-  </span>
+  </a>
 );
 
 const ArtistCell: React.FC<{
   name: string;
   image: string;
+  spotifyUrl: string;
   objectPosition?: string;
-}> = ({ name, image, objectPosition = "center center" }) => (
-  <div className="group relative w-[220px] sm:w-[260px] md:w-[320px] lg:w-[360px] shrink-0 aspect-[16/10] overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30">
+}> = ({ name, image, spotifyUrl, objectPosition = "center center" }) => (
+  <div className="group relative w-[220px] sm:w-[260px] md:w-[320px] lg:w-[360px] shrink-0 aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30">
     <img
       src={image}
       alt={name}
@@ -44,7 +45,7 @@ const ArtistCell: React.FC<{
     <span className="absolute bottom-3 left-3.5 font-impact text-sm tracking-wide text-white sm:text-base md:text-lg">
       {name}
     </span>
-    <SpotifyBadge />
+    <SpotifyBadge url={spotifyUrl} name={name} />
   </div>
 );
 
@@ -192,6 +193,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
                   key={`${a.id}-r1-${idx}`}
                   name={a.name}
                   image={a.image}
+                  spotifyUrl={a.spotifyUrl}
                   objectPosition={a.objectPosition}
                 />
               ))}
@@ -205,6 +207,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
                   key={`${a.id}-r2-${idx}`}
                   name={a.name}
                   image={a.image}
+                  spotifyUrl={a.spotifyUrl}
                   objectPosition={a.objectPosition}
                 />
               ))}
@@ -212,8 +215,8 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
           </div>
 
           <div className="mt-6 flex flex-col gap-2 border-t border-white/15 pt-3.5 font-mono text-[8.5px] tracking-[0.18em] text-white/45 sm:mt-8 sm:flex-row sm:items-center sm:justify-between sm:pt-4 sm:text-[10px] sm:tracking-[0.25em]">
-            <span>CONCEPT ARTIST IMAGERY</span>
-            <span>FINAL ROSTER APPROVAL REQUIRED</span>
+            <span>THE TRILLEX ROSTER</span>
+            <span>EXPLORE ON SPOTIFY</span>
           </div>
         </div>
       </div>
@@ -222,4 +225,3 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
 };
 
 export default React.memo(ArtistsHero);
-

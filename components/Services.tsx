@@ -1,19 +1,20 @@
 
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { RELEASE_CATALOG } from '../utils/realAssets';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // Updated services based on user request priority
 const services = [
-  { title: "Viral Marketing", img: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=800&auto=format&fit=crop" },
-  { title: "DSP Pitching", img: "https://images.unsplash.com/photo-1614680376593-902f74cf0d41?q=80&w=800&auto=format&fit=crop" },
-  { title: "Storytelling", img: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=800&auto=format&fit=crop" },
-  { title: "Creative Services", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop" }, // Updated image
-  { title: "Radio Promotion", img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=800&auto=format&fit=crop" },
-  { title: "Narrative Development", img: "https://images.unsplash.com/photo-1493225255756-d9584f8606e9?q=80&w=800&auto=format&fit=crop" },
-  { title: "Advertising", img: "https://images.unsplash.com/photo-1557787163-1635e2efb160?q=80&w=800&auto=format&fit=crop" },
+  { title: "Viral Marketing", img: RELEASE_CATALOG[0].image },
+  { title: "DSP Pitching", img: RELEASE_CATALOG[1].image },
+  { title: "Storytelling", img: RELEASE_CATALOG[2].image },
+  { title: "Creative Services", img: RELEASE_CATALOG[3].image }, // Updated image
+  { title: "Radio Promotion", img: RELEASE_CATALOG[4].image },
+  { title: "Narrative Development", img: RELEASE_CATALOG[5].image },
+  { title: "Advertising", img: RELEASE_CATALOG[6].image },
 ];
 
 // Explicit Column Layouts
