@@ -3,6 +3,7 @@ import { RELEASE_CATALOG } from "../../utils/realAssets";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
+import { formatRecordTitle } from "../../utils/recordTitle";
 import {
   SPOTIFY_EYEBROW,
   SPOTIFY_COPY,
@@ -341,7 +342,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
               </span>
             </div>
             <div className="mt-5 font-impact text-xl text-white/70 sm:mt-7 sm:text-2xl md:text-3xl">
-              {RELEASE_CATALOG[1].title}
+              {formatRecordTitle(RELEASE_CATALOG[1].title)}
             </div>
             {/* SVG curve for Left background card */}
             <div className="mt-3 h-20 overflow-hidden sm:mt-4 sm:h-24 md:h-28">
@@ -367,7 +368,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
               <span className="hidden md:inline">SVG MOTION STUDY</span>
             </div>
             <div className="mt-5 text-right font-impact text-xl text-white/70 sm:mt-7 sm:text-2xl md:text-3xl">
-              {RELEASE_CATALOG[2].title}
+              {formatRecordTitle(RELEASE_CATALOG[2].title)}
             </div>
             {/* SVG curve for Right background card */}
             <div className="mt-3 h-20 overflow-hidden sm:mt-4 sm:h-24 md:h-28">
@@ -396,7 +397,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 <img src={RELEASE_CATALOG[0].image} alt={RELEASE_CATALOG[0].title} className="h-14 w-14 rounded object-cover" loading="lazy" />
                 <div>
                   <h3 className="font-impact text-xl tracking-tight text-white sm:text-2xl md:text-3xl">
-                    {RELEASE_CATALOG[0].title}
+                {formatRecordTitle(RELEASE_CATALOG[0].title)}
                   </h3>
                   <p className="mt-1 text-xs text-white/60">{RELEASE_CATALOG[0].artist}</p>
                 </div>

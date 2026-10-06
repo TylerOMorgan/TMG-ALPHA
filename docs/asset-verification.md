@@ -2,7 +2,7 @@
 
 ## Follow-up verification — October 6, 2026
 
-- Release selector titles now preserve the supplied capitalization. ODNOGO's category is ULTRAFUNK, as requested by the user.
+- Release selector titles, selected-record headings, and Sound ID card titles use title case, as requested by the user. Supplied catalog text remains unchanged. ODNOGO's category is ULTRAFUNK, as requested by the user.
 - Sound ID titles split before the parenthesized genre. Billie Jean remains on one line, with (Hoodtrap) below. All four titles fit at 375, 640, and 1280 pixels without horizontal overflow.
 - Sound ID borders, glows, and counts use their artwork accents: red for MIMIMI, purple for ODNOGO, blue for Billie Jean, and silver for MISERY.
 - Hovering an artist card turns its Spotify icon and border to RGB 29, 185, 84 and enables a gentle glow pulse. Reduced-motion mode disables the pulse.
