@@ -3,7 +3,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Eyebrow from "./Eyebrow";
-import { formatRecordTitle } from "../../utils/recordTitle";
 import {
   SPOTIFY_EYEBROW,
   SPOTIFY_PROOF_RECORDS,
@@ -622,7 +621,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                             isSelected ? "text-white" : "text-white/80"
                           }`}
                         >
-                          {formatRecordTitle(record.title)}
+                          {record.title}
                         </div>
                       </div>
                     </div>
@@ -698,7 +697,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                   <div>
                     <h3 className="font-impact text-2xl tracking-tight text-white sm:text-3xl md:text-4xl">
-                      {formatRecordTitle(activeRecord.title)}
+                      {activeRecord.title}
                     </h3>
                     <p className="mt-1 font-mono text-[10px] tracking-[0.18em] text-white/60 sm:text-xs">
                       {activeRecord.artist}
