@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
 import { MOUSE_TRACKING_MOTION } from "../../utils/mouseTrackingMotion";
+import { getSoundTitleLines } from "../../utils/soundIdPresentation";
 import {
   SOUND_EYEBROW,
   SOUND_GHOST,
@@ -14,17 +15,6 @@ gsap.registerPlugin(ScrollTrigger);
 interface SectionProps {
   isActive?: boolean;
 }
-
-const getTitleLines = (title: string): string[] => {
-  const words = title.trim().split(/\s+/);
-  let firstLine = words.shift() ?? "";
-
-  while (words.length && `${firstLine} ${words[0]}`.length <= 10) {
-    firstLine += ` ${words.shift()}`;
-  }
-
-  return words.length ? [firstLine, words.join(" ")] : [firstLine];
-};
 
 const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -196,7 +186,8 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
               onMouseEnter={(e) => handleCardMove(e, idx)}
               onMouseMove={(e) => handleCardMove(e, idx)}
               onMouseLeave={() => handleCardLeave(idx)}
-              className="group relative block h-full rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[#00F2FE]"
+              className="sound-id-link group relative block h-full rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sound-accent)]"
+              style={{ "--sound-accent": card.accentColor } as React.CSSProperties}
             >
               <div
                 ref={(el) => {
@@ -209,7 +200,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                     tiltRefs.current[idx] = el;
                   }}
                   data-card-tilt
-                  className="h-full overflow-hidden rounded-xl border border-white/10 bg-[#0C0C0C] will-change-transform transition-[border-color,box-shadow] duration-300 group-hover:border-[#00F2FE]/70 group-hover:shadow-[0_12px_35px_rgba(0,242,254,0.25)] group-focus-visible:border-[#00F2FE]/70"
+                  className="sound-id-card h-full overflow-hidden rounded-xl border bg-[#0C0C0C] will-change-transform transition-[border-color,box-shadow] duration-300"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden">
                     <img
@@ -239,14 +230,14 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                           {card.artist}
                         </div>
                         <div className="font-impact text-base leading-tight text-white md:text-lg group-hover:text-white transition-colors">
-                          {getTitleLines(card.title).map((line, lineIndex) => (
-                            <span key={lineIndex} className="block">
+                          {getSoundTitleLines(card.title).map((line, lineIndex) => (
+                            <span key={lineIndex} className="block whitespace-nowrap">
                               {line}{" "}
                             </span>
                           ))}
                         </div>
                       </div>
-                      <div className="shrink-0 font-impact text-2xl text-white group-hover:text-[#00F2FE] transition-colors md:text-3xl">
+                      <div className="shrink-0 font-impact text-2xl text-[var(--sound-accent)] md:text-3xl">
                         {card.metric}
                       </div>
                     </div>

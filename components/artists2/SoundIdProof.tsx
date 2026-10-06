@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Eyebrow from "./Eyebrow";
+import { getSoundTitleLines } from "../../utils/soundIdPresentation";
 import {
   SOUND_EYEBROW,
   SOUND_TITLE,
@@ -61,21 +62,6 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
     return () => ctx.revert();
   }, [isActive]);
 
-  const getCardStyle = (idx: number) => {
-    switch (idx) {
-      case 0:
-        return "border-t-2 border-trillex-signal/70 shadow-[0_0_25px_rgba(222,138,30,0.2)]";
-      case 1:
-        return "border-t-2 border-purple-500/80 shadow-[0_0_25px_rgba(168,85,247,0.3)] lg:-translate-y-3";
-      case 2:
-        return "border-t-2 border-cyan-500/70 shadow-[0_0_25px_rgba(6,182,212,0.25)]";
-      case 3:
-        return "border-t-2 border-white/50 shadow-[0_0_20px_rgba(255,255,255,0.2)] lg:rotate-[1.5deg]";
-      default:
-        return "";
-    }
-  };
-
   return (
     <section
       ref={sectionRef}
@@ -108,12 +94,11 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
           ref={cardsRef}
           className="relative z-10 -mt-[14vw] grid grid-cols-1 gap-4 sm:grid-cols-2 md:-mt-[9vw] md:gap-5 lg:grid-cols-4"
         >
-          {PROOF_CARDS.map((card, idx) => (
+          {PROOF_CARDS.map((card) => (
             <div
               key={card.id}
-              className={`group relative overflow-hidden rounded-xl border border-white/10 bg-[#0C0C0C] will-change-transform transition-all duration-300 ${getCardStyle(
-                idx,
-              )}`}
+              className="sound-id-card group relative overflow-hidden rounded-xl border bg-[#0C0C0C] will-change-transform transition-all duration-300"
+              style={{ "--sound-accent": card.accentColor } as React.CSSProperties}
             >
               <div className="relative aspect-[16/10] overflow-hidden">
                 <img
@@ -130,14 +115,16 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                   {card.eyebrow}
                 </div>
                 <div className="mt-1 font-impact text-base leading-tight text-white md:text-lg">
-                  {card.title}
+                  {getSoundTitleLines(card.title).map((line) => (
+                    <span key={line} className="block whitespace-nowrap">{line}</span>
+                  ))}
                 </div>
               </div>
 
               {/* Display Metrics & Footnotes */}
               <div className="border-t border-white/10 p-3.5">
                 <div className="flex items-baseline justify-between gap-2">
-                  <div className="font-impact text-2xl text-white md:text-3xl">
+                  <div className="font-impact text-2xl text-[var(--sound-accent)] md:text-3xl">
                     {card.metric}
                   </div>
                   <div className="text-right font-mono text-[8px] leading-relaxed tracking-[0.14em] text-white/40 uppercase">

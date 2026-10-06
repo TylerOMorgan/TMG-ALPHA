@@ -87,26 +87,19 @@ interface SectionProps {
   isActive?: boolean;
 }
 
-const SpotifyButton: React.FC<{ url?: string; name: string }> = ({
-  url,
-  name,
-}) => (
-  <a
-    href={url || "https://open.spotify.com"}
-    target="_blank"
-    rel="noopener noreferrer"
-    onClick={(e) => e.stopPropagation()}
-    aria-label={`Listen to ${name} on Spotify`}
-    className="absolute bottom-2.5 right-2.5 flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/20 bg-black/60 shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-[#1DB954] hover:bg-[#1DB954]/25 hover:shadow-[0_0_16px_rgba(29,185,84,0.6)] active:scale-95 group/btn z-10"
+const SpotifyBadge: React.FC = () => (
+  <span
+    aria-hidden="true"
+    className="artist-spotify-button absolute bottom-2.5 right-2.5 flex h-10 w-10 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/20 bg-black/60 shadow-[0_4px_12px_rgba(0,0,0,0.5)] backdrop-blur-md transition-all duration-300 hover:scale-110 active:scale-95 z-10"
   >
     <svg
       viewBox="0 0 24 24"
       fill="currentColor"
-      className="h-5 w-5 sm:h-4.5 sm:w-4.5 text-white transition-colors duration-300 group-hover/btn:text-[#1DB954]"
+      className="h-5 w-5 sm:h-4.5 sm:w-4.5 text-white transition-colors duration-300"
     >
       <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.518 17.306c-.216.353-.674.467-1.027.25-2.822-1.724-6.376-2.115-10.562-1.158-.403.092-.806-.157-.899-.56-.092-.403.158-.806.56-.899 4.588-1.047 8.528-.601 11.678 1.34.353.216.467.674.25 1.027zm1.472-3.273c-.272.443-.853.582-1.296.31-3.23-1.986-8.156-2.56-11.977-1.4-.35.105-.72-.09-.825-.44-.105-.35.09-.72.44-.825 4.38-1.33 9.805-.688 13.511 1.588.443.272.582.853.31 1.296zm.129-3.41c-3.874-2.3-10.274-2.513-13.99-1.385-.413.125-.85-.11-.975-.523-.125-.413.11-.85.523-.975 4.267-1.295 11.328-1.047 15.795 1.604.372.221.493.704.272 1.076-.221.372-.704.493-1.076.272z" />
     </svg>
-  </a>
+  </span>
 );
 
 const ArtistCell: React.FC<{
@@ -115,7 +108,12 @@ const ArtistCell: React.FC<{
   spotifyUrl?: string;
   objectPosition?: string;
 }> = ({ name, image, spotifyUrl, objectPosition = "center center" }) => (
-  <div className="group relative w-[198px] sm:w-[234px] md:w-[288px] lg:w-[324px] shrink-0 aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] group-hover:-translate-y-1 group-hover:border-white/30 select-none">
+  <a
+    href={spotifyUrl || "https://open.spotify.com"}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={`Listen to ${name} on Spotify`}
+    className="artist-card group relative block w-[198px] sm:w-[234px] md:w-[288px] lg:w-[324px] shrink-0 aspect-square overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:border-white/30 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6)] select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#1DB954]">
     <img
       src={image}
       alt={name}
@@ -128,8 +126,8 @@ const ArtistCell: React.FC<{
     <span className="absolute bottom-2.5 left-3 sm:bottom-3 sm:left-3.5 font-impact text-sm tracking-wide text-white sm:text-base md:text-lg pointer-events-none pr-11 sm:pr-12 truncate max-w-[85%]">
       {name}
     </span>
-    <SpotifyButton url={spotifyUrl} name={name} />
-  </div>
+    <SpotifyBadge />
+  </a>
 );
 
 const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
@@ -216,7 +214,8 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
         // Row 1 moves smoothly right-to-left
         const tween1 = gsap.to(row1Ref.current, {
           xPercent: -50,
-          duration: isMobile ? 26 : 38,
+          // Preserve the original six-artist pace as the roster grows.
+          duration: (isMobile ? 26 : 38) * EXPLORE_ARTISTS.length / 6,
           ease: "none",
           repeat: -1,
         });
@@ -227,7 +226,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
           { xPercent: -50 },
           {
             xPercent: 0,
-            duration: isMobile ? 28 : 40,
+            duration: (isMobile ? 28 : 40) * EXPLORE_ROW_2.length / 6,
             ease: "none",
             repeat: -1,
           },
@@ -314,8 +313,11 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
         </div>
 
         <div className="mt-8 sm:mt-10 md:mt-12">
-          <div className="mb-3.5 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
+          <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
             <span>EXPLORE ARTISTS</span>
+            <span className="text-[10px] tracking-normal text-white/75 md:hidden">
+              Tap a card to visit artist ↗
+            </span>
           </div>
 
           <div

@@ -37,6 +37,7 @@ export interface SelectableProofRecord {
 
 export interface TikTokVerifiedHit {
   id: string;
+  accentColor: string;
   title: string;
   artist: string;
   image: string;

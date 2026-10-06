@@ -29,6 +29,7 @@ export interface SpotifyProofCard {
 
 export interface ProofCard {
   id: string;
+  accentColor: string;
   image: string;
   soundUrl: string;
   pill: string;

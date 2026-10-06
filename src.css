@@ -2,6 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Each sound carries the accent of its supplied artwork. */
+.sound-id-card {
+  border-color: color-mix(in srgb, var(--sound-accent) 40%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--sound-accent) 15%, transparent);
+}
+
+.sound-id-link:is(:hover, :focus-visible) .sound-id-card,
+.sound-id-card:is(:hover, :focus-within) {
+  border-color: color-mix(in srgb, var(--sound-accent) 75%, transparent);
+  box-shadow: 0 12px 35px color-mix(in srgb, var(--sound-accent) 30%, transparent);
+}
+
+/* Hovering the artwork and the button share the same Spotify green. */
+.artist-card:is(:hover, :focus-within) .artist-spotify-button,
+.artist-spotify-button:is(:hover, :focus-visible) {
+  border-color: #1db954;
+  background-color: rgb(29 185 84 / 25%);
+  animation: artist-spotify-pulse 1.6s ease-in-out infinite;
+}
+
+.artist-card:is(:hover, :focus-within) .artist-spotify-button svg,
+.artist-spotify-button:is(:hover, :focus-visible) svg {
+  color: #1db954;
+}
+
+@keyframes artist-spotify-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgb(29 185 84 / 35%); }
+  50% { box-shadow: 0 0 20px rgb(29 185 84 / 65%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artist-card .artist-spotify-button {
+    animation: none;
+  }
+
+  .artist-card:is(:hover, :focus-within) .artist-spotify-button {
+    box-shadow: 0 0 12px rgb(29 185 84 / 45%);
+  }
+}
+
 /* Trillex Global Stylesheet */
 html {
   -webkit-overflow-scrolling: touch;
@@ -184,4 +224,3 @@ html.lenis body {
     font-size: clamp(10px, 1.8vw, 12px) !important;
   }
 }
-

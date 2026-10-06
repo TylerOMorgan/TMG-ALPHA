@@ -1,5 +1,16 @@
 # Website asset verification — October 5, 2026
 
+## Follow-up verification — October 6, 2026
+
+- Release selector titles now preserve the supplied capitalization. ODNOGO's category is ULTRAFUNK, as requested by the user.
+- Sound ID titles split before the parenthesized genre. Billie Jean remains on one line, with (Hoodtrap) below. All four titles fit at 375, 640, and 1280 pixels without horizontal overflow.
+- Sound ID borders, glows, and counts use their artwork accents: red for MIMIMI, purple for ODNOGO, blue for Billie Jean, and silver for MISERY.
+- Hovering an artist card turns its Spotify icon and border to RGB 29, 185, 84 and enables a gentle glow pulse. Reduced-motion mode disables the pulse.
+- Main roster timing compensates for the increase from six to eleven artists per row. At the checked tablet width, the rows moved in opposite directions at approximately 95 and 90 pixels per second, preserving the prior pace.
+- Both Artists pages show "Tap a card to visit artist" below 768 pixels. Each complete artist card is a Spotify link, with no nested links. A tap on NovaX's artwork opened its expected Spotify artist URL.
+- The mobile hint is hidden at 1280 pixels. Mobile checks found no horizontal overflow.
+- After the final interface changes, the production build, TypeScript check, asset verification, and whitespace check passed. The existing large Three.js bundle warning remains.
+
 ## Source and link checks
 
 - All 34 website image copies match the supplied files byte for byte, including in the production build.

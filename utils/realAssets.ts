@@ -218,7 +218,7 @@ export const RELEASE_CATALOG = [
     "artist": "VaporVice, SVBE",
     "image": "/assets/releases/odnogo-ultrafunk.jpg",
     "spotifyUrl": "https://open.spotify.com/track/6Fs7MNDpnv8fBbbq2L9uxB",
-    "lane": "BRAZILIAN FUNK"
+    "lane": "ULTRAFUNK"
   },
   {
     "id": "neoperreo-hardtekk",
@@ -273,6 +273,7 @@ export const RELEASE_CATALOG = [
 export const SOUND_ID_PREVIEWS = [
   {
     "id": "mimimi",
+    "accentColor": "#F07182",
     "soundUrl": "https://vt.tiktok.com/ZS9Dm2So4S1qC-UCjuA/",
     "title": "MIMIMI (HARDTEKK)",
     "artist": "AvantTEKK +1",
@@ -284,6 +285,7 @@ export const SOUND_ID_PREVIEWS = [
   },
   {
     "id": "odnogo",
+    "accentColor": "#BE55FF",
     "soundUrl": "https://vt.tiktok.com/ZS9Dm25SCScch-3kcDc/",
     "title": "ODNOGO (ULTRAFUNK)",
     "artist": "VaporVice +1",
@@ -295,6 +297,7 @@ export const SOUND_ID_PREVIEWS = [
   },
   {
     "id": "billie-jean",
+    "accentColor": "#668CFF",
     "soundUrl": "https://vt.tiktok.com/ZS9Dm2mJfnWFt-2LbGv/",
     "title": "Billie Jean (Hoodtrap)",
     "artist": "hoodtrapjerk +1",
@@ -306,6 +309,7 @@ export const SOUND_ID_PREVIEWS = [
   },
   {
     "id": "misery",
+    "accentColor": "#C8CDD3",
     "soundUrl": "https://vt.tiktok.com/ZS9Dm2U24EEFx-kQhJY/",
     "title": "MISERY. (HARDTEKK)",
     "artist": "AvantTEKK +1",

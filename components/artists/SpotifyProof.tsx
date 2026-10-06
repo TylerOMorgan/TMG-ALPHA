@@ -11,13 +11,6 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-const toTitleCase = (value: string): string =>
-  value
-    .toLowerCase()
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-
 interface SectionProps {
   isActive?: boolean;
 }
@@ -628,7 +621,7 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                             isSelected ? "text-white" : "text-white/80"
                           }`}
                         >
-                          {toTitleCase(record.title)}
+                          {record.title}
                         </div>
                       </div>
                     </div>
