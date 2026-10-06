@@ -315,8 +315,9 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
         <div className="mt-8 sm:mt-10 md:mt-12">
           <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
             <span>EXPLORE ARTISTS</span>
-            <span className="text-[10px] tracking-normal text-white/75 md:hidden">
-              Tap a card to visit artist ↗
+            <span className="inline-flex items-center gap-px text-[10px] tracking-normal text-white/75 md:hidden">
+              Tap a card to visit artist
+              <img src="/arrow.png" alt="" aria-hidden="true" className="-ml-1 h-5 w-5 shrink-0 object-contain invert opacity-75" />
             </span>
           </div>
 

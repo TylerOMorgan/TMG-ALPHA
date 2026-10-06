@@ -13,10 +13,8 @@ import {
 /**
  * Tier 1: Feature Coverage Suite (40 tests across the revised #artists page)
  *
- * NOTE (2026-09-30): the full 8-section experience was deliberately moved to
- * the #artist2 route (commit 90b9d45) while #artists was revised (live hero
- * marquee, selectable Spotify deep-dive, Sound ID proof cards, demo CTA).
- * This suite tests the REVISED page as the source of truth.
+ * Tests the #artists page: live hero marquee, selectable Spotify deep-dive,
+ * Sound ID proof cards, and demo CTA.
  */
 export async function runTier1(browser, baseUrl, results) {
   console.log('\n=== TIER 1: FEATURE COVERAGE (40 TESTS) ===');
