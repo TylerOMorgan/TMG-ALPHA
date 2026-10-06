@@ -124,7 +124,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
               {/* Display Metrics & Footnotes */}
               <div className="border-t border-white/10 p-3.5">
                 <div className="flex items-baseline justify-between gap-2">
-                  <div className="font-impact text-2xl text-[var(--sound-accent)] md:text-3xl">
+                  <div className="sound-id-metric font-impact text-2xl transition-colors duration-300 md:text-3xl">
                     {card.metric}
                   </div>
                   <div className="text-right font-mono text-[8px] leading-relaxed tracking-[0.14em] text-white/40 uppercase">

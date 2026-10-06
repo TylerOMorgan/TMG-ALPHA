@@ -2,16 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Each sound carries the accent of its supplied artwork. */
+/* Artwork accents appear only while a sound card is hovered. */
 .sound-id-card {
-  border-color: color-mix(in srgb, var(--sound-accent) 40%, transparent);
-  box-shadow: 0 0 20px color-mix(in srgb, var(--sound-accent) 15%, transparent);
+  border-color: rgb(255 255 255 / 10%);
+  box-shadow: none;
 }
 
-.sound-id-link:is(:hover, :focus-visible) .sound-id-card,
-.sound-id-card:is(:hover, :focus-within) {
+.sound-id-link:hover .sound-id-card,
+.sound-id-card:hover {
   border-color: color-mix(in srgb, var(--sound-accent) 75%, transparent);
   box-shadow: 0 12px 35px color-mix(in srgb, var(--sound-accent) 30%, transparent);
+}
+
+.sound-id-metric {
+  color: white;
+}
+
+.sound-id-link:hover .sound-id-metric,
+.sound-id-card:hover .sound-id-metric {
+  color: var(--sound-accent);
 }
 
 /* Hovering the artwork and the button share the same Spotify green. */

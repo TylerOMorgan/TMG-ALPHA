@@ -4,7 +4,7 @@
 
 - Release selector titles now preserve the supplied capitalization. ODNOGO's category is ULTRAFUNK, as requested by the user.
 - Sound ID titles split before the parenthesized genre. Billie Jean remains on one line, with (Hoodtrap) below. All four titles fit at 375, 640, and 1280 pixels without horizontal overflow.
-- Sound ID borders, glows, and counts use their artwork accents: red for MIMIMI, purple for ODNOGO, blue for Billie Jean, and silver for MISERY.
+- Sound ID cards have neutral borders, white counts, and no colored glow by default. Hover adds the artwork accent to the border, glow, and count: red for MIMIMI, purple for ODNOGO, blue for Billie Jean, and silver for MISERY. MIMIMI's hover and return-to-neutral states were checked in the browser.
 - Hovering an artist card turns its Spotify icon and border to RGB 29, 185, 84 and enables a gentle glow pulse. Reduced-motion mode disables the pulse.
 - Main roster timing compensates for the increase from six to eleven artists per row. At the checked tablet width, the rows moved in opposite directions at approximately 95 and 90 pixels per second, preserving the prior pace.
 - Both Artists pages show "Tap a card to visit artist" below 768 pixels. Each complete artist card is a Spotify link, with no nested links. A tap on NovaX's artwork opened its expected Spotify artist URL.

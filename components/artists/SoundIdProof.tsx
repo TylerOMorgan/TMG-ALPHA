@@ -186,7 +186,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
               onMouseEnter={(e) => handleCardMove(e, idx)}
               onMouseMove={(e) => handleCardMove(e, idx)}
               onMouseLeave={() => handleCardLeave(idx)}
-              className="sound-id-link group relative block h-full rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--sound-accent)]"
+              className="sound-id-link group relative block h-full rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               style={{ "--sound-accent": card.accentColor } as React.CSSProperties}
             >
               <div
@@ -237,7 +237,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                           ))}
                         </div>
                       </div>
-                      <div className="shrink-0 font-impact text-2xl text-[var(--sound-accent)] md:text-3xl">
+                      <div className="sound-id-metric shrink-0 font-impact text-2xl transition-colors duration-300 md:text-3xl">
                         {card.metric}
                       </div>
                     </div>
