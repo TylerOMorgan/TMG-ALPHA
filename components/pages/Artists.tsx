@@ -16,7 +16,7 @@ const Artists: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
       {/* Active orange underline style for ARTISTS nav link */}
       {isActive && (
         <style>{`
-          nav a[href="#artists"] span {
+          nav a[href="/#artists"] span {
             background-color: #FF7F50 !important;
             height: 2px !important;
           }

@@ -5,6 +5,8 @@ import SmoothScroll from "./components/SmoothScroll";
 import Cursor from "./components/Cursor";
 import Navigation from "./components/Navigation";
 import Home from "./components/pages/Home";
+import NotFound from "./components/pages/NotFound";
+import { getPageFromLocation, getPageUrl } from "./utils/pageRouting";
 // Lazy routes: About (350KB SVG data + GSAP pins), Artists, Contact
 // (62KB form) download only when first visited — keeps initial JS small
 const About = lazy(() => import("./components/pages/About"));
@@ -15,32 +17,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const getPageFromHash = (): string => {
   if (typeof window === "undefined") return "home";
-  const hash = window.location.hash.toLowerCase().replace(/^#\/?/, "");
-  if (
-    [
-      "demo-submission",
-      "demo-submissions",
-      "demo",
-      "demos",
-      "general-inquiry",
-      "general-enquiry",
-      "inquiry",
-      "enquiry",
-      "general",
-      "contact",
-      "contact-form",
-      "email-ticker",
-    ].includes(hash)
-  ) {
-    return "contact";
-  }
-  if (hash === "about") {
-    return "about";
-  }
-  if (["artists", "artist", "roster"].includes(hash)) {
-    return "artists";
-  }
-  return "home";
+  return getPageFromLocation(window.location);
 };
 
 const App: React.FC = () => {
@@ -76,16 +53,12 @@ const App: React.FC = () => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail.page) {
         setActivePage(customEvent.detail.page);
-        if (customEvent.detail.page === "home") {
-          window.history.pushState(null, "", window.location.pathname);
-        } else if (customEvent.detail.page === "about") {
-          window.history.pushState(null, "", "#about");
-        } else if (customEvent.detail.page === "artists") {
-          window.history.pushState(null, "", "#artists");
-        } else if (customEvent.detail.page === "contact") {
+        if (customEvent.detail.page === "contact") {
           if (!window.location.hash.includes("demo")) {
-            window.history.pushState(null, "", "#general-inquiry");
+            window.history.pushState(null, "", getPageUrl("contact"));
           }
+        } else {
+          window.history.pushState(null, "", getPageUrl(customEvent.detail.page));
         }
       }
       if (customEvent.detail.section)
@@ -340,6 +313,7 @@ const App: React.FC = () => {
         <Navigation activePage={activePage} onNavigate={setActivePage} />
 
         <main className="relative w-full bg-trillex-black min-h-screen">
+          {activePage === "not-found" && <NotFound />}
           {/* Home is always mounted to preserve Three.js WebGL canvas */}
           <div style={{ display: activePage === "home" ? "block" : "none" }}>
             <Home isActive={activePage === "home"} />

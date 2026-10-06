@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "test:assets": "node tests/assets/catalog.test.mjs",
+    "test:routes": "node tests/pageRouting.test.mjs",
     "build": "vite build",
     "preview": "vite preview"
   },

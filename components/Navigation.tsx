@@ -1,5 +1,6 @@
 import React from "react";
 import Logo from "./Logo";
+import { getPageUrl } from "../utils/pageRouting";
 
 interface NavigationProps {
   activePage: string;
@@ -11,14 +12,9 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
     e: React.MouseEvent<HTMLAnchorElement>,
     page: string,
   ) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     e.preventDefault();
-    if (page === "home") {
-      window.history.pushState(null, "", window.location.pathname);
-    } else if (page === "contact") {
-      window.history.pushState(null, "", "#general-inquiry");
-    } else {
-      window.history.pushState(null, "", `#${page}`);
-    }
+    window.history.pushState(null, "", getPageUrl(page));
     onNavigate(page);
   };
 
@@ -38,7 +34,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
       <div className="relative w-full px-4 md:px-12 py-4 md:py-8 flex justify-between items-center mix-blend-difference z-10">
         {/* Logo - Left */}
         <a
-          href="#"
+          href="/"
           onClick={(e) => handleClick(e, "home")}
           className="pointer-events-auto text-white hover:text-trillex-orange transition-colors duration-300"
           data-hoverable="true"
@@ -55,7 +51,7 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
             return (
               <a
                 key={item.name}
-                href={`#${item.id}`}
+                href={getPageUrl(item.id)}
                 onClick={(e) => handleClick(e, item.id)}
                 className={`
                   relative group text-[11px] sm:text-xs md:text-[13px] font-mono tracking-[0.14em] md:tracking-[0.16em] uppercase transition-all duration-300 ease-out py-2 px-0.5 sm:px-1
