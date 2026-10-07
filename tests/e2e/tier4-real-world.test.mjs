@@ -38,11 +38,11 @@ export async function runTier4(browser, baseUrl, results) {
 
       const statGrid = container.locator('div.grid').filter({ hasText: 'SONGS SIGNED' }).first();
       await page.waitForFunction(el => {
-        const expected = ['928', '3.74B+', '5M+', '590M+'];
+        const expected = ['962', '4.2B+', '7M+', '700M+'];
         return [...el.children].every((card, index) => card.children[1].textContent.trim() === expected[index]);
       }, await statGrid.elementHandle(), { timeout: 8000 });
       const vals = await statGrid.evaluate(el => [...el.children].map(c => c.children[1].textContent.trim()));
-      assert.deepEqual(vals, ['928', '3.74B+', '5M+', '590M+']);
+      assert.deepEqual(vals, ['962', '4.2B+', '7M+', '700M+']);
 
       // 3. Hovers an artist card currently inside the viewport
       // (the marquee translates cells, so the first cell may sit off-canvas)

@@ -74,10 +74,10 @@ export const HERO_EYEBROW = "THE TRILLEX ROSTER";
 export const HERO_TITLE = "ARTISTS";
 
 export const HERO_STATS: HeroStat[] = [
-  { value: "928", label: "SONGS SIGNED" },
-  { value: "3.74B+", label: "TIKTOK VIEWS" },
-  { value: "5M+", label: "UGC CREATIONS" },
-  { value: "590M+", label: "SPOTIFY STREAMS" },
+  { value: "962", label: "SONGS SIGNED" },
+  { value: "4.2B+", label: "TIKTOK VIEWS" },
+  { value: "7M+", label: "UGC CREATIONS" },
+  { value: "700M+", label: "SPOTIFY STREAMS" },
 ];
 
 export const EXPLORE_ARTISTS: ExploreArtist[] = ARTIST_ROSTER.filter((artist) => artist.row === 1);
@@ -230,7 +230,7 @@ export const SOUND_EYEBROW = "TIKTOK SOUND IDS";
 export const SOUND_TITLE = "ONE SOUND, MILLIONS OF VIDEOS.";
 export const SOUND_COPY =
   "The number belongs outside the screenshot. Open any card to inspect the supplied Sound ID visual. Counts are shown as supplied, pending live source links.";
-export const SOUND_GHOST = "5M+";
+export const SOUND_GHOST = "7M+";
 
 export const TIKTOK_VERIFIED_HITS: TikTokVerifiedHit[] = SOUND_ID_PREVIEWS;
 

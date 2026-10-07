@@ -41,10 +41,10 @@ const SpotifyGlyph: React.FC<{ className?: string }> = ({
 );
 
 const STAT_ICONS = [
-  <Disc3 key="songs" className="h-7 w-7" aria-hidden="true" />,
-  <TikTokGlyph key="tiktok" className="h-7 w-7" />,
-  <Users key="ugc" className="h-7 w-7" aria-hidden="true" />,
-  <SpotifyGlyph key="spotify" className="h-7 w-7" />,
+  <Disc3 key="songs" className="h-8 w-8" aria-hidden="true" />,
+  <TikTokGlyph key="tiktok" className="h-8 w-8" />,
+  <Users key="ugc" className="h-8 w-8" aria-hidden="true" />,
+  <SpotifyGlyph key="spotify" className="h-8 w-8" />,
 ];
 
 const CARD_ACCENTS = ["#FF7F50", "#00F2FE", "#EAEAEA", "#1DB954"];
@@ -290,29 +290,30 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
           </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-10 sm:grid-cols-2 md:mt-12 lg:grid-cols-4 md:gap-4">
+        <div data-hero-stats className="mt-8 grid grid-cols-2 gap-4 sm:mt-10 sm:gap-5 md:mt-12 md:gap-6 lg:grid-cols-4 lg:gap-7">
           {HERO_STATS.map((s, idx) => (
             <div
               key={s.label}
-              className="group relative overflow-hidden rounded-xl border border-white/10 bg-[#0B0D0B]/90 p-4 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.7)] sm:p-5"
-              style={{ borderTop: `2px solid ${CARD_ACCENTS[idx]}` }}
+              data-hero-stat
+              className="group relative flex min-h-[168px] flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-[#101210]/95 px-4 py-6 text-center shadow-[0_12px_32px_rgba(0,0,0,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.7)] sm:min-h-[216px] sm:p-7 lg:min-h-[232px] lg:p-8"
+              style={{ borderTop: `3px solid ${CARD_ACCENTS[idx]}` }}
             >
               <div className="flex items-center justify-center">
                 <span style={{ color: CARD_ACCENTS[idx] }}>
                   {STAT_ICONS[idx]}
                 </span>
               </div>
-              <div className="mt-4 font-impact text-3xl text-white sm:text-4xl">
+              <div data-stat-value className="mt-5 font-impact text-[clamp(28px,8.5vw,36px)] leading-none tracking-tight text-white sm:mt-6 sm:text-[44px] md:text-[48px] lg:text-[56px]">
                 {values[idx]}
               </div>
-              <div className="mt-2 font-mono text-[10px] font-bold tracking-[0.22em] text-white/70 sm:text-xs">
+              <div className="mt-3 font-mono text-[9px] font-bold tracking-[0.12em] text-white/85 sm:text-[11px] lg:text-xs lg:tracking-[0.16em]">
                 {s.label}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-8 sm:mt-10 md:mt-12">
+        <div data-artist-roster className="mt-[calc(2rem+4svh)]">
           <div className="mb-3.5 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] tracking-[0.2em] text-white/50 sm:text-[10px] sm:tracking-[0.25em]">
             <span>EXPLORE ARTISTS</span>
             <span className="inline-flex items-center gap-px text-[10px] tracking-normal text-white/75 md:hidden">

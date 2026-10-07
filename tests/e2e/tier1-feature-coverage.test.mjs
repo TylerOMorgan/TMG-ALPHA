@@ -74,12 +74,12 @@ export async function runTier1(browser, baseUrl, results) {
       // React text nodes mid count-up).
       const grid = container.locator('div.grid').filter({ hasText: 'SONGS SIGNED' }).first();
       await page.waitForFunction(el => {
-        const expected = ['928', '3.74B+', '5M+', '590M+'];
+        const expected = ['962', '4.2B+', '7M+', '700M+'];
         return [...el.children].every((card, index) => card.children[1].textContent.trim() === expected[index]);
       }, await grid.elementHandle(), { timeout: 8000 });
       assert.equal(await grid.isVisible(), true, 'Stat grid should be visible');
       const vals = await grid.evaluate(el => [...el.children].map(c => c.children[1].textContent.trim()));
-      assert.deepEqual(vals, ['928', '3.74B+', '5M+', '590M+']);
+      assert.deepEqual(vals, ['962', '4.2B+', '7M+', '700M+']);
     });
 
     await runTest('T1.1.5', '4-Stat Metric Labels & Card Accents', results, async () => {
@@ -95,7 +95,7 @@ export async function runTier1(browser, baseUrl, results) {
         return [...el.children].map(c => c.style.borderTop || '');
       });
       assert.equal(accents.length, 4, 'There should be 4 stat cards');
-      assert.ok(accents.every(a => a.includes('2px')), 'Every stat card should have a 2px top accent');
+      assert.ok(accents.every(a => a.includes('3px')), 'Every stat card should have a 3px top accent');
     });
 
     // =========================================================================
@@ -311,9 +311,9 @@ export async function runTier1(browser, baseUrl, results) {
     });
 
     // =========================================================================
-    // SECTION 5: SOUND ID PROOF SECTION & 5M+ WATERMARK (00:04 - 00:05) — 5 Tests
+    // SECTION 5: SOUND ID PROOF SECTION & 7M+ WATERMARK (00:04 - 00:05) — 5 Tests
     // =========================================================================
-    console.log('\n--- Group 5: Sound ID Proof Section & 5M+ Watermark ---');
+    console.log('\n--- Group 5: Sound ID Proof Section & 7M+ Watermark ---');
 
     await runTest('T1.5.1', 'Sound ID Section Header', results, async () => {
       await scrollToY(page, 2800);
@@ -324,10 +324,10 @@ export async function runTier1(browser, baseUrl, results) {
       assert.ok(await heading.count() > 0, 'Headline "ONE SOUND, MILLIONS OF VIDEOS." should exist');
     });
 
-    await runTest('T1.5.2', 'Giant Background 5M+ Watermark', results, async () => {
+    await runTest('T1.5.2', 'Giant Background 7M+ Watermark', results, async () => {
       // Find the giant ghost watermark in the sound id section
-      const ghost = container.locator('div[class*="pointer-events-none"]').filter({ hasText: '5M+' });
-      assert.ok(await ghost.count() > 0, 'Giant 5M+ ghost watermark should be present');
+      const ghost = container.locator('div[class*="pointer-events-none"]').filter({ hasText: '7M+' });
+      assert.ok(await ghost.count() > 0, 'Giant 7M+ ghost watermark should be present');
     });
 
     await runTest('T1.5.3', '4-Card Sound ID Grid Presence', results, async () => {

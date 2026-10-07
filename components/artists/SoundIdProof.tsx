@@ -148,7 +148,7 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
       data-nav-theme="dark"
       className="relative w-full overflow-hidden bg-[#050505] pb-20 pt-20 sm:pb-24 sm:pt-22 md:pb-28 md:pt-24 lg:pt-28"
     >
-      {/* Giant 5M+ background ghost watermark with parallax */}
+      {/* Aggregate UGC total as a background watermark with parallax */}
       <div
         ref={ghostRef}
         aria-hidden="true"

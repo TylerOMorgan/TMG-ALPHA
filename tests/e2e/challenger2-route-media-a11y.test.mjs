@@ -141,10 +141,10 @@ async function runChallenger2Suite() {
         assert.ok(box && box.width > 200 && box.height > 50, 'Hero title has non-zero visible dimensions');
 
         // Check 4 stats
-        const statValues = await page.locator('div:has-text("900+") >> text=900+').count();
-        const statViews = await page.locator('text=3.7B+').count();
-        const statUgcs = await page.locator('text=5M+').count();
-        const statStreams = await page.locator('text=590M+').count();
+        const statValues = await page.locator('div:has-text("962") >> text=962').count();
+        const statViews = await page.locator('text=4.2B+').count();
+        const statUgcs = await page.locator('text=7M+').count();
+        const statStreams = await page.locator('text=700M+').count();
         assert.ok(statValues > 0 && statViews > 0 && statUgcs > 0 && statStreams > 0, 'All 4 stats present');
 
         // Check 12 artist names
