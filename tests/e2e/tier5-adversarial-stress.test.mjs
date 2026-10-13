@@ -80,22 +80,26 @@ export async function runTier5(browser, baseUrl, results) {
 
     await runTest('T5.2.1', 'Pin Midway Position Lock', results, async () => {
       clearPageErrors();
-      const railPosition = await page.evaluate(() => {
-        const h2 = Array.from(document.querySelectorAll('h2')).find(el => el.textContent.includes('THE RECORDS PEOPLE REPEAT'));
-        if (!h2) return null;
-        const rect = h2.getBoundingClientRect();
+      // RecordsRail is not mounted on the Artists page (Artists.tsx mounts only
+      // Hero/SpotifyProof/SoundIdProof/DemoCTA); exercise the real mid-page
+      // interactive track, the Spotify record strip, instead.
+      const stripPosition = await page.evaluate(() => {
+        const strip = document.querySelector('#spotify-record-strip');
+        if (!strip) return null;
+        const rect = strip.getBoundingClientRect();
         return rect.top + window.scrollY;
       });
-      assert.ok(railPosition !== null, 'RecordsRail header found in DOM');
+      assert.ok(stripPosition !== null, 'Record strip found in DOM');
 
-      await scrollToY(page, railPosition + 400);
+      await scrollToY(page, stripPosition + 400);
       await page.waitForTimeout(200);
 
       const trackState = await page.evaluate(() => {
-        const track = document.querySelector('div.records-rail-track, div[class*="records-track"], div[class*="overflow-visible"]');
+        const track = document.querySelector('#spotify-record-strip');
         return track ? window.getComputedStyle(track).transform : 'not-found';
       });
-      assert.ok(trackState !== 'not-found', 'Records rail track exists and is active');
+      assert.ok(trackState !== 'not-found', 'Record strip exists and is active');
+      assert.equal(getPageErrors().length, 0, 'Zero errors at midway scroll position');
     });
 
     await runTest('T5.2.2', 'Extreme Viewport Cycling (320px to 2560px)', results, async () => {

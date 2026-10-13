@@ -173,7 +173,7 @@ export async function runTier3(browser, baseUrl, results) {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.waitForTimeout(200);
 
-      const track = page.locator('main > div:visible div').filter({ hasText: 'MIMIMI HARDTEKK' }).first();
+      const track = page.locator('main > div:visible div').filter({ hasText: 'MIMIMI (HARDTEKK)' }).first();
       assert.ok(await track.isVisible(), 'Track remains rendered after window resize');
       assert.equal(getPageErrors().length, 0);
     });

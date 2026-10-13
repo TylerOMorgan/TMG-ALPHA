@@ -16,13 +16,16 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
     e.preventDefault();
     window.history.pushState(null, "", getPageUrl(page));
     onNavigate(page);
+    // pushState doesn't fire hashchange, but hash-driven state (e.g.
+    // ContactForm's tab) must still sync to the new URL on every nav click.
+    window.dispatchEvent(new Event("hashchange"));
   };
 
   const navLinks = [
     { name: "HOME", id: "home", href: "#" },
     { name: "ABOUT", id: "about", href: "#about" },
     { name: "ARTISTS", id: "artists", href: "#artists" },
-    { name: "CONTACT", id: "contact", href: "#general-inquiry" },
+    { name: "CONTACT", id: "contact", href: "#demo-submission" },
   ];
 
   return (

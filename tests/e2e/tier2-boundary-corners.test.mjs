@@ -103,7 +103,7 @@ export async function runTier2(browser, baseUrl, results) {
       // Scroll into RecordsRail
       await scrollToY(page, 3800);
       await page.waitForTimeout(100);
-      const track = container.locator('div[class*="overflow-visible"], div[class*="overflow-x-auto"]').filter({ hasText: 'MIMIMI HARDTEKK' }).first();
+      const track = container.locator('div[class*="overflow-visible"], div[class*="overflow-x-auto"]').filter({ hasText: 'MIMIMI (HARDTEKK)' }).first();
       
       // Reverse scroll
       await scrollToY(page, 3400);
@@ -170,7 +170,7 @@ export async function runTier2(browser, baseUrl, results) {
 
     await runTest('T2.3.3', 'Spotify Card Hover Resilience', results, async () => {
       clearPageErrors();
-      const heroCard = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
+      const heroCard = container.locator('h3').filter({ hasText: 'MIMIMI (HARDTEKK)' });
       for (let i = 0; i < 8; i++) {
         await heroCard.hover({ force: true });
         await page.mouse.move(0, 0);
@@ -223,7 +223,7 @@ export async function runTier2(browser, baseUrl, results) {
 
     await runTest('T2.4.2', 'Mobile RecordsRail Snap Fallback', results, async () => {
       // In mobile 375x667, RecordsRail track uses native touch scroll
-      const track = container.locator('div[class*="overflow-x-auto"]').filter({ hasText: 'MIMIMI HARDTEKK' }).first();
+      const track = container.locator('div[class*="overflow-x-auto"]').filter({ hasText: 'MIMIMI (HARDTEKK)' }).first();
       assert.ok(await track.count() > 0, 'Mobile RecordsRail should have overflow-x-auto container');
       const cls = await track.getAttribute('class');
       assert.ok(cls.includes('overflow-x-auto') || cls.includes('snap-x'), 'Should support native scroll snap');
@@ -242,7 +242,7 @@ export async function runTier2(browser, baseUrl, results) {
       await page.setViewportSize({ width: 1440, height: 900 });
       await page.waitForTimeout(150);
 
-      const strip = container.locator('div.overflow-x-auto').filter({ hasText: 'MIMIMI HARDTEKK' }).first();
+      const strip = container.locator('div.overflow-x-auto').filter({ hasText: 'MIMIMI (HARDTEKK)' }).first();
       assert.ok(await strip.count() > 0, 'Desktop record strip scroller should be configured');
 
       const cardBox = await container.locator('#spotify-record-strip button').first().boundingBox();
@@ -331,8 +331,8 @@ export async function runTier2(browser, baseUrl, results) {
     });
 
     await runTest('T2.6.3', 'Legibility of Text and Badges', results, async () => {
-      const cardName = container.locator('span').filter({ hasText: 'MAYA SOL' }).first();
-      assert.equal(await cardName.isVisible(), true, 'Artist name MAYA SOL remains visible');
+      const cardName = container.locator('span').filter({ hasText: 'Luke Willies' }).first();
+      assert.equal(await cardName.isVisible(), true, 'Artist name Luke Willies remains visible');
 
       const badge = container.locator('div[class*="aspect-square"] svg').first();
       assert.equal(await badge.isVisible(), true, 'Spotify badge remains visible');

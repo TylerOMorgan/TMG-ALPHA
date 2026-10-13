@@ -327,10 +327,10 @@
     "title": "MIMIMI (HARDTEKK)",
     "artist": "AvantTEKK +1",
     "image": "/assets/sound-ids/mimimi.png",
-    "sha256": "d92831bd70a83cd327b032e8ebf530fae0246a7596b270bd6e233bcd24ed9cfa",
+    "sha256": "a40d48f160d0f78b68329be83a6ba6b190f961ad9c8a945664778eff41f5d3e2",
     "soundUrl": "https://vt.tiktok.com/ZS9Dm2So4S1qC-UCjuA/",
-    "metric": "1.3M",
-    "sourceFile": "03 Sound IDs/ChatGPT Image Oct 5, 2026, 07_55_46 PM-1.png"
+    "metric": "1.4M",
+    "sourceFile": "mil_vid_assets/MIMIMI_HARDTEKK_1.4M_posts.png"
   },
   {
     "group": "sound",
@@ -338,10 +338,10 @@
     "title": "ODNOGO (ULTRAFUNK)",
     "artist": "VaporVice +1",
     "image": "/assets/sound-ids/odnogo.png",
-    "sha256": "ea13e130d64d00f5201d4779bb420215e424bfa17df0765307fa68a42d6dc0ff",
+    "sha256": "50c65c2519108a1c858821bbaf95887f0dbcf3eec382991e305dbd651851c422",
     "soundUrl": "https://vt.tiktok.com/ZS9Dm25SCScch-3kcDc/",
-    "metric": "1M",
-    "sourceFile": "03 Sound IDs/ChatGPT Image Oct 5, 2026, 07_00_39 PM-2.png"
+    "metric": "1.1M",
+    "sourceFile": "mil_vid_assets/ODNOGO_ULTRAFUNK_1.1M_posts.png"
   },
   {
     "group": "sound",
@@ -349,7 +349,7 @@
     "title": "Billie Jean (Hoodtrap)",
     "artist": "hoodtrapjerk +1",
     "image": "/assets/sound-ids/billie-jean.png",
-    "sha256": "485879e2191b67dff28dd200f342c35f0447eb13d1b97aa1e2d1f48f02359250",
+    "sha256": "b39315b83a3578e3a60d28adbecea31f610e8057b3f4c9c383a4e6a7c48a1476",
     "soundUrl": "https://vt.tiktok.com/ZS9Dm2mJfnWFt-2LbGv/",
     "metric": "3M",
     "sourceFile": "03 Sound IDs/ChatGPT Image Oct 5, 2026, 07_00_35 PM-1.png"
@@ -360,9 +360,9 @@
     "title": "MISERY. (HARDTEKK)",
     "artist": "AvantTEKK +1",
     "image": "/assets/sound-ids/misery.png",
-    "sha256": "72c8c252a6085b3ed67939d9ee87addf5e1ba38e6de4aa28ab102ab186358ada",
+    "sha256": "b4b288440de20e5e2e89447bfac5a6addaa30677940b9531b7f4ac47c2ae3881",
     "soundUrl": "https://vt.tiktok.com/ZS9Dm2U24EEFx-kQhJY/",
-    "metric": "322.3K",
-    "sourceFile": "03 Sound IDs/ChatGPT Image Oct 5, 2026, 07_55_48 PM-2.png"
+    "metric": "334.3K",
+    "sourceFile": "mil_vid_assets/MISERY_HARDTEKK_334.3K_posts.png"
   }
 ]

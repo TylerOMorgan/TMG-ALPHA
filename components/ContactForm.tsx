@@ -467,14 +467,22 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   );
 };
 
-// Helper to get initial tab from URL hash
+// Helper to get initial tab from URL hash (demo first by default)
 const getInitialTab = (): "general" | "demo" => {
-  if (typeof window === "undefined") return "general";
+  if (typeof window === "undefined") return "demo";
   const hash = window.location.hash.toLowerCase().replace(/^#\/?/, "");
-  if (["demo-submission", "demo-submissions", "demo", "demos"].includes(hash)) {
-    return "demo";
+  if (
+    [
+      "general-inquiry",
+      "general-enquiry",
+      "inquiry",
+      "enquiry",
+      "general",
+    ].includes(hash)
+  ) {
+    return "general";
   }
-  return "general";
+  return "demo";
 };
 
 // --- MAIN CONTACT FORM COMPONENT ---
@@ -1418,16 +1426,16 @@ const ContactForm: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
       <div className="container mx-auto px-8 md:px-12 flex flex-col items-center text-center mb-16 relative z-10">
         <div className="flex gap-4 md:gap-8 bg-white/5 p-2 rounded-full backdrop-blur-sm border border-white/5">
           <button
-            onClick={() => handleTabChange("general")}
-            className={`px-4 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-base font-bold tracking-wide transition-all duration-300 ${activeTab === "general" ? "bg-trillex-orange text-black shadow-[0_0_15px_rgba(255,127,80,0.4)]" : "text-white/60 hover:text-white hover:bg-white/5"}`}
-          >
-            General Inquiry
-          </button>
-          <button
             onClick={() => handleTabChange("demo")}
             className={`px-4 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-base font-bold tracking-wide transition-all duration-300 ${activeTab === "demo" ? "bg-trillex-orange text-black shadow-[0_0_15px_rgba(255,127,80,0.4)]" : "text-white/60 hover:text-white hover:bg-white/5"}`}
           >
             Demo Submission
+          </button>
+          <button
+            onClick={() => handleTabChange("general")}
+            className={`px-4 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-base font-bold tracking-wide transition-all duration-300 ${activeTab === "general" ? "bg-trillex-orange text-black shadow-[0_0_15px_rgba(255,127,80,0.4)]" : "text-white/60 hover:text-white hover:bg-white/5"}`}
+          >
+            General Inquiry
           </button>
         </div>
       </div>

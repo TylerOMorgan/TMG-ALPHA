@@ -1,6 +1,10 @@
 import React, { useRef, useEffect, Suspense, useMemo, useState } from "react";
 import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
-import * as THREE from "three";
+import {
+  MathUtils,
+  ShaderMaterial as ThreeShaderMaterial,
+  TextureLoader,
+} from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight } from "lucide-react";
@@ -15,9 +19,9 @@ const DESKTOP_TEXTURE_URL = "/HeroSectionV5.webp";
 const TABLET_TEXTURE_URL = "/HeroSectionTablet.webp";
 const MOBILE_TEXTURE_URL = "/HeroSectionMobile.webp";
 
-// Preload textures to minimize swap lag (THREE.TextureLoader via R3F suspense cache)
+// Preload textures to minimize swap lag (TextureLoader via R3F suspense cache)
 [DESKTOP_TEXTURE_URL, TABLET_TEXTURE_URL, MOBILE_TEXTURE_URL].forEach((url) => {
-  useLoader.preload(THREE.TextureLoader, url);
+  useLoader.preload(TextureLoader, url);
 });
 
 // --- HOOK FOR DEVICE TYPE ---
@@ -62,8 +66,8 @@ const SceneContent = () => {
     return DESKTOP_TEXTURE_URL;
   }, [deviceType]);
 
-  const texture = useLoader(THREE.TextureLoader, textureUrl);
-  const materialRef = useRef<THREE.ShaderMaterial>(null);
+  const texture = useLoader(TextureLoader, textureUrl);
+  const materialRef = useRef<ThreeShaderMaterial>(null);
 
   const shaderArgs = useMemo(
     () => ({
@@ -142,7 +146,7 @@ const SceneContent = () => {
     if (deviceType === "tablet") targetOpacity = 0.9;
     if (deviceType === "mobile") targetOpacity = 0.8;
 
-    materialRef.current.uniforms.uIntensity.value = THREE.MathUtils.lerp(
+    materialRef.current.uniforms.uIntensity.value = MathUtils.lerp(
       materialRef.current.uniforms.uIntensity.value,
       targetOpacity,
       0.02,

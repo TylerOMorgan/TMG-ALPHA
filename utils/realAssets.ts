@@ -278,7 +278,7 @@ export const SOUND_ID_PREVIEWS = [
     "title": "MIMIMI (HARDTEKK)",
     "artist": "AvantTEKK +1",
     "image": "/assets/sound-ids/mimimi.png",
-    "metric": "1.3M",
+    "metric": "1.4M",
     "caption": "TIKTOK POSTS",
     "tag": "LOCAL PREVIEW",
     "subtext": "OPEN SUPPLIED VISUAL"
@@ -290,7 +290,7 @@ export const SOUND_ID_PREVIEWS = [
     "title": "ODNOGO (ULTRAFUNK)",
     "artist": "VaporVice +1",
     "image": "/assets/sound-ids/odnogo.png",
-    "metric": "1M",
+    "metric": "1.1M",
     "caption": "TIKTOK POSTS",
     "tag": "LOCAL PREVIEW",
     "subtext": "OPEN SUPPLIED VISUAL"
@@ -314,7 +314,7 @@ export const SOUND_ID_PREVIEWS = [
     "title": "MISERY. (HARDTEKK)",
     "artist": "AvantTEKK +1",
     "image": "/assets/sound-ids/misery.png",
-    "metric": "322.3K",
+    "metric": "334.3K",
     "caption": "TIKTOK POSTS",
     "tag": "LOCAL PREVIEW",
     "subtext": "OPEN SUPPLIED VISUAL"

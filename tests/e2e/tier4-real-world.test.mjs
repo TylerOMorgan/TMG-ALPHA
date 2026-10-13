@@ -74,9 +74,9 @@ export async function runTier4(browser, baseUrl, results) {
       assert.ok(await soundTitle.count() > 0, 'Sound ID section reached');
 
       // 7. Selects a record, deep-dive follows
-      await container.getByRole('button', { name: /Odnogo Ultrafunk/i }).click();
+      await container.getByRole('button', { name: /ODNOGO.*ULTRAFUNK/i }).click();
       await page.waitForTimeout(300);
-      const deepDive = container.locator('h3').filter({ hasText: 'ODNOGO ULTRAFUNK' });
+      const deepDive = container.locator('h3').filter({ hasText: 'ODNOGO (ULTRAFUNK)' });
       assert.ok(await deepDive.count() > 0, 'Record deep-dive reached');
 
       // 8. Reaches the footer scroll-to-top control
@@ -127,7 +127,7 @@ export async function runTier4(browser, baseUrl, results) {
 
       // Swipes down to RecordsRail native snap container
       await scrollToY(page, 3000);
-      const mobileTrack = container.locator('div[class*="overflow-x-auto"]').filter({ hasText: 'MIMIMI HARDTEKK' }).first();
+      const mobileTrack = container.locator('div[class*="overflow-x-auto"]').filter({ hasText: 'MIMIMI (HARDTEKK)' }).first();
       assert.ok(await mobileTrack.count() > 0, 'Mobile snap track present');
 
       // Scrolls to CTA and taps
@@ -250,7 +250,7 @@ export async function runTier4(browser, baseUrl, results) {
           assert.ok(tooltipBox.x >= 0 && tooltipBox.x + tooltipBox.width <= width + 1, 'Daily tooltip fits the viewport');
         }
         const heading = await container.getByText('STREAM VELOCITY', { exact: true }).boundingBox();
-        const topTick = await container.getByRole('img', { name: /^Daily streams axis:/ }).getByText('60K', { exact: true }).boundingBox();
+        const topTick = await container.getByRole('img', { name: /^Daily streams axis:/ }).getByText('40K', { exact: true }).boundingBox();
         assert.ok(heading.y + heading.height < topTick.y, 'Chart heading clears the highest axis label');
 
         await strip.scrollIntoViewIfNeeded();
@@ -273,9 +273,9 @@ export async function runTier4(browser, baseUrl, results) {
         await cards.nth(1).scrollIntoViewIfNeeded();
         await cards.nth(1).tap();
         assert.equal(await cards.nth(1).getAttribute('aria-pressed'), 'true', 'A tap selects a record after swiping');
-        assert.equal(await container.locator('h3').textContent(), 'ODNOGO ULTRAFUNK');
+        assert.equal(await container.locator('h3').textContent(), 'ODNOGO (ULTRAFUNK)');
 
-        const soundCard = container.getByRole('link', { name: 'Open MIMIMI HARDTEKK on TikTok', exact: true });
+        const soundCard = container.getByRole('link', { name: 'Open MIMIMI (HARDTEKK) on TikTok', exact: true });
         await soundCard.scrollIntoViewIfNeeded();
         assert.equal(await soundCard.locator('[data-card-tilt]').evaluate(el => getComputedStyle(el).transform), 'none', 'Touch devices do not run mouse tracking');
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false, 'No horizontal document overflow');

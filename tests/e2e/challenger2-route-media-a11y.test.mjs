@@ -148,7 +148,7 @@ async function runChallenger2Suite() {
         assert.ok(statValues > 0 && statViews > 0 && statUgcs > 0 && statStreams > 0, 'All 4 stats present');
 
         // Check 12 artist names
-        const names = ['SAINT RIO', 'MAYA SOL', 'NOA VALE', 'LENA MORI', 'JUNO', 'SOLA', 'ASTER', 'MIRA', 'KODA', 'ELARA', 'LUMEN', 'RAFA'];
+        const names = ['Luke Willies', 'VaporVice', 'OURGRND', 'Jynxx', 'AvantTEKK', 'Eibell', 'TheExorcist', 'NovaX', 'PXLSAR', 'Chquan', 'levi22', 'Sviral.'];
         for (const name of names) {
           const c = await page.locator(`main >> text="${name}"`).count();
           assert.ok(c >= 1, `Artist name visible: ${name}`);

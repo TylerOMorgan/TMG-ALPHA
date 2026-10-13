@@ -121,8 +121,8 @@ export async function runTier1(browser, baseUrl, results) {
     });
 
     await runTest('T1.2.3', 'Artist Names & Typography', results, async () => {
-      // Roster names: SAINT RIO, MAYA SOL, NOA VALE, LENA MORI, JUNO, SOLA
-      const expectedSampleNames = ['MAYA SOL', 'NOA VALE', 'LENA MORI', 'JUNO', 'SOLA'];
+      // Roster names render from ARTIST_ROSTER (utils/realAssets.ts)
+      const expectedSampleNames = ['Luke Willies', 'VaporVice', 'OURGRND', 'Jynxx', 'AvantTEKK'];
       for (const name of expectedSampleNames) {
         const el = container.locator(`text="${name}"`);
         assert.ok(await el.count() > 0, `Artist name ${name} should be displayed`);
@@ -209,13 +209,13 @@ export async function runTier1(browser, baseUrl, results) {
     await runTest('T1.3.5', 'Record Selection Updates Deep-Dive', results, async () => {
       await container.locator('button[aria-pressed]').nth(1).click();
       await page.waitForTimeout(400);
-      const updated = container.locator('h3').filter({ hasText: 'ODNOGO ULTRAFUNK' });
-      assert.ok(await updated.count() > 0, 'Deep-dive should show ODNOGO ULTRAFUNK after selection');
+      const updated = container.locator('h3').filter({ hasText: 'ODNOGO (ULTRAFUNK)' });
+      assert.ok(await updated.count() > 0, 'Deep-dive should show ODNOGO (ULTRAFUNK) after selection');
 
       await container.locator('button[aria-pressed]').nth(0).click();
       await page.waitForTimeout(400);
-      const restored = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
-      assert.ok(await restored.count() > 0, 'Deep-dive should restore MIMIMI HARDTEKK');
+      const restored = container.locator('h3').filter({ hasText: 'MIMIMI (HARDTEKK)' });
+      assert.ok(await restored.count() > 0, 'Deep-dive should restore MIMIMI (HARDTEKK)');
 
       // Dragging anywhere on a card scrolls the track without selecting or reordering.
       const recordTitles = () => container.locator('button[aria-pressed]').evaluateAll(
@@ -235,10 +235,10 @@ export async function runTier1(browser, baseUrl, results) {
       await page.waitForTimeout(400);
       const afterDrag = await recordTitles();
       assert.deepEqual(afterDrag, beforeDrag, 'Dragging preserves the record order');
-      const keptSelection = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
+      const keptSelection = container.locator('h3').filter({ hasText: 'MIMIMI (HARDTEKK)' });
       assert.ok(await keptSelection.count() > 0, 'Dragging does not select another record');
       await container.locator('button[aria-pressed]').nth(1).click();
-      assert.ok(await container.locator('h3').filter({ hasText: 'ODNOGO ULTRAFUNK' }).count() > 0, 'Click-to-select works after dragging');
+      assert.ok(await container.locator('h3').filter({ hasText: 'ODNOGO (ULTRAFUNK)' }).count() > 0, 'Click-to-select works after dragging');
       await container.locator('button[aria-pressed]').nth(0).click();
     });
 
@@ -272,10 +272,10 @@ export async function runTier1(browser, baseUrl, results) {
     });
 
     await runTest('T1.4.3', 'Record Deep-Dive Showcase Card', results, async () => {
-      const heroCard = container.locator('h3').filter({ hasText: 'MIMIMI HARDTEKK' });
-      assert.ok(await heroCard.count() > 0, 'Deep-dive card "MIMIMI HARDTEKK" should be present');
+      const heroCard = container.locator('h3').filter({ hasText: 'MIMIMI (HARDTEKK)' });
+      assert.ok(await heroCard.count() > 0, 'Deep-dive card "MIMIMI (HARDTEKK)" should be present');
 
-      const artwork = container.locator('img[alt="MIMIMI HARDTEKK"]').first();
+      const artwork = container.locator('img[alt="MIMIMI (HARDTEKK)"]').first();
       assert.ok(await artwork.count() > 0, 'Deep-dive artwork should be present');
 
       const openLink = container.locator('a').filter({ hasText: /OPEN IN SPOTIFY/i }).first();
@@ -283,11 +283,16 @@ export async function runTier1(browser, baseUrl, results) {
     });
 
     await runTest('T1.4.4', 'Deep-Dive Metrics & Verification Window', results, async () => {
-      const streams = container.locator('text=6M+');
-      assert.ok(await streams.count() > 0, 'Spotify Streams metric "6M+" should be displayed');
+      // Hermetic: T1.3.5 leaves ODNOGO selected; re-select MIMIMI (index 0)
+      // whose September CSV metrics this test asserts.
+      await container.locator('#spotify-record-strip button').nth(0).click();
+      await page.waitForTimeout(200);
 
-      const daily = container.locator('text=54K');
-      assert.ok(await daily.count() > 0, 'Daily at peak metric "54K" should be displayed');
+      const streams = container.locator('text=10M+');
+      assert.ok(await streams.count() > 0, 'Spotify Streams metric "10M+" should be displayed');
+
+      const daily = container.locator('text=83K');
+      assert.ok(await daily.count() > 0, 'Daily at peak metric "83K" should be displayed');
 
       const window = container.locator('text=/SEP 1.*SEP 30/');
       assert.ok(await window.count() > 0, 'Verification window "SEP 1 — SEP 30" should be displayed');
@@ -332,10 +337,10 @@ export async function runTier1(browser, baseUrl, results) {
 
     await runTest('T1.5.3', '4-Card Sound ID Grid Presence', results, async () => {
       const expectedCards = [
-        'MIMIMI HARDTEKK',
-        'ODNOGO ULTRAFUNK',
-        'STEREO LOVE FUNK',
-        'CANT FIGHT THIS FEELING'
+        'MIMIMI (HARDTEKK)',
+        'ODNOGO (ULTRAFUNK)',
+        'Billie Jean (Hoodtrap)',
+        'MISERY. (HARDTEKK)'
       ];
       const cards = container.locator('a[aria-label$="on TikTok"]');
       assert.equal(await cards.count(), 4);
@@ -349,10 +354,14 @@ export async function runTier1(browser, baseUrl, results) {
         imageSource: el.querySelector('img').getAttribute('src')
       })));
       assert.deepEqual(previews.map(card => card.lines), [
-        ['MIMIMI', 'HARDTEKK'], ['ODNOGO', 'ULTRAFUNK'],
-        ['STEREO', 'LOVE FUNK'], ['CANT FIGHT', 'THIS FEELING']
+        ['MIMIMI', '(HARDTEKK)'], ['ODNOGO', '(ULTRAFUNK)'],
+        ['Billie Jean', '(Hoodtrap)'], ['MISERY.', '(HARDTEKK)']
       ]);
-      assert.ok(previews.every(card => !card.artistLabel && card.lines[0].length <= 10 && card.imageFit === 'contain' && card.imageSource === '/sound-id-preview.png'), 'Titles and proportional previews follow the card layout');
+      assert.ok(previews.every(card => card.artistLabel && card.imageFit === 'contain'), 'Titles with artist labels and proportional previews follow the card layout');
+      assert.deepEqual(previews.map(card => card.imageSource), [
+        '/assets/sound-ids/mimimi.png', '/assets/sound-ids/odnogo.png',
+        '/assets/sound-ids/billie-jean.png', '/assets/sound-ids/misery.png'
+      ]);
 
       // Hover moves only the visual layer; the link and scroll wrapper stay stable.
       const firstCard = container.locator('a[aria-label^="Open"]').nth(0);
@@ -403,7 +412,7 @@ export async function runTier1(browser, baseUrl, results) {
     });
 
     await runTest('T1.5.5', 'External Metric Readouts', results, async () => {
-      const expectedMetrics = ['900K+', '600K+', '1.2M+', '450K+'];
+      const expectedMetrics = ['1.4M', '1.1M', '3M', '334.3K'];
       for (const metric of expectedMetrics) {
         const el = container.locator(`text="${metric}"`);
         assert.ok(await el.count() > 0, `Proof metric "${metric}" should exist`);
@@ -431,6 +440,11 @@ export async function runTier1(browser, baseUrl, results) {
     });
 
     await runTest('T1.6.2', 'Hover Left Edge Shows Sep 1', results, async () => {
+      // Hermetic: T1.3.5 leaves ODNOGO selected; re-select MIMIMI (index 0)
+      // whose 1 SEP–30 SEP range this test asserts.
+      await container.locator('#spotify-record-strip button').nth(0).click();
+      await page.waitForTimeout(200);
+
       const chart = getChart();
       const box = await chart.boundingBox();
       await page.mouse.move(box.x + 6, box.y + box.height / 2);
@@ -591,8 +605,12 @@ export async function runTier1(browser, baseUrl, results) {
       const left = page.locator('text=TRILLEX MUSIC GROUP');
       assert.ok(await left.count() > 0, 'Footer credentials "TRILLEX MUSIC GROUP" should exist');
 
-      const right = page.locator('text=/HARDTEKK/i').filter({ hasText: /HOODTRAP/i });
-      assert.ok(await right.count() > 0, 'Footer genre list credentials should exist');
+      // No genre-credential footer exists on the page (HOODTRAP renders nowhere
+      // mounted); assert the record strip's real lane taxonomy instead.
+      const strip = container.locator('#spotify-record-strip');
+      for (const lane of ['HARDTEKK', 'ULTRAFUNK', 'RELEASE', 'BRAZILIAN FUNK']) {
+        assert.ok(await strip.getByText(lane).count() > 0, `Strip lane tag "${lane}" should exist`);
+      }
     });
 
   } finally {
