@@ -9,15 +9,20 @@ const resolve = (hash, pathname = '/') => getPageFromLocation({ hash, pathname }
 
 for (const hash of ['', '#', '#home', '#/home']) assert.equal(resolve(hash), 'home');
 assert.equal(resolve('#ABOUT'), 'about');
+for (const page of ['about2', 'about3']) {
+  for (const hash of [`#${page}`, `#/${page}`, `#${page.toUpperCase()}`]) {
+    assert.equal(resolve(hash), page);
+  }
+}
 for (const hash of ['#artists', '#artist', '#roster', '#/artists']) assert.equal(resolve(hash), 'artists');
 for (const route of ['demo-submission', 'demo-submissions', 'demo', 'demos', 'general-inquiry', 'general-enquiry', 'inquiry', 'enquiry', 'general', 'contact', 'contact-form', 'email-ticker']) {
   assert.equal(resolve(`#${route}`), 'contact');
 }
-for (const hash of ['#missing-track', '#artist2', '#artists2', '#404']) assert.equal(resolve(hash), 'not-found');
+for (const hash of ['#missing-track', '#artist2', '#artists2', '#about4', '#404']) assert.equal(resolve(hash), 'not-found');
 assert.equal(resolve('', '/missing-track'), 'not-found');
 assert.equal(resolve('#artists', '/missing-track'), 'not-found');
 assert.equal(resolve('#artists', '/index.html'), 'artists');
-for (const page of ['home', 'about', 'artists', 'contact']) {
+for (const page of ['home', 'about', 'about2', 'about3', 'artists', 'contact']) {
   const url = new URL(getPageUrl(page), 'http://localhost/missing-track');
   assert.equal(getPageFromLocation(url), page, `Recovery URL for ${page} must work from an invalid path`);
 }

@@ -24,6 +24,8 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState<string>(getPageFromHash);
   const [scrollToSection, setScrollToSection] = useState<string | null>(null);
+  const isAboutPage = ["about", "about2", "about3"].includes(activePage);
+  const aboutVariant = activePage === "about2" ? "waterline" : activePage === "about3" ? "submersion" : "original";
 
   // Track if it's the first load
   const isInitialLoad = useRef(true);
@@ -319,9 +321,9 @@ const App: React.FC = () => {
             <Home isActive={activePage === "home"} />
           </div>
           <Suspense fallback={null}>
-            {/* About is always mounted to preserve GSAP ScrollTrigger instances */}
-            <div style={{ display: activePage === "about" ? "block" : "none" }}>
-              <About isActive={activePage === "about"} />
+            {/* One About version at a time keeps SVG IDs and pinned timelines isolated. */}
+            <div style={{ display: isAboutPage ? "block" : "none" }}>
+              <About key={aboutVariant} variant={aboutVariant} isActive={isAboutPage} />
             </div>
             {/* Artists */}
             <div

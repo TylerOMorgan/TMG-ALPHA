@@ -1,0 +1,30 @@
+/* Text remains anchored; only its visible ink refracts beneath the bow. */
+.submerge-anchor {
+  position: relative;
+  display: inline-block;
+}
+
+.submerge-ink {
+  display: none;
+}
+
+.submerge-anchor[data-submerge-ready] > .submerge-source {
+  color: transparent;
+  text-shadow: none;
+}
+
+.submerge-anchor[data-submerge-ready] > .submerge-ink {
+  display: block;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.submerge-glyph {
+  position: absolute;
+  top: 0;
+  line-height: inherit;
+  transform-origin: 50% 80%;
+  backface-visibility: hidden;
+}
+

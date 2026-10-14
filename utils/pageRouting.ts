@@ -1,4 +1,4 @@
-export type Page = "home" | "about" | "artists" | "contact" | "not-found";
+export type Page = "home" | "about" | "about2" | "about3" | "artists" | "contact" | "not-found";
 
 export const getPageFromLocation = ({
   pathname,
@@ -11,6 +11,8 @@ export const getPageFromLocation = ({
   const route = hash.toLowerCase().replace(/^#\/?/, "");
   if (["", "home"].includes(route)) return "home";
   if (route === "about") return "about";
+  if (route === "about2") return "about2";
+  if (route === "about3") return "about3";
   if (["artists", "artist", "roster"].includes(route)) return "artists";
   if (
     [
