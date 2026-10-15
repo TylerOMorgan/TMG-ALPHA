@@ -25,7 +25,7 @@ const App: React.FC = () => {
   const [activePage, setActivePage] = useState<string>(getPageFromHash);
   const [scrollToSection, setScrollToSection] = useState<string | null>(null);
   const isAboutPage = ["about", "about2", "about3"].includes(activePage);
-  const aboutVariant = activePage === "about2" ? "waterline" : activePage === "about3" ? "submersion" : "original";
+  const aboutVariant = activePage === "about2" ? "waterline" : activePage === "about3" ? "original" : "submersion";
 
   // Track if it's the first load
   const isInitialLoad = useRef(true);

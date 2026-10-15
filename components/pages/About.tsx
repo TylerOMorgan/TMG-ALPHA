@@ -12,11 +12,11 @@ interface AboutProps {
   variant?: "original" | "waterline" | "submersion";
 }
 
-const About: React.FC<AboutProps> = ({ isActive = true, variant = "original" }) => {
+const About: React.FC<AboutProps> = ({ isActive = true, variant = "submersion" }) => {
   // Set page title
   useEffect(() => {
     if (isActive) {
-      const label = variant === "waterline" ? "ABOUT 2" : variant === "submersion" ? "ABOUT 3" : "ABOUT";
+      const label = variant === "waterline" ? "ABOUT 2" : variant === "original" ? "ABOUT 3" : "ABOUT";
       document.title = `${label} — TRILLEX`;
     }
   }, [isActive, variant]);
