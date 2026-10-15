@@ -32,6 +32,7 @@ export interface SelectableProofRecord {
   peakDaily: number;
   cumulativeBase: number;
   cumulativePeak: number;
+  dailyStreams?: number[];
   spotifyUrl?: string;
 }
 
@@ -105,6 +106,11 @@ const ILLUSTRATIVE_GROWTH = [
     "startDate": "1 SEP",
     "endDate": "30 SEP",
     "peakDaily": 35942,
+    "dailyStreams": [
+      33837, 32731, 32957, 33871, 29637, 27284, 29388, 31507, 33781, 34330,
+      35942, 30993, 31523, 31126, 32415, 28796, 28639, 29757, 27706, 25493,
+      29611, 28970, 28094, 28234, 30402, 28312, 24546, 27066, 27317, 31438,
+    ],
     "cumulativeBase": 9.09,
     "cumulativePeak": 10
   },

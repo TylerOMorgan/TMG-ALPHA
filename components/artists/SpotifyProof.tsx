@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -44,7 +44,7 @@ const dailyPointAtProgress = (
   start: string,
   end: string,
   t: number,
-): { date: string; progress: number } => {
+): { date: string; progress: number; days: number } => {
   const parse = (s: string): { day: number; mon: number } | null => {
     const m = s
       .trim()
@@ -57,7 +57,7 @@ const dailyPointAtProgress = (
   };
   const s = parse(start);
   const e = parse(end);
-  if (!s || !e) return { date: start, progress: 0 };
+  if (!s || !e) return { date: start, progress: 0, days: 1 };
   let span = 0;
   {
     let d = s.day;
@@ -82,14 +82,14 @@ const dailyPointAtProgress = (
       m = (m + 1) % 12;
     }
   }
-  return { date: `${d} ${MONTHS[m]}`, progress: span > 0 ? offset / span : 0 };
+  return { date: `${d} ${MONTHS[m]}`, progress: span > 0 ? offset / span : 0, days: span + 1 };
 };
 
 interface HoverPoint {
   x: number;
   y: number;
   date: string;
-  streams: string;
+  streams?: string;
   total: string;
 }
 
@@ -98,87 +98,58 @@ const DynamicGrowthChart: React.FC<{
   lineRef: React.RefObject<SVGPathElement | null>;
 }> = ({ record, lineRef }) => {
   const [hover, setHover] = useState<HoverPoint | null>(null);
-  // Calibrate the axis and hover counts to the curve's peak for each record.
-  const streamsAtY = (y: number) =>
-    ((220 - y) / (220 - record.apexY)) * record.peakDaily;
-  const tickStep = Math.max(5000, Math.ceil(record.peakDaily / 4 / 5000) * 5000);
-  const yAxisTicks = Array.from(
-    { length: Math.floor(streamsAtY(0) / tickStep) + 1 },
-    (_, index) => {
-      const count = index * tickStep;
-      return {
-        count,
-        y: 220 - (count / record.peakDaily) * (220 - record.apexY),
-      };
-    },
-  );
-
-  const calculateHoverData = (
-    clientX: number,
-    rect: DOMRect,
-    path: SVGPathElement | null,
-  ): HoverPoint => {
-    const pointerX = Math.max(
-      0,
-      Math.min(600, ((clientX - rect.left) / rect.width) * 600),
-    );
-    const { date: dateLabel, progress: t } = dailyPointAtProgress(
-      record.startDate,
-      record.endDate,
-      pointerX / 600,
-    );
-    const relX = t * 600;
-
-    let targetY = 190;
-    if (
-      path &&
-      typeof path.getTotalLength === "function" &&
-      typeof path.getPointAtLength === "function"
-    ) {
-      try {
-        const totalLen = path.getTotalLength();
-        let low = 0;
-        let high = totalLen;
-        for (let i = 0; i < 16; i++) {
-          const mid = (low + high) / 2;
-          const pt = path.getPointAtLength(mid);
-          if (pt.x < relX) {
-            low = mid;
-          } else {
-            high = mid;
-          }
-        }
-        targetY = path.getPointAtLength((low + high) / 2).y;
-      } catch {
-        targetY = 205 - (205 - record.apexY) * Math.pow(t, 2.2);
-      }
-    } else {
-      targetY = 205 - (205 - record.apexY) * Math.pow(t, 2.2);
-    }
-
-    const dailyStreams = Math.round(
-      Math.max(0, Math.min(record.peakDaily, streamsAtY(targetY))),
-    );
-    const streamsStr = `${dailyStreams.toLocaleString()} STREAMS/DAY`;
-    const totalStreams =
-      (
-        record.cumulativeBase +
-        Math.pow(t, 2.1) * (record.cumulativePeak - record.cumulativeBase)
-      ).toFixed(2) + "M";
-
+  const { points, pathData, fillData, yAxisTicks } = useMemo(() => {
+    const days = record.dailyStreams?.length ??
+      dailyPointAtProgress(record.startDate, record.endDate, 0).days;
+    let runningTotal = 0;
+    const totals = Array.from({ length: days }, (_, index) => {
+      const t = days > 1 ? index / (days - 1) : 0;
+      // Real exports accumulate from the first day of the displayed period.
+      // Other records retain their existing illustrative cumulative estimates.
+      runningTotal = record.dailyStreams
+        ? runningTotal + record.dailyStreams[index]
+        : Math.round((record.cumulativeBase +
+            Math.pow(t, 2.1) * (record.cumulativePeak - record.cumulativeBase)) * 1_000_000);
+      return { t, total: runningTotal, daily: record.dailyStreams?.[index] };
+    });
+    const maxTotal = Math.max(1, ...totals.map(({ total }) => total));
+    const magnitude = 10 ** Math.floor(Math.log10(maxTotal / 4));
+    const step = [1, 2, 2.5, 5, 10].find((value) => value * magnitude >= maxTotal / 4)! * magnitude;
+    const axisMax = Math.ceil(maxTotal / step) * step;
+    const points = totals.map(({ t, total, daily }) => ({
+      x: t * 600,
+      y: 220 - (total / axisMax) * 220,
+      date: dailyPointAtProgress(record.startDate, record.endDate, t).date,
+      total: `${total.toLocaleString("en-US")} STREAMS`,
+      streams: daily === undefined ? undefined : `+${daily.toLocaleString("en-US")} THAT DAY`,
+    }));
+    const pathData = points.map(({ x, y }, index) =>
+      `${index === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`,
+    ).join(" ");
     return {
-      x: relX,
-      y: targetY,
-      date: dateLabel,
-      streams: streamsStr,
-      total: `${totalStreams} STREAMS`,
+      points,
+      pathData,
+      fillData: `${pathData} L600,220 L0,220 Z`,
+      yAxisTicks: Array.from({ length: Math.round(axisMax / step) + 1 }, (_, index) => ({
+        count: index * step,
+        y: 220 - (index * step / axisMax) * 220,
+      })),
     };
+  }, [record]);
+  const lastPoint = points[points.length - 1];
+  const formatTick = (count: number) => count >= 1_000_000
+    ? `${Number((count / 1_000_000).toFixed(2))}M`
+    : count >= 1000 ? `${Number((count / 1000).toFixed(2))}K` : `${count}`;
+
+  const calculateHoverData = (clientX: number, rect: DOMRect): HoverPoint => {
+    const progress = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return points[Math.round(progress * (points.length - 1))];
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     if (rect.width <= 0) return;
-    const point = calculateHoverData(e.clientX, rect, lineRef.current);
+    const point = calculateHoverData(e.clientX, rect);
     setHover(point);
   };
 
@@ -193,7 +164,6 @@ const DynamicGrowthChart: React.FC<{
     const point = calculateHoverData(
       e.touches[0].clientX,
       rect,
-      lineRef.current,
     );
     setHover(point);
   };
@@ -201,9 +171,9 @@ const DynamicGrowthChart: React.FC<{
   return (
     <div className="flex w-full gap-2 sm:gap-3">
       <div
-        className="relative w-9 shrink-0 font-mono text-[9px] tabular-nums text-white/50 sm:w-11 sm:text-[10px]"
+        className="relative h-32 w-9 shrink-0 font-mono text-[9px] tabular-nums text-white/50 sm:h-44 sm:w-11 sm:text-[10px] md:h-52"
         role="img"
-        aria-label={`Daily streams axis: ${yAxisTicks.map(({ count }) => count.toLocaleString()).join(", ")}`}
+        aria-label={`Cumulative streams axis: ${yAxisTicks.map(({ count }) => count.toLocaleString()).join(", ")}`}
       >
         {yAxisTicks.map(({ count, y }) => (
           <span
@@ -212,19 +182,20 @@ const DynamicGrowthChart: React.FC<{
             className="absolute right-0 -translate-y-1/2"
             style={{ top: `${(y / 220) * 100}%` }}
           >
-            {count === 0 ? "0" : `${count / 1000}K`}
+            {formatTick(count)}
           </span>
         ))}
       </div>
+      <div className="min-w-0 flex-1">
       <div
-        className="relative min-w-0 flex-1 cursor-crosshair select-none touch-pan-y"
+        className="relative cursor-crosshair select-none touch-pan-y"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         onTouchStart={handleTouchMove}
         onTouchMove={handleTouchMove}
         onTouchCancel={handleMouseLeave}
         role="region"
-        aria-label="Interactive Spotify growth chart"
+        aria-label={`Interactive cumulative Spotify streams chart for ${record.title}${record.dailyStreams ? ", total within the displayed period" : ", illustrative totals"}`}
       >
         <svg
           viewBox="0 0 600 220"
@@ -261,7 +232,7 @@ const DynamicGrowthChart: React.FC<{
 
           {/* Area fill beneath curve */}
           <path
-            d={record.fillData}
+            d={fillData}
             fill="url(#axp-chart-fill)"
             className="transition-all duration-500 ease-out"
           />
@@ -270,7 +241,7 @@ const DynamicGrowthChart: React.FC<{
           <path
             ref={lineRef}
             id="axp-chart-line"
-            d={record.pathData}
+            d={pathData}
             fill="none"
             stroke="#19D057"
             strokeWidth="2.5"
@@ -278,13 +249,13 @@ const DynamicGrowthChart: React.FC<{
           />
         </svg>
 
-        {/* Apex marker: HTML overlay stays perfectly round (SVG stretches) */}
+        {/* Latest cumulative total marker: HTML overlay stays perfectly round (SVG stretches) */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
           style={{
-            left: `${(record.apexX / 600) * 100}%`,
-            top: `${(record.apexY / 220) * 100}%`,
+            left: `${(lastPoint.x / 600) * 100}%`,
+            top: `${(lastPoint.y / 220) * 100}%`,
           }}
         >
           <span className="block h-2.5 w-2.5 rounded-full bg-[#19D057] shadow-[0_0_10px_#19D057]" />
@@ -323,13 +294,24 @@ const DynamicGrowthChart: React.FC<{
               <span>{hover.date}</span>
             </div>
             <div className="font-mono text-[10px] font-bold tracking-wide text-white">
-              {hover.streams}
+              {hover.total}
             </div>
             <div className="font-mono text-[8px] tracking-[0.18em] text-white/50">
-              CUMULATIVE: {hover.total}
+              {record.dailyStreams ? "TOTAL IN PERIOD" : "ILLUSTRATIVE TOTAL"}
             </div>
+            {hover.streams && (
+              <div className="font-mono text-[8px] tracking-wide text-white/50">
+                {hover.streams}
+              </div>
+            )}
           </div>
         )}
+      </div>
+      <div className="mt-3 flex justify-between font-mono text-[8px] tabular-nums text-white/50 sm:text-[9px]" aria-hidden="true">
+        <span>{record.startDate}</span>
+        <span>{points[Math.floor((points.length - 1) / 2)].date}</span>
+        <span>{record.endDate}</span>
+      </div>
       </div>
     </div>
   );
@@ -749,10 +731,10 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 {/* Growth Chart */}
                 <div className="mt-1">
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[8.5px] tracking-[0.18em] text-white/50 sm:text-[9px] sm:tracking-[0.2em]">
-                    <span>STREAM VELOCITY</span>
+                    <span>CUMULATIVE STREAMS</span>
                     <span className="text-[#19D057]">
-                      <span className="hidden [@media(hover:none)]:inline">TAP FOR DAILY DATA</span>
-                      <span className="[@media(hover:none)]:hidden">HOVER FOR DAILY DATA</span>
+                      <span className="hidden [@media(hover:none)]:inline">TAP FOR TOTALS</span>
+                      <span className="[@media(hover:none)]:hidden">HOVER FOR TOTALS</span>
                     </span>
                   </div>
                   <DynamicGrowthChart key={activeRecord.id} record={activeRecord} lineRef={lineRef} />
