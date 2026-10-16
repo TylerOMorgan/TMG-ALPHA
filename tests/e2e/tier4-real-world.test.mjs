@@ -236,10 +236,10 @@ export async function runTier4(browser, baseUrl, results) {
         const originalOrder = await titles();
         assert.equal(await strip.locator('[title="Drag to reorder"]').count(), 0);
 
-        const chart = container.getByRole('region', { name: 'Interactive Spotify growth chart' });
+        const chart = container.getByRole('region', { name: /Interactive cumulative Spotify streams chart/ });
         await chart.scrollIntoViewIfNeeded();
-        assert.equal(await container.getByText('TAP FOR DAILY DATA', { exact: true }).isVisible(), true);
-        assert.equal(await container.getByText('HOVER FOR DAILY DATA', { exact: true }).isVisible(), false);
+        assert.equal(await container.getByText('TAP FOR TOTALS', { exact: true }).isVisible(), true);
+        assert.equal(await container.getByText('HOVER FOR TOTALS', { exact: true }).isVisible(), false);
         const chartBox = await chart.boundingBox();
         for (const offset of [0, 1, 2, 28, 29]) {
           const x = Math.max(1, Math.min(chartBox.width - 1, chartBox.width * offset / 29));
@@ -249,8 +249,8 @@ export async function runTier4(browser, baseUrl, results) {
           const tooltipBox = await tooltip.boundingBox();
           assert.ok(tooltipBox.x >= 0 && tooltipBox.x + tooltipBox.width <= width + 1, 'Daily tooltip fits the viewport');
         }
-        const heading = await container.getByText('STREAM VELOCITY', { exact: true }).boundingBox();
-        const topTick = await container.getByRole('img', { name: /^Daily streams axis:/ }).getByText('40K', { exact: true }).boundingBox();
+        const heading = await container.getByText('CUMULATIVE STREAMS', { exact: true }).boundingBox();
+        const topTick = await container.getByRole('img', { name: /^Cumulative streams axis:/ }).getByText('1M', { exact: true }).boundingBox();
         assert.ok(heading.y + heading.height < topTick.y, 'Chart heading clears the highest axis label');
 
         await strip.scrollIntoViewIfNeeded();

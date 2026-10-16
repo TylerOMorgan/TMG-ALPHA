@@ -312,7 +312,7 @@ export async function runTier1(browser, baseUrl, results) {
         y1: line.getAttribute('y1'), y2: line.getAttribute('y2')
       })));
       assert.ok(grid.length > 0 && grid.every(line => line.y1 === line.y2 && line.x1 !== line.x2), 'Grid contains horizontal lines only');
-      assert.ok(await container.locator('[aria-label^="Daily streams axis:"]').count() > 0, 'Chart exposes its y-axis counts');
+      assert.ok(await container.locator('[aria-label^="Cumulative streams axis:"]').count() > 0, 'Chart exposes its y-axis counts');
     });
 
     // =========================================================================
@@ -435,8 +435,8 @@ export async function runTier1(browser, baseUrl, results) {
       await page.waitForTimeout(200);
       const tooltip = container.locator('[role="tooltip"]');
       assert.equal(await tooltip.isVisible(), true, 'Tooltip should appear on chart hover');
-      const streams = await tooltip.filter({ hasText: /STREAMS\/DAY/ }).count();
-      assert.ok(streams > 0, 'Tooltip should show a STREAMS/DAY readout');
+      const streams = await tooltip.filter({ hasText: /STREAMS/ }).count();
+      assert.ok(streams > 0, 'Tooltip should show a STREAMS readout');
     });
 
     await runTest('T1.6.2', 'Hover Left Edge Shows Sep 1', results, async () => {
@@ -473,8 +473,8 @@ export async function runTier1(browser, baseUrl, results) {
       await page.mouse.move(box.x + box.width * 0.75, box.y + box.height / 2);
       await page.waitForTimeout(200);
       const tooltip = container.locator('[role="tooltip"]');
-      assert.ok(await tooltip.filter({ hasText: /STREAMS\/DAY/ }).count() > 0, 'Tooltip should show daily streams');
-      assert.ok(await tooltip.filter({ hasText: /CUMULATIVE/ }).count() > 0, 'Tooltip should show cumulative total');
+      assert.ok(await tooltip.filter({ hasText: /THAT DAY/ }).count() > 0, 'Tooltip should show daily streams');
+      assert.ok(await tooltip.filter({ hasText: /TOTAL IN PERIOD/ }).count() > 0, 'Tooltip should show cumulative total');
       const before = await tooltip.textContent();
       await page.mouse.move(box.x + box.width * 0.76, box.y + box.height / 2);
       assert.equal(await tooltip.textContent(), before, 'Nearby positions expose the same sampled data');
