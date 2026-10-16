@@ -19,15 +19,14 @@ const DESKTOP_TEXTURE_URL = "/HeroSectionV5.webp";
 const TABLET_TEXTURE_URL = "/HeroSectionTablet.webp";
 const MOBILE_TEXTURE_URL = "/HeroSectionMobile.webp";
 
-// Preload textures to minimize swap lag (TextureLoader via R3F suspense cache)
-[DESKTOP_TEXTURE_URL, TABLET_TEXTURE_URL, MOBILE_TEXTURE_URL].forEach((url) => {
-  useLoader.preload(TextureLoader, url);
-});
+const currentDeviceType = (): "mobile" | "tablet" | "desktop" =>
+  window.matchMedia("(max-width: 767px)").matches ? "mobile" :
+    window.matchMedia("(max-width: 1024px)").matches ? "tablet" : "desktop";
 
 // --- HOOK FOR DEVICE TYPE ---
 const useDeviceType = () => {
   const [deviceType, setDeviceType] = useState<"mobile" | "tablet" | "desktop">(
-    "desktop",
+    currentDeviceType,
   );
 
   useEffect(() => {
@@ -170,8 +169,16 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ isActive = true }) => {
   const textRef = useRef<HTMLDivElement>(null);
+  const [pageVisible, setPageVisible] = useState(() => !document.hidden);
 
   useEffect(() => {
+    const update = () => setPageVisible(!document.hidden);
+    document.addEventListener("visibilitychange", update);
+    return () => document.removeEventListener("visibilitychange", update);
+  }, []);
+
+  useEffect(() => {
+    if (!isActive) return;
     gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
       gsap.to(textRef.current, {
@@ -186,7 +193,7 @@ const Hero: React.FC<HeroProps> = ({ isActive = true }) => {
       });
     });
     return () => ctx.revert();
-  }, []);
+  }, [isActive]);
 
   return (
     <div
@@ -195,7 +202,7 @@ const Hero: React.FC<HeroProps> = ({ isActive = true }) => {
     >
       <div className="absolute inset-0 z-0 opacity-80">
         <Canvas
-          frameloop={isActive ? "always" : "never"}
+          frameloop={isActive && pageVisible ? "always" : "never"}
           dpr={[1, 1.25]}
           camera={{ position: [0, 0, 2] }}
           gl={{

@@ -203,13 +203,18 @@ const SoundIdProof: React.FC<SectionProps> = ({ isActive = true }) => {
                   className="sound-id-card h-full overflow-hidden rounded-xl border bg-[#0C0C0C] will-change-transform transition-[border-color,box-shadow] duration-300"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden">
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-contain"
-                    />
+                    <picture>
+                      <source type="image/webp" srcSet={card.image.replace(/\.png$/, ".webp")} />
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        loading="lazy"
+                        decoding="async"
+                        width={1586}
+                        height={992}
+                        className="h-full w-full object-contain"
+                      />
+                    </picture>
 
                     {/* Top Right: loader animation plays only on this card's hover; corner stays empty otherwise */}
                     <img

@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { RELEASE_CATALOG } from '../utils/realAssets';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { requestLayoutRefresh } from '../utils/layoutRefresh';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -132,12 +133,10 @@ const Services: React.FC<ServicesProps> = ({ isActive = true }) => {
       });
     }, containerRef);
 
-    const rafId = requestAnimationFrame(() => {
-      ScrollTrigger.refresh();
-    });
+    const cancelRefresh = requestLayoutRefresh();
 
     return () => {
-        cancelAnimationFrame(rafId);
+        cancelRefresh();
         ctx.revert();
         mm.revert();
     };

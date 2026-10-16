@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ECOSYSTEM_SVG_DATA } from "../../utils/ecosystemSvgData";
 import { PIVOT_INDEX } from "../Manifesto";
 import { createBowSubmersion } from "../../utils/bowSubmersion";
+import { requestLayoutRefresh } from "../../utils/layoutRefresh";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -429,12 +430,11 @@ const AboutVariantAnimation: React.FC<AboutVariantAnimationProps> = ({ isActive 
       tl.to({}, { duration: 0.45 });
     }, stage);
 
+    let cancelRefresh = () => {};
     const syncLayout = () => {
       ensurePulseRunning();
-      ScrollTrigger.refresh();
-      if (typeof window !== "undefined" && (window as any).lenis) {
-        (window as any).lenis.resize();
-      }
+      cancelRefresh();
+      cancelRefresh = requestLayoutRefresh();
     };
 
     const rafId = requestAnimationFrame(syncLayout);
@@ -452,6 +452,7 @@ const AboutVariantAnimation: React.FC<AboutVariantAnimationProps> = ({ isActive 
     return () => {
       disposed = true;
       cancelAnimationFrame(rafId);
+      cancelRefresh();
       resizeObserver.disconnect();
       if (ctx) ctx.revert();
       submersion?.dispose();

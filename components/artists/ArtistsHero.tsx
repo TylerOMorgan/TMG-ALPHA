@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Disc3, Users } from "lucide-react";
 import Eyebrow from "./Eyebrow";
+import { pauseWhenOffscreen } from "../../utils/visibleAnimation";
 import {
   HERO_EYEBROW,
   HERO_TITLE,
@@ -59,28 +60,34 @@ const parseStat = (
   return { target: isNaN(target) ? 0 : target, decimals, suffix: match[2] };
 };
 
-const useCountUp = (start: boolean, duration = 1400): string[] => {
-  const [frame, setFrame] = useState(0);
+// Update only the four text nodes; the 88 artwork cards do not rerender
+// during the 1.4-second count-up.
+const useCountUp = (start: boolean, sectionRef: React.RefObject<HTMLElement | null>, duration = 1400) => {
   useEffect(() => {
-    if (!start) return;
+    if (!start || !sectionRef.current) return;
+    const nodes = sectionRef.current.querySelectorAll<HTMLElement>("[data-stat-value]");
+    const stats = HERO_STATS.map(({ value }) => parseStat(value));
+    const render = (frame: number) => {
+      nodes.forEach((node, index) => {
+        const { target, decimals, suffix } = stats[index];
+        const value = `${(target * frame).toFixed(decimals)}${suffix}`;
+        if (node.textContent !== value) node.textContent = value;
+      });
+    };
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setFrame(1);
+      render(1);
       return;
     }
     let raf = 0;
     const t0 = performance.now();
     const tick = (now: number) => {
       const t = Math.min(1, (now - t0) / duration);
-      setFrame(1 - Math.pow(1 - t, 3));
+      render(1 - Math.pow(1 - t, 3));
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [start, duration]);
-  return HERO_STATS.map((s) => {
-    const { target, decimals, suffix } = parseStat(s.value);
-    return `${(target * frame).toFixed(decimals)}${suffix}`;
-  });
+  }, [start, sectionRef, duration]);
 };
 
 interface SectionProps {
@@ -194,7 +201,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
     };
   }, [isActive]);
 
-  const values = useCountUp(countVisible);
+  useCountUp(countVisible, sectionRef);
 
   useEffect(() => {
     if (!isActive) return;
@@ -240,6 +247,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
         // Pause on hover with smooth deceleration
         const container = marqueeRef.current;
         if (container) {
+          const stopObserving = pauseWhenOffscreen(container, [tween1, tween2]);
           const onEnter = () => {
             gsap.to([tween1, tween2], { timeScale: 0, duration: 0.35 });
           };
@@ -251,6 +259,8 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
           container.addEventListener("mouseleave", onLeave);
 
           return () => {
+            stopObserving();
+            gsap.killTweensOf([tween1, tween2]);
             container.removeEventListener("mouseenter", onEnter);
             container.removeEventListener("mouseleave", onLeave);
           };
@@ -315,7 +325,7 @@ const ArtistsHero: React.FC<SectionProps> = ({ isActive = true }) => {
                 data-stat-value
                 className="mt-5 font-impact text-[clamp(28px,8.5vw,36px)] leading-none tracking-tight text-white sm:mt-6 sm:text-[44px] md:text-[48px] lg:text-[56px]"
               >
-                {values[idx]}
+                {`${(0).toFixed(parseStat(s.value).decimals)}${parseStat(s.value).suffix}`}
               </div>
               <div className="mt-3 font-mono text-[9px] font-bold tracking-[0.12em] text-white/85 sm:text-[11px] lg:text-xs lg:tracking-[0.16em]">
                 {s.label}

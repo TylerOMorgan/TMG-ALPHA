@@ -41,7 +41,7 @@ const About: React.FC<AboutProps> = ({ isActive = true, variant = "submersion" }
       {/* Spacer between Services and FounderWord */}
       <div className="w-full h-12 md:h-36 lg:h-48" />
 
-      <FounderWord />
+      <FounderWord isActive={isActive} />
       <Footer showScrollTop />
     </div>
   );

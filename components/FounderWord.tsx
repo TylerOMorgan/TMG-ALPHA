@@ -4,10 +4,11 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Instagram, Linkedin } from "lucide-react";
 import Logo from "./Logo";
+import { pauseWhenOffscreen } from "../utils/visibleAnimation";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FounderWord: React.FC = () => {
+const FounderWord: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const borderRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
@@ -22,9 +23,11 @@ const FounderWord: React.FC = () => {
   const rotYTo = useRef<((value: number) => gsap.core.Tween) | null>(null);
 
   useEffect(() => {
+    if (!isActive) return;
     if (!sectionRef.current) return;
 
     const ctx = gsap.context(() => {
+      const ambient: gsap.core.Animation[] = [];
       // 1. Background Parallax Text - subtle centered parallax so VISION frames the quote beautifully at resting height
       gsap.fromTo(
         bgTextRef.current,
@@ -91,13 +94,13 @@ const FounderWord: React.FC = () => {
 
         // 3b. Subtle Pulse/Shimmer for the Border
         // Applies to inner line to glow correctly
-        gsap.to(lineRef.current, {
+        ambient.push(gsap.to(lineRef.current, {
           boxShadow: "0 0 12px 2px rgba(255, 127, 80, 0.4)",
           repeat: -1,
           yoyo: true,
           duration: 2,
           ease: "sine.inOut",
-        });
+        }));
       }
 
       // 4. Stagger Info Reveal
@@ -143,14 +146,14 @@ const FounderWord: React.FC = () => {
 
         if (isTouch) {
           // Subtle ambient breathing float on touch devices
-          gsap.to(logoRef.current, {
+          ambient.push(gsap.to(logoRef.current, {
             y: "+=8",
             rotationY: 5,
             duration: 3.5,
             repeat: -1,
             yoyo: true,
             ease: "sine.inOut",
-          });
+          }));
         } else {
           xTo.current = gsap.quickTo(logoRef.current, "x", {
             ...MOUSE_TRACKING_MOTION.tween,
@@ -166,12 +169,13 @@ const FounderWord: React.FC = () => {
           });
         }
       }
+      return pauseWhenOffscreen(sectionRef.current!, ambient);
     }, sectionRef);
 
     return () => {
       ctx.revert();
     };
-  }, []);
+  }, [isActive]);
 
   // Mouse Move - 3D Tilt Effect on Logo
   // OPTIMIZATION: Uses gsap.quickTo to avoid per-event tween allocations

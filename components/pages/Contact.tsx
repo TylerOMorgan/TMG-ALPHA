@@ -15,4 +15,4 @@ const Contact: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   );
 };
 
-export default Contact;
+export default React.memo(Contact);

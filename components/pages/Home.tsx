@@ -20,4 +20,4 @@ const Home: React.FC<{ isActive?: boolean }> = ({ isActive = true }) => {
   );
 };
 
-export default Home;
+export default React.memo(Home);

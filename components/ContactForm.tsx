@@ -105,18 +105,17 @@ const DropdownItem: React.FC<DropdownItemProps> = ({
   active,
 }) => {
   const itemRef = useRef<HTMLLIElement>(null);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [opacity, setOpacity] = useState(0);
+  const spotlightRef = useRef<HTMLDivElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!itemRef.current) return;
+    if (!itemRef.current || !spotlightRef.current) return;
     const rect = itemRef.current.getBoundingClientRect();
-    setPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
-    setOpacity(1);
+    spotlightRef.current.style.background = `radial-gradient(circle 400px at ${e.clientX - rect.left}px ${e.clientY - rect.top}px, rgba(255, 255, 255, 0.1), transparent 80%)`;
+    spotlightRef.current.style.opacity = "1";
   };
 
   const handleMouseLeave = () => {
-    setOpacity(0);
+    if (spotlightRef.current) spotlightRef.current.style.opacity = "0";
   };
 
   return (
@@ -131,10 +130,11 @@ const DropdownItem: React.FC<DropdownItemProps> = ({
     >
       {/* The White Circle / Spotlight Effect */}
       <div
+        ref={spotlightRef}
         className="absolute inset-0 pointer-events-none transition-opacity duration-300"
         style={{
-          opacity,
-          background: `radial-gradient(circle 400px at ${position.x}px ${position.y}px, rgba(255, 255, 255, 0.1), transparent 80%)`,
+          opacity: 0,
+          background: "radial-gradient(circle 400px at 0px 0px, rgba(255, 255, 255, 0.1), transparent 80%)",
         }}
       />
 

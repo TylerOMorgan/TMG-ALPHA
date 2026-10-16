@@ -635,8 +635,6 @@ const SpotifyProof: React.FC<SectionProps> = ({ isActive = true }) => {
                 <span className="text-white font-semibold">
                   SPOTIFY FOR ARTISTS
                 </span>
-                <span className="text-white/40">&bull;</span>
-                <span className="text-[#19D057]">VERIFIED METRIC</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="hidden sm:inline text-white/50">

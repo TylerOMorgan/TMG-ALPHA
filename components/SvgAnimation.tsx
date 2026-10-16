@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ECOSYSTEM_SVG_DATA } from "../utils/ecosystemSvgData";
 import { PIVOT_INDEX } from "./Manifesto";
+import { requestLayoutRefresh } from "../utils/layoutRefresh";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -383,18 +384,18 @@ const SvgAnimation: React.FC<SvgAnimationProps> = ({ isActive = true }) => {
       }
     }, stage);
 
+    let cancelRefresh = () => {};
     const syncLayout = () => {
       ensurePulseRunning();
-      ScrollTrigger.refresh();
-      if (typeof window !== "undefined" && (window as any).lenis) {
-        (window as any).lenis.resize();
-      }
+      cancelRefresh();
+      cancelRefresh = requestLayoutRefresh();
     };
 
     const rafId = requestAnimationFrame(syncLayout);
 
     return () => {
       cancelAnimationFrame(rafId);
+      cancelRefresh();
       if (ctx) ctx.revert();
     };
   }, [isActive]);

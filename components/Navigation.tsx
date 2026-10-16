@@ -1,6 +1,7 @@
 import React from "react";
 import Logo from "./Logo";
 import { getPageUrl } from "../utils/pageRouting";
+import { preloadPage } from "../utils/pageLoading";
 
 interface NavigationProps {
   activePage: string;
@@ -39,6 +40,8 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
         <a
           href="/"
           onClick={(e) => handleClick(e, "home")}
+          onMouseEnter={() => preloadPage("home")}
+          onFocus={() => preloadPage("home")}
           className="pointer-events-auto text-white hover:text-trillex-orange transition-colors duration-300"
           data-hoverable="true"
           aria-label="Go to Home"
@@ -56,6 +59,8 @@ const Navigation: React.FC<NavigationProps> = ({ activePage, onNavigate }) => {
                 key={item.name}
                 href={getPageUrl(item.id)}
                 onClick={(e) => handleClick(e, item.id)}
+                onMouseEnter={() => preloadPage(item.id)}
+                onFocus={() => preloadPage(item.id)}
                 className={`
                   relative group text-[11px] sm:text-xs md:text-[13px] font-mono tracking-[0.14em] md:tracking-[0.16em] uppercase transition-all duration-300 ease-out py-2 px-0.5 sm:px-1
                   ${

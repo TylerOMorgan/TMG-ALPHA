@@ -4,14 +4,15 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import SmoothScroll from "./components/SmoothScroll";
 import Cursor from "./components/Cursor";
 import Navigation from "./components/Navigation";
-import Home from "./components/pages/Home";
 import NotFound from "./components/pages/NotFound";
 import { getPageFromLocation, getPageUrl } from "./utils/pageRouting";
-// Lazy routes: About (350KB SVG data + GSAP pins), Artists, Contact
-// (62KB form) download only when first visited — keeps initial JS small
-const About = lazy(() => import("./components/pages/About"));
-const Artists = lazy(() => import("./components/pages/Artists"));
-const Contact = lazy(() => import("./components/pages/Contact"));
+import { pageLoaders } from "./utils/pageLoading";
+import { requestLayoutRefresh } from "./utils/layoutRefresh";
+// Mount a route on its first visit, then retain it to preserve local state.
+const Home = lazy(pageLoaders.home);
+const About = lazy(pageLoaders.about);
+const Artists = lazy(pageLoaders.artists);
+const Contact = lazy(pageLoaders.contact);
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,12 +21,29 @@ const getPageFromHash = (): string => {
   return getPageFromLocation(window.location);
 };
 
+const PageContent: React.FC<{ isActive: boolean; children: React.ReactNode }> = ({ isActive, children }) => {
+  // This effect commits only after the lazy page resolves its Suspense boundary.
+  useEffect(() => {
+    if (isActive) return requestLayoutRefresh();
+  }, [isActive]);
+  return <>{children}</>;
+};
+
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState<string>(getPageFromHash);
+  const [visitedPages, setVisitedPages] = useState(() => new Set([getPageFromHash()]));
+  const [lastAboutPage, setLastAboutPage] = useState(activePage);
   const [scrollToSection, setScrollToSection] = useState<string | null>(null);
   const isAboutPage = ["about", "about2", "about3"].includes(activePage);
-  const aboutVariant = activePage === "about2" ? "waterline" : activePage === "about3" ? "original" : "submersion";
+  const aboutPage = isAboutPage ? activePage : lastAboutPage;
+  const aboutVariant = aboutPage === "about2" ? "waterline" : aboutPage === "about3" ? "original" : "submersion";
+  const hasVisitedAbout = isAboutPage || ["about", "about2", "about3"].some((page) => visitedPages.has(page));
+
+  useEffect(() => {
+    setVisitedPages((previous) => previous.has(activePage) ? previous : new Set([...previous, activePage]));
+    if (isAboutPage) setLastAboutPage(activePage);
+  }, [activePage, isAboutPage]);
 
   // Track if it's the first load
   const isInitialLoad = useRef(true);
@@ -84,14 +102,7 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
 
     // Resize Lenis & refresh ScrollTrigger after the newly-visible page paints
-    const rafId = requestAnimationFrame(() => {
-      if (typeof window !== "undefined" && (window as any).lenis) {
-        (window as any).lenis.resize();
-      }
-      ScrollTrigger.refresh();
-    });
-
-    return () => cancelAnimationFrame(rafId);
+    return requestLayoutRefresh();
   }, [activePage]);
 
   // Effect 2: Handle Targeted Section Scrolling (Optimized)
@@ -148,12 +159,7 @@ const App: React.FC = () => {
             (window as any).__trillexPreloaderDone = true;
             window.dispatchEvent(new CustomEvent("trillex-preloader-done"));
           }
-          requestAnimationFrame(() => {
-            ScrollTrigger.refresh();
-            if (typeof window !== "undefined" && (window as any).lenis) {
-              (window as any).lenis.resize();
-            }
-          });
+          requestLayoutRefresh();
         },
       });
       const counter = { val: 0 };
@@ -182,7 +188,7 @@ const App: React.FC = () => {
             onUpdate: () => {
               const val = Math.min(100, Math.max(0, counter.val));
               if (counterRef.current) {
-                counterRef.current.innerText = Math.floor(val)
+                counterRef.current.textContent = Math.floor(val)
                   .toString()
                   .padStart(2, "0");
               }
@@ -252,7 +258,7 @@ const App: React.FC = () => {
           });
         }
         if (counterRef.current) {
-          counterRef.current.innerText = "100";
+          counterRef.current.textContent = "100";
         }
         if (preloaderRef.current) {
           tl.to(preloaderRef.current, {
@@ -310,34 +316,55 @@ const App: React.FC = () => {
       */}
       <Cursor />
 
-      {/* Main Content — all pages kept mounted, visibility toggled via display */}
+      {/* Visited pages stay mounted; unopened routes do not download or render. */}
       <SmoothScroll>
         <Navigation activePage={activePage} onNavigate={setActivePage} />
 
         <main className="relative w-full bg-trillex-black min-h-screen">
           {activePage === "not-found" && <NotFound />}
-          {/* Home is always mounted to preserve Three.js WebGL canvas */}
-          <div style={{ display: activePage === "home" ? "block" : "none" }}>
-            <Home isActive={activePage === "home"} />
-          </div>
-          <Suspense fallback={null}>
-            {/* One About version at a time keeps SVG IDs and pinned timelines isolated. */}
-            <div style={{ display: isAboutPage ? "block" : "none" }}>
-              <About key={aboutVariant} variant={aboutVariant} isActive={isAboutPage} />
+          {(activePage === "home" || visitedPages.has("home")) && (
+            <div style={{ display: activePage === "home" ? "block" : "none" }}>
+              <Suspense fallback={null}>
+                <PageContent isActive={activePage === "home"}>
+                  <Home isActive={activePage === "home"} />
+                </PageContent>
+              </Suspense>
             </div>
-            {/* Artists */}
+          )}
+          {/* One About version at a time keeps SVG IDs and pinned timelines isolated. */}
+          {hasVisitedAbout && (
+            <div style={{ display: isAboutPage ? "block" : "none" }}>
+              <Suspense fallback={null}>
+                <PageContent isActive={isAboutPage}>
+                  <About key={aboutVariant} variant={aboutVariant} isActive={isAboutPage} />
+                </PageContent>
+              </Suspense>
+            </div>
+          )}
+          {/* Artists */}
+          {(activePage === "artists" || visitedPages.has("artists")) && (
             <div
               style={{ display: activePage === "artists" ? "block" : "none" }}
             >
-              <Artists isActive={activePage === "artists"} />
+              <Suspense fallback={null}>
+                <PageContent isActive={activePage === "artists"}>
+                  <Artists isActive={activePage === "artists"} />
+                </PageContent>
+              </Suspense>
             </div>
-            {/* Contact */}
+          )}
+          {/* Contact */}
+          {(activePage === "contact" || visitedPages.has("contact")) && (
             <div
               style={{ display: activePage === "contact" ? "block" : "none" }}
             >
-              <Contact isActive={activePage === "contact"} />
+              <Suspense fallback={null}>
+                <PageContent isActive={activePage === "contact"}>
+                  <Contact isActive={activePage === "contact"} />
+                </PageContent>
+              </Suspense>
             </div>
-          </Suspense>
+          )}
         </main>
       </SmoothScroll>
     </>

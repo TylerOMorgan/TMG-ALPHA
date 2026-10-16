@@ -67,29 +67,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Accelerates Unsplash Images (Hero & Services) -->
 
-    <!-- PERFORMANCE OPTIMIZATION: Preload LCP hero texture (responsive) -->
-    <link
-      rel="preload"
-      href="/HeroSectionV5.webp"
-      as="image"
-      fetchpriority="high"
-      media="(min-width: 1025px)"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="preload"
-      href="/HeroSectionTablet.webp"
-      as="image"
-      media="(min-width: 768px) and (max-width: 1024px)"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="preload"
-      href="/HeroSectionMobile.webp"
-      as="image"
-      media="(max-width: 767px)"
-      crossorigin="anonymous"
-    />
+    <!-- The 3D hero is needed only on a direct Home visit. Match its
+         TextureLoader CORS mode so the selected texture is fetched once. -->
+    <script>
+      if (["/", "/index.html"].includes(location.pathname) &&
+          ["", "#", "#home", "#/home"].includes(location.hash.toLowerCase())) {
+        var heroPreload = document.createElement("link");
+        heroPreload.rel = "preload";
+        heroPreload.as = "image";
+        heroPreload.crossOrigin = "anonymous";
+        heroPreload.fetchPriority = "high";
+        heroPreload.href = matchMedia("(max-width: 767px)").matches
+          ? "/HeroSectionMobile.webp"
+          : matchMedia("(max-width: 1024px)").matches
+            ? "/HeroSectionTablet.webp" : "/HeroSectionV5.webp";
+        document.head.appendChild(heroPreload);
+      }
+    </script>
 
     <!-- PERFORMANCE OPTIMIZATION: Consolidated Font Request (only families/weights in use) -->
     <link

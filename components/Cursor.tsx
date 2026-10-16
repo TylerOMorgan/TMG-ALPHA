@@ -5,24 +5,25 @@ const Cursor: React.FC = () => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const followerRef = useRef<HTMLDivElement>(null);
   const particleContainerRef = useRef<HTMLDivElement>(null);
-  const [isTouch, setIsTouch] = useState(false);
+  const [isTouch, setIsTouch] = useState(() => window.matchMedia("(pointer: coarse)").matches);
 
   useEffect(() => {
     // Detect touch devices to disable custom cursor
-    const checkTouch = () => {
-      if (typeof window !== 'undefined') {
-        setIsTouch(window.matchMedia("(pointer: coarse)").matches);
-      }
-    };
+    const preference = window.matchMedia("(pointer: coarse)");
+    const checkTouch = () => setIsTouch(preference.matches);
     checkTouch();
-    window.addEventListener('resize', checkTouch);
-    return () => window.removeEventListener('resize', checkTouch);
+    preference.addEventListener('change', checkTouch);
+    return () => preference.removeEventListener('change', checkTouch);
   }, []);
 
   useEffect(() => {
     if (isTouch) return;
     if (!cursorRef.current || !followerRef.current) return;
 
+    const cursor = cursorRef.current;
+    const follower = followerRef.current;
+    const particles = particleContainerRef.current;
+    let removeListeners = () => {};
     const ctx = gsap.context(() => {
         // --- INITIAL SETUP ---
         gsap.set([cursorRef.current, followerRef.current], { 
@@ -36,6 +37,8 @@ const Cursor: React.FC = () => {
         // Reverted to 0.06s for snappy, fast response
         const xToFollower = gsap.quickTo(followerRef.current, "x", { duration: 0.03, ease: "power2.out" });
         const yToFollower = gsap.quickTo(followerRef.current, "y", { duration: 0.03, ease: "power2.out" });
+        const setCursorX = gsap.quickSetter(cursorRef.current, "x", "px");
+        const setCursorY = gsap.quickSetter(cursorRef.current, "y", "px");
 
         let isVisible = false;
         let mouseX = 0;
@@ -51,15 +54,19 @@ const Cursor: React.FC = () => {
                 isVisible = true;
             }
 
-            gsap.set(cursorRef.current, { x: e.clientX, y: e.clientY });
+            setCursorX(e.clientX);
+            setCursorY(e.clientY);
             xToFollower(e.clientX);
             yToFollower(e.clientY);
         };
 
         // --- HOVER HANDLER ---
+        let wasInteractive = false;
         const onMouseOver = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             const isInteractive = target.closest('a, button, input, textarea, select, [data-hoverable="true"]');
+            if (Boolean(isInteractive) === wasInteractive) return;
+            wasInteractive = Boolean(isInteractive);
 
             if (isInteractive) {
                 gsap.to(cursorRef.current, { 
@@ -114,7 +121,7 @@ const Cursor: React.FC = () => {
                 const symbol = symbols[Math.floor(Math.random() * symbols.length)];
                 const color = colors[Math.floor(Math.random() * colors.length)];
                 
-                el.innerText = symbol;
+                el.textContent = symbol;
                 
                 el.style.position = 'fixed';
                 el.style.left = '0';
@@ -202,7 +209,7 @@ const Cursor: React.FC = () => {
         document.addEventListener('mouseleave', onMouseLeave);
         document.addEventListener('mouseenter', onMouseEnter);
 
-        return () => {
+        removeListeners = () => {
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseover', onMouseOver);
             window.removeEventListener('mousedown', onMouseDown);
@@ -212,7 +219,15 @@ const Cursor: React.FC = () => {
         };
     }); 
 
-    return () => ctx.revert();
+    return () => {
+      removeListeners();
+      gsap.killTweensOf([cursor, follower]);
+      if (particles) {
+        gsap.killTweensOf(Array.from(particles.children));
+        particles.replaceChildren();
+      }
+      ctx.revert();
+    };
   }, [isTouch]);
 
   if (isTouch) return null;

@@ -24,9 +24,13 @@ export default defineConfig(({ mode }) => {
       // initial chunk stays small (three.js alone is ~600KB minified)
       rollupOptions: {
         output: {
-          manualChunks: {
-            three: ["three", "@react-three/fiber"],
-            gsap: ["gsap"],
+          // Keep React's CommonJS wrappers with React too. Otherwise Rollup
+          // can place shared wrappers in the 3D chunk and eagerly load it.
+          onlyExplicitManualChunks: true,
+          manualChunks(id) {
+            if (/\/node_modules\/(react|react-dom|scheduler)\//.test(id) || id.includes("commonjsHelpers")) return "react";
+            if (/\/node_modules\/(three|@react-three\/fiber|react-reconciler)\//.test(id)) return "three";
+            if (id.includes("/node_modules/gsap/")) return "gsap";
           },
         },
       },
