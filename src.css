@@ -28,7 +28,6 @@
 .artist-spotify-button:is(:hover, :focus-visible) {
   border-color: #1db954;
   background-color: rgb(29 185 84 / 25%);
-  animation: artist-spotify-pulse 1.6s ease-in-out infinite;
 }
 
 .artist-card:is(:hover, :focus-within) .artist-spotify-button svg,
@@ -36,16 +35,7 @@
   color: #1db954;
 }
 
-@keyframes artist-spotify-pulse {
-  0%, 100% { box-shadow: 0 0 8px rgb(29 185 84 / 35%); }
-  50% { box-shadow: 0 0 20px rgb(29 185 84 / 65%); }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .artist-card .artist-spotify-button {
-    animation: none;
-  }
-
   .artist-card:is(:hover, :focus-within) .artist-spotify-button {
     box-shadow: 0 0 12px rgb(29 185 84 / 45%);
   }
